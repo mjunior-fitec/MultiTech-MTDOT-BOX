@@ -1,0 +1,3 @@
+[submodule "mdot-library"]
+	path = mdot-library
+	url = ssh://sw.multitech.prv/git/mbed/mdot-library.git
