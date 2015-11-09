@@ -8,4 +8,8 @@ hg clone https://developer.mbed.org/teams/Multi-Hackers/code/MPL3115A2/     libs
 hg clone https://developer.mbed.org/teams/Multi-Hackers/code/NCP5623B/      libs/NCP5623B
 hg clone https://developer.mbed.org/teams/Multi-Hackers/code/GpsParser/     libs/GpsParser
 hg clone https://developer.mbed.org/teams/Multi-Hackers/code/DOGS102/       libs/DOGS102
+
+echo "generating version header..."
+./version.sh
+
 echo "done"
