@@ -18,7 +18,7 @@
 // product and version information
 static const std::string product_name = "MTDOT-BOX/EVB";
 static const std::string program_name = "Factory Firmware";
-static const std::string program_version = MTDOT_BOX_VERSION;
+static const std::string program_version = std::string("Version ") + MTDOT_BOX_VERSION;
 
 // LCD and backlight controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
