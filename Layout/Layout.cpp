@@ -1,59 +1,65 @@
-#include "DisplayManager.h"
+#include "Layout.h"
 #include "font_6x8.h"
-#include "MultiTech_Logo.h"
-#include "MTSLog.h"
-#include "version.h"
 
-// product and version information
-std::string DisplayManager::_product_name = "MTDOT-BOX/EVB";
-std::string DisplayManager::_program_name = "Factory Firmware";
-std::string DisplayManager::_program_version = std::string("Version ") + MTDOT_BOX_VERSION;
+Label::Label(uint8_t col, uint8_t row, std::string value)
+  : _col(col),
+    _row(row),
+    _value(value)
+{}
 
-DisplayManager::DisplayManager(DOGS102* lcd) : _lcd(lcd) {}
+Field::Field(uint8_t col, uint8_t row, uint8_t maxSize)
+  : _col(col),
+    _row(row),
+    _maxSize(maxSize)
+{}
 
-DisplayManager::DisplayManager(DOGS102* lcd, const Layout layout) : _lcd(lcd), _layout(layout) {}
+Image::Image(uint8_t col, uint8_t row, const uint8_t* bmp)
+  : _col(col),
+    _row(row),
+    _bmp(bmp)
+{}
 
-DisplayManager::~DisplayManager() {}
+Layout::Layout(DOGS102* lcd) : _lcd(lcd) {}
 
-void DisplayManager::displaySplashScreen() {
+Layout::~Layout() {}
+
+void Layout::clear() {
+    _lcd->clearBuffer();
+}
+
+void Layout::startUpdate() {
     _lcd->startUpdate();
-    _lcd->writeBitmap(0, 0, MultiTech_Logo);
-    _lcd->writeText(0, 3, font_6x8, _product_name.c_str(), _product_name.size());
-    _lcd->writeText(0, 4, font_6x8, _program_name.c_str(), _program_name.size());
-    _lcd->writeText(0, 5, font_6x8, _program_version.c_str(), _program_version.size());
+}
+
+void Layout::endUpdate() {
     _lcd->endUpdate();
 }
 
-bool DisplayManager::addLayout(Layout layout) {
-    _lcd->clearBuffer();
+bool Layout::writeField(uint8_t col, uint8_t row, std::string field, bool apply) {
+    return writeField(col, row, field.c_str(), field.size(), apply);
+}
 
-    _layout = layout;
+bool Layout::writeField(uint8_t col, uint8_t row, const char* field, size_t size, bool apply) {
+    if (apply)
+        startUpdate();
 
-    _lcd->startUpdate();
-    Labels l = _layout.first;
-    for (Labels::iterator it = l.begin(); it != l.end(); it++)
-        _lcd->writeText(it->column, it->page, font_6x8, it->value, it->size);
-    _lcd->endUpdate();
+    _lcd->writeText(col*6, row, font_6x8, field, size);
+
+    if (apply)
+        endUpdate();
 
     return true;
 }
 
-bool DisplayManager::updateField(const int32_t& id, const char* field, const uint32_t& fieldSize) {
-    Fields f = _layout.second;
-    for (Fields::iterator it = f.begin(); it!= f.end(); it++) {
-        if (it->id == id) {
-            _lcd->startUpdate();
-            uint8_t size = (fieldSize > it->maxSize) ? it->maxSize : fieldSize;
-            _lcd->writeText(it->column, it->page, font_6x8, field, size);
-            _lcd->endUpdate();
-            return true;
-        }
-    }
+bool Layout::writeImage(uint8_t col, uint8_t row, const uint8_t* bmp, bool apply) {
+    if (apply)
+        startUpdate();
 
-    logError("field ID not found");
-    return false;
+    _lcd->writeBitmap(col, row, bmp);
+
+    if (apply)
+        endUpdate();
+
+    return true;
 }
 
-bool DisplayManager::updateField(const int32_t& id, const std::string& field) {
-    return updateField(id, field.c_str(), field.size());
-}

@@ -1,48 +1,53 @@
-#ifndef __DISPLAYMANAGER_H__
-#define __DISPLAYMANAGER_H__
+#ifndef __LAYOUT_H__
+#define __LAYOUT_H__
 
 #include "DOGS102.h"
-
 #include <string>
-#include <vector>
 
-typedef struct field {
-    int32_t id;
-    uint8_t column;
-    uint8_t page;
-    uint8_t maxSize;
-} Field;
-
-typedef struct label {
-    uint8_t column;
-    uint8_t page;
-    const char* value;
-    uint8_t size;
-} Label;
-
-typedef std::vector<Field> Fields;
-typedef std::vector<Label> Labels;
-typedef std::pair<Labels, Fields> Layout;
-
-class DisplayManager {
+class Label {
     public:
-        DisplayManager(DOGS102* lcd);
-        DisplayManager(DOGS102* lcd, const Layout layout);
-        ~DisplayManager();
+        Label(uint8_t col, uint8_t row, std::string value);
 
-        void displaySplashScreen();
+        uint8_t _col;
+        uint8_t _row;
+        std::string _value;
+};
 
-        bool addLayout(const Layout layout);
+class Field {
+    public:
+        Field(uint8_t col, uint8_t row, uint8_t maxSize);
 
-        bool updateField(const int32_t& id, const char* field, const uint32_t& fieldSize);
-        bool updateField(const int32_t& id, const std::string& field);
+        uint8_t _col;
+        uint8_t _row;
+        uint8_t _maxSize;
+};
+
+class Image {
+    public:
+        Image(uint8_t col, uint8_t row, const uint8_t* bmp);
+
+        uint8_t _col;
+        uint8_t _row;
+        const uint8_t* _bmp;
+};
+
+class Layout {
+    public:
+        Layout(DOGS102* lcd);
+        ~Layout();
+
+        virtual void display() = 0;
+        
+    protected:
+        void clear();
+        void startUpdate();
+        void endUpdate();
+        bool writeField(uint8_t col, uint8_t row, std::string field, bool apply = false);
+        bool writeField(uint8_t col, uint8_t row, const char* field, size_t size, bool apply = false);
+        bool writeImage(uint8_t col, uint8_t row, const uint8_t* bmp, bool apply = false);
 
     private:
-        Layout _layout;
         DOGS102* _lcd;
-        static std::string _product_name;
-        static std::string _program_name;
-        static std::string _program_version;
 };
 
 #endif
