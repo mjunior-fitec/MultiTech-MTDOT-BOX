@@ -13,8 +13,13 @@
 #include "DOGS102.h"
 #include "NCP5623B.h"
 #include "LayoutStartup.h"
+// button header
+#include "ButtonHandler.h"
 // misc heders
 #include <string>
+
+// only here for button handling example code in main
+#include "font_6x8.h"
 
 // LCD and backlight controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
@@ -23,6 +28,9 @@ DigitalOut lcd_spi_cs(SPI1_CS, 1);
 DigitalOut lcd_cd(XBEE_ON_SLEEP, 1);
 DOGS102* lcd;
 NCP5623B* lcd_backlight;
+
+// Button controller
+ButtonHandler* buttons;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
@@ -33,14 +41,39 @@ int main() {
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     lcd_backlight = new NCP5623B(backlight_i2c);
-    logInfo("starting...");
 
+    // display startup screen for 3 seconds
     LayoutStartup ls(lcd);
     ls.display();
+    osDelay(3000);
+
+    osThreadId main_id = Thread::gettid();
+    buttons = new ButtonHandler(main_id);
 
     while (true) {
-        logInfo("in loop");
-        osDelay(5000);
+        char buf[16];
+        size_t size;
+
+        osEvent e = Thread::signal_wait(buttonSignal);
+        if (e.status == osEventSignal) {
+            ButtonEvent ev = buttons->getButtonEvent();
+            switch (ev) {
+                case sw1_press:
+                    size = snprintf(buf, sizeof(buf), "SW1 press");
+                    break;
+                case sw1_hold:
+                    size = snprintf(buf, sizeof(buf), "SW1 hold");
+                    break;
+                case sw2_press:
+                    size = snprintf(buf, sizeof(buf), "SW2 press");
+                    break;
+            }
+
+            lcd->clearBuffer();
+            lcd->startUpdate();
+            lcd->writeText(0, 0, font_6x8, buf, size);
+            lcd->endUpdate();
+        }
     }
 
     return 0;
