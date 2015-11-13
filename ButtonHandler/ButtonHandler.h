@@ -20,13 +20,13 @@ class ButtonHandler {
 
         ButtonEvent getButtonEvent();
 
-    private:
         void sw1_fall();
         void sw1_rise();
         void sw2_fall();
         void sw2_rise();
 
         osThreadId _main;
+        Thread _thread;
         InterruptIn _sw1;
         InterruptIn _sw2;
         Timer _sw1_timer;

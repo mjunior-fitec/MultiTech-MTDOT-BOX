@@ -1,8 +1,90 @@
 #include "ButtonHandler.h"
-#include "MTSLog.h"
+
+#define signal (uint32_t)0x02
+
+typedef enum {
+    b_none = 0,
+    b_sw1_fall,
+    b_sw1_rise,
+    b_sw2_fall,
+    b_sw2_rise
+} InternalButtonEvent;
+
+InternalButtonEvent event = b_none;
+bool check_sw1 = false;
+
+void worker(void const* argument) {
+    ButtonHandler* b = (ButtonHandler*)argument;
+    osEvent e;
+
+    while (true) {
+        e = Thread::signal_wait(signal, 250);
+        if (e.status == osEventSignal) {
+            switch (event) {
+                case b_sw1_fall:
+                    if (! b->_sw1_running) {
+                        check_sw1 = true;
+                        b->_sw1_running = true;
+                        b->_sw1_timer.reset();
+                        b->_sw1_timer.start();
+                    }
+                    break;
+                
+                case b_sw1_rise:
+                    if (b->_sw1_running) {
+                        check_sw1 = false;
+                        b->_sw1_running = false;
+                        b->_sw1_timer.stop();
+                        b->_sw1_time = b->_sw1_timer.read_ms();
+
+                        if (b->_sw1_time > b->_debounce_time) {
+                            b->_event = sw1_press;
+                            osSignalSet(b->_main, buttonSignal);
+                        }
+                    }
+                    break;
+
+                case b_sw2_fall:
+                    if (! b->_sw2_running) {
+                        b->_sw2_running = true;
+                        b->_sw2_timer.reset();
+                        b->_sw2_timer.start();
+                    }
+                    break;
+
+                case b_sw2_rise:
+                    if (b->_sw2_running) {
+                        b->_sw2_running = false;
+                        b->_sw2_timer.stop();
+                        b->_sw2_time = b->_sw2_timer.read_ms();
+
+                        if (b->_sw2_time > b->_debounce_time) {
+                            b->_event = sw2_press;
+                            osSignalSet(b->_main, buttonSignal);
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        if (check_sw1) {
+            if (b->_sw1_timer.read_ms() > b->_hold_threshold) {
+                check_sw1 = false;
+                b->_sw1_running = false;
+                b->_sw1_timer.stop();
+                b->_event = sw1_hold;
+                osSignalSet(b->_main, buttonSignal);
+            }
+        }
+    }
+}
 
 ButtonHandler::ButtonHandler(osThreadId main)
   : _main(main),
+    _thread(worker, (void*)this),
     _sw1(PA_12),
     _sw2(PA_11),
     _sw1_time(0),
@@ -11,8 +93,7 @@ ButtonHandler::ButtonHandler(osThreadId main)
     _debounce_time(20),
     _hold_threshold(500)
 {
-    // gpio goes low when push button is pressed
-    // fall handler will be the press, rise handler will be the release
+    // fall handler called on press, rise handler called on release
     _sw1.fall(this, &ButtonHandler::sw1_fall);
     _sw1.rise(this, &ButtonHandler::sw1_rise);
     // need to set mode to PullUp after attaching handlers - won't work otherwise
@@ -30,44 +111,22 @@ ButtonEvent ButtonHandler::getButtonEvent() {
 }
 
 void ButtonHandler::sw1_fall() {
-    if (! _sw1_running) {
-        _sw1_running = true;
-        _sw1_timer.reset();
-        _sw1_timer.start();
-    }
+    event = b_sw1_fall;
+    _thread.signal_set(signal);
 }
 
 void ButtonHandler::sw1_rise() {
-    if (_sw1_running) {
-        _sw1_running = false;
-        _sw1_timer.stop();
-        _sw1_time = _sw1_timer.read_ms();
-
-        if (_sw1_time > _debounce_time) {
-            _event = (_sw1_time > _hold_threshold) ? sw1_hold : sw1_press;
-            osSignalSet(_main, buttonSignal);
-        }
-    }
+    event = b_sw1_rise;
+    _thread.signal_set(signal);
 }
 
 void ButtonHandler::sw2_fall() {
-    if (! _sw2_running) {
-        _sw2_running = true;
-        _sw2_timer.reset();
-        _sw2_timer.start();
-    }
+    event = b_sw2_fall;
+    _thread.signal_set(signal);
 }
 
 void ButtonHandler::sw2_rise() {
-    if (_sw2_running) {
-        _sw2_running = false;
-        _sw2_timer.stop();
-        _sw2_time = _sw2_timer.read_ms();
-
-        if (_sw2_time > _debounce_time) {
-            _event = sw2_press;
-            osSignalSet(_main, buttonSignal);
-        }
-    }
+    event = b_sw2_rise;
+    _thread.signal_set(signal);
 }
 
