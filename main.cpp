@@ -126,10 +126,12 @@ void mainMenu() {
             std::string selected;
             switch (ev) {
                 case sw1_press:
+                    logInfo("sw1 press");
                     selected = menu.select();
                     logInfo("selected %s", selected.c_str());
                     break;
                 case sw2_press:
+                    logInfo("sw2 press");
                     menu.scroll();
                     break;
                 case sw1_hold:
