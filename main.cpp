@@ -13,12 +13,13 @@
 #include "DOGS102.h"
 #include "NCP5623B.h"
 #include "LayoutStartup.h"
+#include "LayoutScrollSelect.h"
 // button header
 #include "ButtonHandler.h"
 // misc heders
 #include <string>
 
-// only here for button handling example code in main
+// only here for button testing code in main()
 #include "font_6x8.h"
 
 // LCD and backlight controllers
@@ -35,9 +36,13 @@ ButtonHandler* buttons;
 // Serial debug port
 Serial debug(USBTX, USBRX);
 
+// Prototypes
+void mainMenu();
+
 int main() {
     debug.baud(115200);
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
+    logInfo("starting...");
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     lcd_backlight = new NCP5623B(backlight_i2c);
@@ -50,6 +55,10 @@ int main() {
     osThreadId main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
 
+    logInfo("displaying main menu");
+    mainMenu();
+
+    /* test buttons
     while (true) {
         char buf[16];
         size_t size;
@@ -75,6 +84,60 @@ int main() {
             lcd->endUpdate();
         }
     }
+    */
 
     return 0;
+}
+
+void mainMenu() {
+    /*
+    std::string menu_strings[] = {
+        "MultiTech EVB",
+        "Select Mode",
+        "LoRa Demo",
+        "Configuration",
+        "Survey Single",
+        "Survey Sweep"
+    };
+    */
+
+    std::string menu_strings[] = {
+        "MultiTech EVB",
+        "Select Mode",
+        "LoRa Demo",
+        "Configuration",
+        "Survey Single",
+        "Survey Sweep"
+    };
+
+    std::vector<std::string> items;
+    items.push_back(menu_strings[2]);       // demo
+    items.push_back(menu_strings[3]);       // config
+    items.push_back(menu_strings[4]);       // single
+    items.push_back(menu_strings[5]);       // sweep
+
+    LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
+    menu.display();
+
+    while (true) {
+        osEvent e = Thread::signal_wait(buttonSignal);
+        if (e.status == osEventSignal) {
+            ButtonEvent ev = buttons->getButtonEvent();
+            std::string selected;
+            switch (ev) {
+                case sw1_press:
+                    selected = menu.select();
+                    logInfo("selected %s", selected.c_str());
+                    break;
+                case sw2_press:
+                    menu.scroll();
+                    break;
+                case sw1_hold:
+                    logInfo("sw1 hold - already in main menu");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
