@@ -73,9 +73,6 @@ public:
     // Escape sequence
     static const char escape_sequence[];
     
-    static std::string formatPacketData(const std::vector<uint8_t>& data, const uint8_t& format);
-    static bool waitForEscape(int timeout, mDot* dot=NULL, WaitType wait=WAIT_NA);
-
     void start();
     
 private: 
@@ -92,15 +89,10 @@ private:
     mDot::Mode _mode;
     std::vector<Command*> _commands;
     Thread _idle_thread;
-    bool _sleep_standby;
-    DigitalOut _xbee_on_sleep;
     bool _serial_up;
 
     void addCommand(Command* cmd);
     
-    void serial_loop();
-    bool autoJoinCheck();
-
     void printHelp();
 
     bool readable();
@@ -108,9 +100,6 @@ private:
     char read();
     void write(const char* message);
     void writef(const char* format, ... );
-
-    void sleep(bool standby);
-    void wakeup(bool standby);
     
 };
 

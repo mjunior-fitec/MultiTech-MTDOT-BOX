@@ -34,8 +34,6 @@ CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot)
   _dot(dot),
   _mode(mDot::COMMAND_MODE),
   _idle_thread(idle, NULL, osPriorityLow),
-  _sleep_standby(true),
-  _xbee_on_sleep(XBEE_ON_SLEEP),
   _serial_up(false) {
 
     _serialp = &serial;
@@ -133,179 +131,7 @@ void CommandTerminal::writef(const char* format, ...) {
     va_end(ap);
 }
 
-void CommandTerminal::serial_loop() {
-    Timer serial_read_timer;
-    std::vector<uint8_t> serial_buffer;
-    std::string escape_buffer;
-    Timer escape_timer;
-    int escape_delay = 100;
-    uint8_t max_send_size;
-
-    _serial_up = true;
-    _xbee_on_sleep = GPIO_PIN_SET;
-
-    if (_dot->getFrequencyBand() == mDot::FB_915)
-        max_send_size = mDot::MaxLengths_915[_dot->getTxDataRate()];
-    else
-        max_send_size = mDot::MaxLengths_868[_dot->getTxDataRate()];
-
-    logDebug("Awake\r\n");
-    wakeup(_sleep_standby);
-
-    char ch;
-
-    if (readable()) {
-        ch = read();
-        serial_buffer.push_back(ch);
-
-        if (escape_timer.read_ms() > escape_delay && ch == '+') {
-            escape_buffer += ch;
-            escape_timer.reset();
-        } else {
-            _serial_up = true;
-            escape_buffer.clear();
-        }
-
-        if (escape_buffer.length() == 3 && escape_buffer.find(escape_sequence) == 0) {
-            _mode = mDot::COMMAND_MODE;
-            logDebug("Exit serial mode\r\n");
-            escape_timer.stop();
-            escape_buffer.clear();
-            write(done);
-            return;
-        }
-    }
-
-    if (_serial_up) {
-        serial_read_timer.start();
-        uint32_t timeout = _dot->getWakeDelay();
-
-        // wait for timeout or start of serial data
-        while (!readable() && serial_read_timer.read_ms() < timeout) {
-            osDelay(10);
-        }
-
-        serial_read_timer.reset();
-        timeout = _dot->getWakeTimeout();
-        while (_serial_up && serial_read_timer.read_ms() < timeout) {
-            while (readable() && serial_buffer.size() < max_send_size) {
-                serial_buffer.push_back(read());
-                serial_read_timer.reset();
-            }
-        }
-        serial_read_timer.stop(), serial_read_timer.reset();
-
-        if (!serial_buffer.empty()) {
-            _serial_up = false;
-            _xbee_on_sleep = GPIO_PIN_RESET;
-            if (!_dot->getIsTransmitting()) {
-                std::vector<uint8_t> recv_buffer;
-                logDebug("Received serial data, sending out radio.\r\n");
-
-                if (_dot->send(serial_buffer) != mDot::MDOT_OK)
-                    logDebug("Send failed.\r\n");
-
-                if (_dot->recv(recv_buffer))
-                    _serial.writef("%s\r\n", formatPacketData(recv_buffer, _dot->getRxOutput()).c_str());
-            } else {
-                logDebug("Radio is busy, cannot send.\r\n");
-            }
-
-            serial_buffer.clear();
-        } else {
-            logDebug("No data received from serial to send.\r\n");
-        }
-        _serial_up = false;
-    }
-    sleep(_sleep_standby);
-}
-
-bool CommandTerminal::autoJoinCheck() {
-
-    std::string escape_buffer;
-    char ch;
-    int sleep = 1000;
-    int escape_timeout = 1000;
-    Timer tmr;
-    Timer escape_tmr;
-    int cnt = 0;
-
-    while (!_dot->getNetworkJoinStatus()) {
-        wakeup(_sleep_standby);
-        write("\r\nJoining network... ");
-
-        // wait one second for possible escape
-        tmr.reset();
-        tmr.start();
-        escape_tmr.reset();
-        escape_tmr.start();
-        while (tmr.read_ms() < 1000) {
-            if (_serial.readable()) {
-                _serial.read(&ch, 1);
-                escape_buffer += ch;
-            }
-
-            if (escape_buffer.find(escape_sequence) != std::string::npos) {
-                _mode = mDot::COMMAND_MODE;
-                write("Join Canceled\r\n");
-                write(done);
-                return true;
-            }
-
-            if (escape_tmr.read_ms() > escape_timeout)
-                escape_buffer.clear();
-        }
-
-        if (_dot->joinNetworkOnce() == mDot::MDOT_OK) {
-            write("Network Joined\r\n");
-            write(done);
-            return false;
-        }
-
-        write("Network Join failed\r\n");
-        write(error);
-
-        if (cnt++ > _dot->getJoinRetries()) {
-            cnt = 0;
-
-            if (_dot->getFrequencyBand() == mDot::FB_915) {
-                uint8_t band = ((_dot->getFrequencySubBand()) % 8) + 1;
-                logDebug("Join retries exhausted, switching to sub band %u\r\n", band);
-                _dot->setFrequencySubBand(band);
-            }
-
-            if (sleep < 60 * 60 * 1000)
-                sleep *= 2;
-        }
-
-        tmr.reset();
-        tmr.start();
-        escape_tmr.reset();
-        escape_tmr.start();
-        while (tmr.read_ms() < sleep) {
-            if (_serial.readable()) {
-                _serial.read(&ch, 1);
-                escape_buffer += ch;
-            }
-
-            if (escape_buffer.find(escape_sequence) != std::string::npos) {
-                _mode = mDot::COMMAND_MODE;
-                return true;
-            }
-
-            if (escape_tmr.read_ms() > escape_timeout)
-                escape_buffer.clear();
-        }
-
-    }
-
-    return false;
-}
-
 void CommandTerminal::start() {
-
-    wakeup(_sleep_standby);
-
     char ch;
     bool running = true;
     bool echo = _dot->getEcho();
@@ -315,8 +141,6 @@ void CommandTerminal::start() {
     std::vector<std::string> args;
 
     if (_dot->getStartUpMode() == mDot::SERIAL_MODE) {
-        command = "AT+SD\n";
-
         std::string escape_buffer;
         char ch;
 
@@ -349,28 +173,8 @@ void CommandTerminal::start() {
 
     }
 
-    bool join_canceled = false;
-
     //Run terminal session
     while (running) {
-        if (!join_canceled && _dot->getJoinMode() == mDot::AUTO_OTA) {
-            join_canceled = autoJoinCheck();
-            if (join_canceled)
-                command.clear();
-        }
-
-        if (_dot->getJoinMode() != mDot::AUTO_OTA || (!join_canceled && _dot->getJoinMode() == mDot::AUTO_OTA)) {
-            switch (_mode) {
-                case mDot::SERIAL_MODE:
-                    // signal wakeup, read serial and output to radio
-                    serial_loop();
-                    continue;
-                    break;
-                default:
-                    break;
-            }
-        }
-
         ch = '\0';
 
         // read characters
@@ -480,38 +284,6 @@ void CommandTerminal::start() {
         if ((args[0].find("?") == 0 || args[0].find("HELP") == 0) && args.size() == 1) {
             printHelp();
             command.clear();
-        } else if (args[0].find("ATE0") == 0 && args[0].length() == 4) {
-            _dot->setEcho(false);
-            write(done);
-            echo = _dot->getEcho();
-        } else if (args[0].find("ATE1") == 0 && args[0].length() == 4) {
-            _dot->setEcho(true);
-            write(done);
-            echo = _dot->getEcho();
-        } else if (args[0].find("ATV0") == 0 && args[0].length() == 4) {
-            _dot->setVerbose(false);
-            write(done);
-        } else if (args[0].find("ATV1") == 0 && args[0].length() == 4) {
-            _dot->setVerbose(true);
-            write(done);
-        } else if (args[0] == "AT+SD") {
-            logDebug("Enter Serial Mode\r\n");
-            _mode = mDot::SERIAL_MODE;
-        } else if (args[0] == "AT+SLEEP") {
-            if (args.size() > 1 && (args[1] != "?")) {
-                write("Invalid argument\r\n");
-                write(error);
-            } else {
-                if (args.size() > 1 && args[1] == "?") {
-                    write("AT+SLEEP: NONE\r\n");
-                    write(done);
-                } else {
-                    _sleep_standby = !(args.size() > 1 && args[1] == "1");
-                    this->sleep(_sleep_standby);
-                    wait(0.1);
-                    write(done);
-                }
-            }
         } else {
             bool found = false;
             bool query = false;
@@ -572,60 +344,4 @@ void CommandTerminal::start() {
             history.pop_back();
 
     }
-}
-
-std::string CommandTerminal::formatPacketData(const std::vector<uint8_t>& data, const uint8_t& format) {
-    if (format == mDot::HEXADECIMAL)
-        return mts::Text::bin2hexString(data);
-    else
-        return std::string(data.begin(), data.end());
-}
-
-void CommandTerminal::sleep(bool standby) {
-    _serial_up = false;
-    _xbee_on_sleep = GPIO_PIN_RESET;
-
-    _serial.rxClear();
-    _serial.txClear();
-
-    _dot->sleep(_dot->getWakeInterval(), _dot->getWakeMode(), standby);
-}
-
-bool CommandTerminal::waitForEscape(int timeout, mDot* dot, WaitType wait) {
-    Timer timer;
-    Timer escape_timer;
-    std::string escape_buffer;
-    int escape_timeout = 1000;
-
-    timer.start();
-    while (timer.read_ms() < timeout) {
-
-        if (dot != NULL) {
-            if (wait == WAIT_SEND && (!dot->getIsTransmitting())) {
-                return false;
-            }
-        }
-
-        if (_serialp != NULL && _serialp->readable()) {
-            if (escape_buffer == "")
-                escape_timer.start();
-            char ch;
-            _serialp->read(&ch, 1);
-            escape_buffer += ch;
-            if (escape_buffer == CommandTerminal::escape_sequence)
-                return true;
-        }
-        if (escape_timer.read_ms() > escape_timeout) {
-            escape_buffer = "";
-            escape_timer.stop(), escape_timer.reset();
-        }
-
-        osDelay(10);
-    }
-
-    return false;
-}
-
-void CommandTerminal::wakeup(bool standby) {
-
 }
