@@ -24,13 +24,20 @@ class ButtonHandler {
         void sw1_fall();
         void sw1_rise();
         void sw2_fall();
+        void sw2_rise();
 
         osThreadId _main;
         InterruptIn _sw1;
         InterruptIn _sw2;
         Timer _sw1_timer;
+        Timer _sw2_timer;
         time_t _sw1_time;
+        time_t _sw2_time;
+        bool _sw1_running;
+        bool _sw2_running;
         ButtonEvent _event;
+        time_t _debounce_time;
+        time_t _hold_threshold;
 };
 
 #endif
