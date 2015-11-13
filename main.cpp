@@ -4,6 +4,7 @@
 // MTS headers
 #include "mDot.h"
 #include "MTSLog.h"
+#include "CommandTerminal.h"
 // sensor headers
 #include "ISL29011.h"
 #include "MMA845x.h"
@@ -34,6 +35,9 @@ ButtonHandler* buttons;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
+mts::MTSSerial serial(USBTX, USBRX, 512, 512);
+
+
 
 int main() {
     debug.baud(115200);
@@ -50,6 +54,20 @@ int main() {
     osThreadId main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
 
+
+
+    mDot* dot = mDot::getInstance();
+	if(dot){
+		logInfo("dot created");		
+	    CommandTerminal term(serial, dot);
+    	term.start();		
+	}
+	else {
+        logInfo("Radio Init Failed!");
+    }
+
+
+
     while (true) {
         char buf[16];
         size_t size;
@@ -59,12 +77,15 @@ int main() {
             ButtonEvent ev = buttons->getButtonEvent();
             switch (ev) {
                 case sw1_press:
+		            logInfo("SW1 press");
                     size = snprintf(buf, sizeof(buf), "SW1 press");
                     break;
                 case sw1_hold:
+		            logInfo("SW1 hold");					
                     size = snprintf(buf, sizeof(buf), "SW1 hold");
                     break;
                 case sw2_press:
+		            logInfo("SW2 press");					
                     size = snprintf(buf, sizeof(buf), "SW2 press");
                     break;
             }
