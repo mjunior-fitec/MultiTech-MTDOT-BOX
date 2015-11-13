@@ -42,11 +42,14 @@ class Layout {
         void clear();
         void startUpdate();
         void endUpdate();
-        bool writeField(uint8_t col, uint8_t row, std::string field, bool apply = false);
-        bool writeField(uint8_t col, uint8_t row, const char* field, size_t size, bool apply = false);
-        bool writeImage(uint8_t col, uint8_t row, const uint8_t* bmp, bool apply = false);
+        bool writeLabel(const Label& label);
+        bool writeField(const Field& field, const std::string& value, bool apply = false);
+        bool writeImage(const Image& image, bool apply = false);
 
     private:
+        bool writeText(uint8_t col, uint8_t row, const char* value, size_t size);
+        bool writeBmp(uint8_t col, uint8_t row, const uint8_t* bmp);
+
         DOGS102* _lcd;
 };
 

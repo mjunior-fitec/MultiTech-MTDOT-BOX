@@ -14,14 +14,16 @@ LayoutStartup::LayoutStartup(DOGS102* lcd)
 LayoutStartup::~LayoutStartup() {}
 
 void LayoutStartup::display() {
+    std::string version = MTDOT_BOX_VERSION;
+
     clear();
     startUpdate();
 
-    writeImage(_iLogo._col, _iLogo._row, _iLogo._bmp);
-    writeField(_lName._col, _lName._row, _lName._value);
-    writeField(_lInfo._col, _lInfo._row, _lInfo._value);
-    writeField(_lVersion._col, _lVersion._row, _lVersion._value);
-    writeField(_fVersion._col, _fVersion._row, MTDOT_BOX_VERSION, sizeof(MTDOT_BOX_VERSION));
+    writeImage(_iLogo);
+    writeLabel(_lName);
+    writeLabel(_lInfo);
+    writeLabel(_lVersion);
+    writeField(_fVersion, version);
 
     endUpdate();
 }
