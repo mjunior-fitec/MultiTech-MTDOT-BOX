@@ -11,6 +11,8 @@ LayoutStartup::LayoutStartup(DOGS102* lcd)
     _iLogo(0, 0, MultiTech_Logo)
 {}
 
+LayoutStartup::~LayoutStartup() {}
+
 void LayoutStartup::display() {
     clear();
     startUpdate();
