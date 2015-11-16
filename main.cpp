@@ -19,9 +19,6 @@
 // misc heders
 #include <string>
 
-// only here for button testing code in main()
-#include "font_6x8.h"
-
 // LCD and backlight controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
 I2C backlight_i2c(I2C_SDA, I2C_SCL);
@@ -58,49 +55,10 @@ int main() {
     logInfo("displaying main menu");
     mainMenu();
 
-    /* test buttons
-    while (true) {
-        char buf[16];
-        size_t size;
-
-        osEvent e = Thread::signal_wait(buttonSignal);
-        if (e.status == osEventSignal) {
-            ButtonEvent ev = buttons->getButtonEvent();
-            switch (ev) {
-                case sw1_press:
-                    size = snprintf(buf, sizeof(buf), "SW1 press");
-                    break;
-                case sw1_hold:
-                    size = snprintf(buf, sizeof(buf), "SW1 hold");
-                    break;
-                case sw2_press:
-                    size = snprintf(buf, sizeof(buf), "SW2 press");
-                    break;
-            }
-
-            lcd->clearBuffer();
-            lcd->startUpdate();
-            lcd->writeText(0, 0, font_6x8, buf, size);
-            lcd->endUpdate();
-        }
-    }
-    */
-
     return 0;
 }
 
 void mainMenu() {
-    /*
-    std::string menu_strings[] = {
-        "MultiTech EVB",
-        "Select Mode",
-        "LoRa Demo",
-        "Configuration",
-        "Survey Single",
-        "Survey Sweep"
-    };
-    */
-
     std::string menu_strings[] = {
         "MultiTech EVB",
         "Select Mode",
