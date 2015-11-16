@@ -57,6 +57,16 @@ CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot)
     addCommand(new CmdNetworkJoinMode(_dot, serial));
     addCommand(new CmdTxDataRate(_dot, serial));
     addCommand(new CmdTxPower(_dot, serial));
+
+    addCommand(new CmdMinimumSize(_dot, serial));
+    addCommand(new CmdMaximumSize(_dot, serial));
+    addCommand(new CmdMinimumPower(_dot, serial));
+    addCommand(new CmdMaximumPower(_dot, serial));
+    addCommand(new CmdData(_dot, serial));
+    addCommand(new CmdGetSurveyDataFile(_dot, serial));
+    addCommand(new CmdDeleteSurveyDataFile(_dot, serial));
+    addCommand(new CmdExit(_dot, serial));
+    
 }
 
 void CommandTerminal::printHelp() {

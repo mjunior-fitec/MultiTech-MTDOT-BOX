@@ -17,3 +17,12 @@
 #include "CmdTxDataRate.h"
 #include "CmdTxPower.h"
 #include "CmdFrequencySubBand.h"
+
+#include "CmdMinimumSize.h"
+#include "CmdMaximumSize.h"
+#include "CmdMinimumPower.h"
+#include "CmdMaximumPower.h"
+#include "CmdData.h"
+#include "CmdGetSurveyDataFile.h"
+#include "CmdDeleteSurveyDataFile.h"
+#include "CmdExit.h"
