@@ -1,6 +1,6 @@
 #include "ButtonHandler.h"
 
-#define signal (uint32_t)0x02
+#define signal (uint32_t)0xFF
 
 typedef enum {
     b_none = 0,
