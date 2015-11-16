@@ -80,19 +80,19 @@ void mainMenu() {
     while (true) {
         osEvent e = Thread::signal_wait(buttonSignal);
         if (e.status == osEventSignal) {
-            ButtonEvent ev = buttons->getButtonEvent();
+            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
             std::string selected;
             switch (ev) {
-                case sw1_press:
+                case ButtonHandler::sw1_press:
                     logInfo("sw1 press");
                     selected = menu.select();
                     logInfo("selected %s", selected.c_str());
                     break;
-                case sw2_press:
+                case ButtonHandler::sw2_press:
                     logInfo("sw2 press");
                     menu.scroll();
                     break;
-                case sw1_hold:
+                case ButtonHandler::sw1_hold:
                     logInfo("sw1 hold - already in main menu");
                     break;
                 default:

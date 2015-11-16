@@ -6,15 +6,15 @@
 
 #define buttonSignal (uint32_t)0x01
 
-typedef enum {
-    none = 0,
-    sw1_press,
-    sw1_hold,
-    sw2_press
-} ButtonEvent;
-
 class ButtonHandler {
     public:
+        typedef enum {
+            none = 0,
+            sw1_press,
+            sw1_hold,
+            sw2_press
+        } ButtonEvent;
+
         ButtonHandler(osThreadId main);
         ~ButtonHandler();
 

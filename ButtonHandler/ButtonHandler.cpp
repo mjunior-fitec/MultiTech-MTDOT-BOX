@@ -38,7 +38,7 @@ void worker(void const* argument) {
                         b->_sw1_time = b->_sw1_timer.read_ms();
 
                         if (b->_sw1_time > b->_debounce_time) {
-                            b->_event = sw1_press;
+                            b->_event = ButtonHandler::sw1_press;
                             osSignalSet(b->_main, buttonSignal);
                         }
                     }
@@ -59,7 +59,7 @@ void worker(void const* argument) {
                         b->_sw2_time = b->_sw2_timer.read_ms();
 
                         if (b->_sw2_time > b->_debounce_time) {
-                            b->_event = sw2_press;
+                            b->_event = ButtonHandler::sw2_press;
                             osSignalSet(b->_main, buttonSignal);
                         }
                     }
@@ -75,7 +75,7 @@ void worker(void const* argument) {
                 check_sw1 = false;
                 b->_sw1_running = false;
                 b->_sw1_timer.stop();
-                b->_event = sw1_hold;
+                b->_event = ButtonHandler::sw1_hold;
                 osSignalSet(b->_main, buttonSignal);
             }
         }
@@ -104,7 +104,7 @@ ButtonHandler::ButtonHandler(osThreadId main)
     _sw2.mode(PullUp);
 }
 
-ButtonEvent ButtonHandler::getButtonEvent() {
+ButtonHandler::ButtonEvent ButtonHandler::getButtonEvent() {
     ButtonEvent event = _event;
     _event = none;
     return event;
