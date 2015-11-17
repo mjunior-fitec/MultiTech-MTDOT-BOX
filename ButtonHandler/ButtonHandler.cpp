@@ -1,5 +1,4 @@
 #include "ButtonHandler.h"
-#include "MTSLog.h"
 
 #define signal (int32_t)0xA0
 
@@ -21,7 +20,6 @@ void b_worker(void const* argument) {
     while (true) {
         e = Thread::signal_wait(signal, 250);
         if (e.status == osEventSignal) {
-            logInfo("button worker received signal");
             switch (event) {
                 case b_sw1_fall:
                     if (! b->_sw1_running) {

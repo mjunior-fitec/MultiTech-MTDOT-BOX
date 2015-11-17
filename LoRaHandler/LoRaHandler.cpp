@@ -1,5 +1,4 @@
 #include "LoRaHandler.h"
-#include "MTSLog.h"
 
 #define signal (int32_t)0xA0
 
@@ -26,7 +25,6 @@ void l_worker(void const* argument) {
     while (true) {
         e = Thread::signal_wait(signal);
         if (e.status == osEventSignal) {
-            logInfo("LoRa worker received signal");
             switch (cmd) {
                 case l_ping:
                     l->_mutex.lock();
@@ -44,7 +42,6 @@ void l_worker(void const* argument) {
                     } else {
                         l->_status = LoRaHandler::ping_failure;
                     }
-                    logInfo("LoRa worker signaling main");
                     osSignalSet(l->_main, loraSignal);
                     break;
                 
@@ -56,20 +53,16 @@ void l_worker(void const* argument) {
                         l->_status = LoRaHandler::send_success;
                     else
                         l->_status = LoRaHandler::send_failure;
-                    logInfo("LoRa worker signaling main");
                     osSignalSet(l->_main, loraSignal);
                     break;
 
                 case l_join:
-                    logInfo("LoRa worker joining");
                     l->_mutex.lock();
                     ret = l->_dot->joinNetworkOnce();
                     l->_mutex.unlock();
                     if (ret == mDot::MDOT_OK) {
-                        logInfo("LoRa worker signaling main - success");
                         l->_status = LoRaHandler::join_success;
                     } else {
-                        logInfo("LoRa worker signaling main - failure");
                         l->_status = LoRaHandler::join_failure;
                     }
                     osSignalSet(l->_main, loraSignal);
@@ -87,7 +80,6 @@ LoRaHandler::LoRaHandler(osThreadId main)
     _thread(l_worker, (void*)this),
     _status(none)
 {
-    logInfo("starting");
     _ping.status = false;
 }
 

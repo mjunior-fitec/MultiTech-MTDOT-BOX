@@ -16,6 +16,7 @@
 #include "LayoutStartup.h"
 #include "LayoutScrollSelect.h"
 #include "LayoutJoin.h"
+#include "LayoutConfig.h"
 // button header
 #include "ButtonHandler.h"
 // LoRa header
@@ -104,22 +105,17 @@ void mainMenu() {
 
         while (! mode_selected) {
             osEvent e = Thread::signal_wait(buttonSignal);
-            logInfo("main - received signal %#X", e.value.signals);
             if (e.status == osEventSignal) {
                 ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
                 switch (ev) {
                     case ButtonHandler::sw1_press:
-                        logInfo("sw1 press");
                         selected = menu.select();
-                        logInfo("selected %s", selected.c_str());
                         mode_selected = true;
                         break;
                     case ButtonHandler::sw2_press:
-                        logInfo("sw2 press");
                         menu.scroll();
                         break;
                     case ButtonHandler::sw1_hold:
-                        logInfo("sw1 hold - already in main menu");
                         break;
                     default:
                         break;
@@ -183,8 +179,11 @@ void join() {
     lj.updateRate(dot->DataRateStr(rate));
     lj.updatePower(power);
 
-    if (! lora)
+    if (! lora) {
         lora = new LoRaHandler(main_id);
+        // give the LoRa worker thread some time to start up
+        osDelay(100);
+    }
     lora->setDataRate(rate);
     lora->setPower(power);
 
@@ -193,45 +192,38 @@ void join() {
         if (next_tx) {
             lj.updateCountdown(next_tx * 1000);
         } else {
-            logInfo("main joining");
             lj.updateStatus("Joining...");
             if (! lora->join())
                 logError("cannot join - LoRa layer busy");
         }
 
         osEvent e = Thread::signal_wait(0, 250);
-        logInfo("main - received signal %#X", e.value.signals);
         if (e.status == osEventSignal) {
             if (e.value.signals & buttonSignal) {
-                logInfo("main - button signal");
                 ev = buttons->getButtonEvent();
                 switch (ev) {
                     case ButtonHandler::sw1_press:
-                        logInfo("sw1 press");
                         return;
                     case ButtonHandler::sw2_press:
-                        logInfo("sw2 press");
                         break;
                     case ButtonHandler::sw1_hold:
-                        logInfo("sw1 hold");
                         return;
                 }
             }
             if (e.value.signals & loraSignal) {
-                logInfo("main - LoRa signal");
                 status = lora->getStatus();
                 switch (status) {
                     case LoRaHandler::join_success:
-                        logInfo("main - join success");
                         lj.updateStatus("Join Success!");
                         lj.displayCancel(false);
+                        logInfo("joined");
                         joined = true;
                         osDelay(2000);
                         break;
 
                     case LoRaHandler::join_failure:
-                        logInfo("main - join failure");
                         lj.updateStatus("Join Failure!");
+                        logInfo("failed to join");
                         osDelay(2000);
                         break;
                 }
@@ -241,22 +233,21 @@ void join() {
 }
 
 void configuration() {
+    LayoutConfig lc(lcd);
+    lc.display();
+
     logInfo("config mode");
 
     while (true) {
         osEvent e = Thread::signal_wait(buttonSignal);
-        logInfo("main - received signal %#X", e.value.signals);
         if (e.status == osEventSignal) {
             ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
             switch (ev) {
                 case ButtonHandler::sw1_press:
-                    logInfo("sw1 press");
                     break;
                 case ButtonHandler::sw2_press:
-                    logInfo("sw2 press");
                     break;
                 case ButtonHandler::sw1_hold:
-                    logInfo("sw1 hold");
                     return;
                 default:
                     break;
