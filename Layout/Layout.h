@@ -44,7 +44,9 @@ class Layout {
         void endUpdate();
         bool writeLabel(const Label& label);
         bool writeField(const Field& field, const std::string& value, bool apply = false);
+        bool writeField(const Field& field, const char* value, size_t size, bool apply = false);
         bool writeImage(const Image& image, bool apply = false);
+        void removeField(const Field& field);
 
     private:
         bool writeText(uint8_t col, uint8_t row, const char* value, size_t size);

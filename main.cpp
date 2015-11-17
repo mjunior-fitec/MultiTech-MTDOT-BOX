@@ -4,6 +4,7 @@
 // MTS headers
 #include "mDot.h"
 #include "MTSLog.h"
+#include "MTSText.h"
 // sensor headers
 #include "ISL29011.h"
 #include "MMA845x.h"
@@ -14,8 +15,11 @@
 #include "NCP5623B.h"
 #include "LayoutStartup.h"
 #include "LayoutScrollSelect.h"
+#include "LayoutJoin.h"
 // button header
 #include "ButtonHandler.h"
+// LoRa header
+#include "LoRaHandler.h"
 // misc heders
 #include <string>
 
@@ -27,31 +31,41 @@ DigitalOut lcd_cd(XBEE_ON_SLEEP, 1);
 DOGS102* lcd;
 NCP5623B* lcd_backlight;
 
+// Thread informaiton
+osThreadId main_id;
+
 // Button controller
 ButtonHandler* buttons;
+
+// LoRa controller
+LoRaHandler* lora;
+mDot* dot;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
 
 // Prototypes
 void mainMenu();
+void join();
+void configuration();
 
 int main() {
     debug.baud(115200);
-    MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
-    logInfo("starting...");
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     lcd_backlight = new NCP5623B(backlight_i2c);
+
+    main_id = Thread::gettid();
+    buttons = new ButtonHandler(main_id);
+    dot = mDot::getInstance();
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd);
     ls.display();
     osDelay(3000);
 
-    osThreadId main_id = Thread::gettid();
-    buttons = new ButtonHandler(main_id);
-
+    //MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
+    MTSLog::setLogLevel(MTSLog::INFO_LEVEL);
     logInfo("displaying main menu");
     mainMenu();
 
@@ -59,6 +73,16 @@ int main() {
 }
 
 void mainMenu() {
+    bool mode_selected = false;
+    std::string selected;
+
+    typedef enum {
+        demo = 2,
+        config,
+        single,
+        sweep
+    } menu_items;
+
     std::string menu_strings[] = {
         "MultiTech EVB",
         "Select Mode",
@@ -69,32 +93,170 @@ void mainMenu() {
     };
 
     std::vector<std::string> items;
-    items.push_back(menu_strings[2]);       // demo
-    items.push_back(menu_strings[3]);       // config
-    items.push_back(menu_strings[4]);       // single
-    items.push_back(menu_strings[5]);       // sweep
+    items.push_back(menu_strings[demo]);
+    items.push_back(menu_strings[config]);
+    items.push_back(menu_strings[single]);
+    items.push_back(menu_strings[sweep]);
 
-    LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
-    menu.display();
+    while (true) {
+        LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
+        menu.display();
+
+        while (! mode_selected) {
+            osEvent e = Thread::signal_wait(buttonSignal);
+            logInfo("main - received signal %#X", e.value.signals);
+            if (e.status == osEventSignal) {
+                ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
+                switch (ev) {
+                    case ButtonHandler::sw1_press:
+                        logInfo("sw1 press");
+                        selected = menu.select();
+                        logInfo("selected %s", selected.c_str());
+                        mode_selected = true;
+                        break;
+                    case ButtonHandler::sw2_press:
+                        logInfo("sw2 press");
+                        menu.scroll();
+                        break;
+                    case ButtonHandler::sw1_hold:
+                        logInfo("sw1 hold - already in main menu");
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        if (selected == menu_strings[demo]) {
+            join();
+        } else if (selected == menu_strings[config]) {
+            configuration();
+        } else if (selected == menu_strings[single]) {
+            join();
+        } else if (selected == menu_strings[sweep]) {
+            join();
+        }
+
+        mode_selected = false;
+    }
+}
+
+void join() {
+    uint32_t next_tx;
+    uint8_t rate;
+    uint8_t power;
+    uint8_t band;
+    bool joined = false;
+    ButtonHandler::ButtonEvent ev;
+    LoRaHandler::LoRaStatus status;
+
+    // start of temporary stuff!
+    if (dot->getFrequencyBand() == mDot::FB_915)
+        dot->setFrequencySubBand(mDot::FSB_7);
+    dot->setJoinMode(mDot::OTA);
+    dot->setNetworkName("mikes_lora_network");
+    dot->setNetworkPassphrase("password_123");
+    dot->setAck(1);
+    // end of temporary stuff!
+
+    power = 20;
+    band = dot->getFrequencyBand();
+    if (band == mDot::FB_915)
+        rate = mDot::SF_10;
+    else
+        rate = mDot::SF_12;
+
+    logInfo("joining");
+    LayoutJoin lj(lcd, band);
+    lj.display();
+    lj.updateStatus("Joining...");
+
+    if (dot->getJoinMode() == mDot::MANUAL) {
+        lj.updateId(mts::Text::bin2hexString(dot->getNetworkId()));
+        lj.updateKey(mts::Text::bin2hexString(dot->getNetworkKey()));
+    } else {
+        lj.updateId(dot->getNetworkName());
+        lj.updateKey(dot->getNetworkPassphrase());
+    }
+    if (band == mDot::FB_915)
+        lj.updateFsb(dot->getFrequencySubBand());
+    lj.updateRate(dot->DataRateStr(rate));
+    lj.updatePower(power);
+
+    lora = new LoRaHandler(main_id);
+    lora->setDataRate(rate);
+    lora->setPower(power);
+
+    while (! joined) {
+        next_tx = lora->getNextTx();
+        if (next_tx) {
+            lj.updateCountdown(next_tx * 1000);
+        } else {
+            logInfo("main joining");
+            lj.updateStatus("Joining...");
+            if (! lora->join())
+                logError("cannot join - LoRa layer busy");
+        }
+
+        osEvent e = Thread::signal_wait(0, 250);
+        logInfo("main - received signal %#X", e.value.signals);
+        if (e.status == osEventSignal) {
+            if (e.value.signals & buttonSignal) {
+                logInfo("main - button signal");
+                ev = buttons->getButtonEvent();
+                switch (ev) {
+                    case ButtonHandler::sw1_press:
+                        logInfo("sw1 press");
+                        return;
+                    case ButtonHandler::sw2_press:
+                        logInfo("sw2 press");
+                        break;
+                    case ButtonHandler::sw1_hold:
+                        logInfo("sw1 hold");
+                        return;
+                }
+            }
+            if (e.value.signals & loraSignal) {
+                logInfo("main - LoRa signal");
+                status = lora->getStatus();
+                switch (status) {
+                    case LoRaHandler::join_success:
+                        logInfo("main - join success");
+                        lj.updateStatus("Join Success!");
+                        lj.displayCancel(false);
+                        joined = true;
+                        osDelay(2000);
+                        break;
+
+                    case LoRaHandler::join_failure:
+                        logInfo("main - join failure");
+                        lj.updateStatus("Join Failure!");
+                        osDelay(2000);
+                        break;
+                }
+            }
+        }
+    }
+}
+
+void configuration() {
+    logInfo("config mode");
 
     while (true) {
         osEvent e = Thread::signal_wait(buttonSignal);
+        logInfo("main - received signal %#X", e.value.signals);
         if (e.status == osEventSignal) {
             ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
-            std::string selected;
             switch (ev) {
                 case ButtonHandler::sw1_press:
                     logInfo("sw1 press");
-                    selected = menu.select();
-                    logInfo("selected %s", selected.c_str());
                     break;
                 case ButtonHandler::sw2_press:
                     logInfo("sw2 press");
-                    menu.scroll();
                     break;
                 case ButtonHandler::sw1_hold:
-                    logInfo("sw1 hold - already in main menu");
-                    break;
+                    logInfo("sw1 hold");
+                    return;
                 default:
                     break;
             }

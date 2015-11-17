@@ -1,6 +1,7 @@
 #include "ButtonHandler.h"
+#include "MTSLog.h"
 
-#define signal (uint32_t)0xFF
+#define signal (int32_t)0xA0
 
 typedef enum {
     b_none = 0,
@@ -13,13 +14,14 @@ typedef enum {
 InternalButtonEvent event = b_none;
 bool check_sw1 = false;
 
-void worker(void const* argument) {
+void b_worker(void const* argument) {
     ButtonHandler* b = (ButtonHandler*)argument;
     osEvent e;
 
     while (true) {
         e = Thread::signal_wait(signal, 250);
         if (e.status == osEventSignal) {
+            logInfo("button worker received signal");
             switch (event) {
                 case b_sw1_fall:
                     if (! b->_sw1_running) {
@@ -84,7 +86,7 @@ void worker(void const* argument) {
 
 ButtonHandler::ButtonHandler(osThreadId main)
   : _main(main),
-    _thread(worker, (void*)this),
+    _thread(b_worker, (void*)this),
     _sw1(PA_12),
     _sw2(PA_11),
     _sw1_time(0),
@@ -113,20 +115,24 @@ ButtonHandler::ButtonEvent ButtonHandler::getButtonEvent() {
 void ButtonHandler::sw1_fall() {
     event = b_sw1_fall;
     _thread.signal_set(signal);
+    _thread.signal_clr(signal);
 }
 
 void ButtonHandler::sw1_rise() {
     event = b_sw1_rise;
     _thread.signal_set(signal);
+    _thread.signal_clr(signal);
 }
 
 void ButtonHandler::sw2_fall() {
     event = b_sw2_fall;
     _thread.signal_set(signal);
+    _thread.signal_clr(signal);
 }
 
 void ButtonHandler::sw2_rise() {
     event = b_sw2_rise;
     _thread.signal_set(signal);
+    _thread.signal_clr(signal);
 }
 

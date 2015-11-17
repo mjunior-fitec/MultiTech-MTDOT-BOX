@@ -4,7 +4,7 @@
 #include "mbed.h"
 #include "rtos.h"
 
-#define buttonSignal (uint32_t)0x01
+#define buttonSignal (int32_t)0x01
 
 class ButtonHandler {
     public:

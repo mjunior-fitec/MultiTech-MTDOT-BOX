@@ -46,10 +46,32 @@ bool Layout::writeField(const Field& field, const std::string& value, bool apply
     if (apply)
         startUpdate();
 
+    // fill the whole length with blank space in case the previous value was longer than this one
     while (v.size() < field._maxSize)
         v += " ";
 
     ret = writeText(field._col, field._row, v.c_str(), field._maxSize);
+
+    if (apply)
+        endUpdate();
+
+    return true;
+}
+
+bool Layout::writeField(const Field& field, const char* value, size_t size, bool apply) {
+    bool ret;
+    char buf[32];
+    size_t s = (field._maxSize > size) ? size : field._maxSize;
+
+    // fill the whole length with blank space in case the previous value was longer than this one
+    memset(buf, 0x20, sizeof(buf));
+
+    if (apply)
+        startUpdate();
+
+    snprintf(buf, s, "%s", value);
+
+    ret = writeText(field._col, field._row, value, field._maxSize);
 
     if (apply)
         endUpdate();
@@ -69,6 +91,13 @@ bool Layout::writeImage(const Image& image, bool apply) {
         endUpdate();
 
     return ret;
+}
+
+void Layout::removeField(const Field& field) {
+    startUpdate();
+    std::string s(' ', field._maxSize);
+    writeText(field._row, field._col, s.c_str(), s.size());
+    endUpdate();
 }
 
 bool Layout::writeText(uint8_t col, uint8_t row, const char* value, size_t size) {
