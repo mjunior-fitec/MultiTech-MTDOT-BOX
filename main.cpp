@@ -183,7 +183,8 @@ void join() {
     lj.updateRate(dot->DataRateStr(rate));
     lj.updatePower(power);
 
-    lora = new LoRaHandler(main_id);
+    if (! lora)
+        lora = new LoRaHandler(main_id);
     lora->setDataRate(rate);
     lora->setPower(power);
 
