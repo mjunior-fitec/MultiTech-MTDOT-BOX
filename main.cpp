@@ -222,9 +222,7 @@ void join() {
                         break;
 
                     case LoRaHandler::join_failure:
-                        lj.updateStatus("Join Failure!");
                         logInfo("failed to join");
-                        osDelay(2000);
                         break;
                 }
             }
