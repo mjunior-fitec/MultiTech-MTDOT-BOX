@@ -147,6 +147,9 @@ void join() {
     ButtonHandler::ButtonEvent ev;
     LoRaHandler::LoRaStatus status;
 
+    // clear any stale signals
+    osSignalClear(main_id, buttonSignal | loraSignal);
+
     // start of temporary stuff!
     if (dot->getFrequencyBand() == mDot::FB_915)
         dot->setFrequencySubBand(mDot::FSB_7);
@@ -177,7 +180,8 @@ void join() {
     }
     if (band == mDot::FB_915)
         lj.updateFsb(dot->getFrequencySubBand());
-    lj.updateRate(dot->DataRateStr(rate));
+    // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
+    lj.updateRate(dot->DataRateStr(rate).substr(3));
     lj.updatePower(power);
 
     if (! lora) {
@@ -234,8 +238,11 @@ void join() {
 
 void configuration() {
     LayoutConfig lc(lcd);
-    lc.display();
 
+    // clear any stale signals
+    osSignalClear(main_id, buttonSignal | loraSignal);
+
+    lc.display();
     logInfo("config mode");
 
     while (true) {
