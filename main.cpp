@@ -15,7 +15,6 @@
 #include "NCP5623B.h"
 #include "LayoutStartup.h"
 #include "LayoutScrollSelect.h"
-#include "LayoutJoin.h"
 #include "LayoutConfig.h"
 #include "LayoutDemoHelp.h"
 #include "LayoutSingleHelp.h"
@@ -24,6 +23,8 @@
 #include "ButtonHandler.h"
 // LoRa header
 #include "LoRaHandler.h"
+// mode objects
+#include "ModeJoin.h"
 // misc heders
 #include <string>
 
@@ -45,6 +46,9 @@ ButtonHandler* buttons;
 LoRaHandler* lora;
 mDot* dot;
 
+// Modes
+ModeJoin* modeJoin;
+
 // Serial debug port
 Serial debug(USBTX, USBRX);
 
@@ -65,11 +69,23 @@ int main() {
     main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
+    lora = new LoRaHandler(main_id);
+
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora, dot->getFrequencyBand());
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd);
     ls.display();
     osDelay(3000);
+
+    // start of temporary stuff!
+    if (dot->getFrequencyBand() == mDot::FB_915)
+        dot->setFrequencySubBand(mDot::FSB_7);
+    dot->setJoinMode(mDot::OTA);
+    dot->setNetworkName("mikes_lora_network");
+    dot->setNetworkPassphrase("password_123");
+    dot->setAck(1);
+    // end of temporary stuff!
 
     //MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
     MTSLog::setLogLevel(MTSLog::INFO_LEVEL);
@@ -130,118 +146,19 @@ void mainMenu() {
         }
 
         if (selected == menu_strings[demo]) {
-            join();
-            loraDemo();
+            if (modeJoin->start())
+                loraDemo();
         } else if (selected == menu_strings[config]) {
             configuration();
         } else if (selected == menu_strings[single]) {
-            join();
-            surveySingle();
+            if (modeJoin->start())
+                surveySingle();
         } else if (selected == menu_strings[sweep]) {
-            join();
-            surveySweep();
+            if (modeJoin->start())
+                surveySweep();
         }
 
         mode_selected = false;
-    }
-}
-
-void join() {
-    uint32_t attempts = 1;
-    uint32_t next_tx;
-    uint8_t rate;
-    uint8_t power;
-    uint8_t band;
-    bool joined = false;
-    ButtonHandler::ButtonEvent ev;
-    LoRaHandler::LoRaStatus status;
-
-    // clear any stale signals
-    osSignalClear(main_id, buttonSignal | loraSignal);
-
-    // start of temporary stuff!
-    if (dot->getFrequencyBand() == mDot::FB_915)
-        dot->setFrequencySubBand(mDot::FSB_7);
-    dot->setJoinMode(mDot::OTA);
-    dot->setNetworkName("mikes_lora_network");
-    dot->setNetworkPassphrase("password_123");
-    dot->setAck(1);
-    // end of temporary stuff!
-
-    power = 20;
-    band = dot->getFrequencyBand();
-    if (band == mDot::FB_915)
-        rate = mDot::SF_10;
-    else
-        rate = mDot::SF_12;
-
-    logInfo("joining");
-    LayoutJoin lj(lcd, band);
-    lj.display();
-    lj.updateStatus("Joining...");
-
-    if (dot->getJoinMode() == mDot::MANUAL) {
-        lj.updateId(mts::Text::bin2hexString(dot->getNetworkId()));
-        lj.updateKey(mts::Text::bin2hexString(dot->getNetworkKey()));
-    } else {
-        lj.updateId(dot->getNetworkName());
-        lj.updateKey(dot->getNetworkPassphrase());
-    }
-    if (band == mDot::FB_915)
-        lj.updateFsb(dot->getFrequencySubBand());
-    // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-    lj.updateRate(dot->DataRateStr(rate).substr(3));
-    lj.updatePower(power);
-
-    if (! lora) {
-        lora = new LoRaHandler(main_id);
-        // give the LoRa worker thread some time to start up
-        osDelay(100);
-    }
-    lora->setDataRate(rate);
-    lora->setPower(power);
-
-    while (! joined) {
-        next_tx = lora->getNextTx();
-        if (next_tx) {
-            lj.updateCountdown(next_tx * 1000);
-        } else {
-            lj.updateAttempt(attempts++);
-            lj.updateStatus("Joining...");
-            if (! lora->join())
-                logError("cannot join - LoRa layer busy");
-        }
-
-        osEvent e = Thread::signal_wait(0);
-        if (e.status == osEventSignal) {
-            if (e.value.signals & buttonSignal) {
-                ev = buttons->getButtonEvent();
-                switch (ev) {
-                    case ButtonHandler::sw1_press:
-                        return;
-                    case ButtonHandler::sw2_press:
-                        break;
-                    case ButtonHandler::sw1_hold:
-                        return;
-                }
-            }
-            if (e.value.signals & loraSignal) {
-                status = lora->getStatus();
-                switch (status) {
-                    case LoRaHandler::join_success:
-                        lj.updateStatus("Join Success!");
-                        lj.displayCancel(false);
-                        logInfo("joined");
-                        joined = true;
-                        osDelay(2000);
-                        break;
-
-                    case LoRaHandler::join_failure:
-                        logInfo("failed to join");
-                        break;
-                }
-            }
-        }
     }
 }
 

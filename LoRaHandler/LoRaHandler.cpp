@@ -25,6 +25,7 @@ void l_worker(void const* argument) {
     while (true) {
         e = Thread::signal_wait(signal);
         if (e.status == osEventSignal) {
+            l->_status = LoRaHandler::busy;
             switch (cmd) {
                 case l_ping:
                     l->_mutex.lock();
@@ -69,6 +70,7 @@ void l_worker(void const* argument) {
                     break;
 
                 default:
+                    l->_status = LoRaHandler::none;
                     break;
             }
         }
