@@ -1,5 +1,7 @@
 #include "CmdMinimumPower.h"
 
+//SPECIAL NOTE: Minimum power is stored in the LoraConfig WakeTimeout field. We decided to use 5 LoRaConfig locations,
+// that are not used for the DotBox, for the 5 DotBox settings... +minsize, +maxsize, +minpwr, +maxpwr and +data.
 CmdMinimumPower::CmdMinimumPower(mDot* dot, mts::MTSSerial& serial) :
         Command(dot, "Minimum Power", "AT+MINPWR", "Set the minimum transmit power for sweep survey mode"), _serial(serial)
 {
@@ -14,8 +16,7 @@ uint32_t CmdMinimumPower::action(std::vector<std::string> args)
     {
         if (_dot->getVerbose())
             _serial.writef("Minimum Power: ");
-//ToDo: Change from _dot->getTxPower() to the structure we will use for this.
-        _serial.writef("%lu\r\n", _dot->getTxPower());
+        _serial.writef("%lu\r\n", _dot->getWakeTimeout());
     }
     else if (args.size() == 2)
     {
@@ -23,7 +24,7 @@ uint32_t CmdMinimumPower::action(std::vector<std::string> args)
         uint32_t power = 0;
         sscanf(args[1].c_str(), "%lu", &power);
 
-        if ((code = _dot->setTxPower(power)) != mDot::MDOT_OK)
+        if ((code = _dot->setWakeTimeout(power)) != mDot::MDOT_OK)
         {
             std::string error = mDot::getReturnCodeString(code) + " - " + _dot->getLastError();
             setErrorMessage(error);
@@ -52,7 +53,12 @@ bool CmdMinimumPower::verify(std::vector<std::string> args)
             setErrorMessage("Invalid minimum transmit power for sweep survey mode, expects (2-20)");
             return false;
         }
-//ToDo: Output warning if > maximum power.
+        if (power > _dot->getWakeMode())	//WakeMode holds the MaxPower setting.
+        {
+            setErrorMessage("+MINPWR cannot be greater than +MAXPWR. Please increase +MAXPWR first.");
+            return false;
+        }
+
         return true;
     }
 

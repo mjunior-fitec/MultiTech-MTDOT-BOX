@@ -1,5 +1,7 @@
 #include "CmdData.h"
 
+//SPECIAL NOTE: +Data is stored in the LoraConfig StartUpMode field. We decided to use 5 LoRaConfig locations,
+// that are not used for the DotBox, for the 5 DotBox settings... +minsize, +maxsize, +minpwr, +maxpwr and +data.
 CmdData::CmdData(mDot* dot, mts::MTSSerial& serial) :
         Command(dot, "Data", "AT+DATA", "Enable/disable sending survey data results packet to the network server upon each successful survey. (0: off, 1: on)"), _serial(serial)
 {
@@ -14,15 +16,14 @@ uint32_t CmdData::action(std::vector<std::string> args)
     {
         if (_dot->getVerbose())
             _serial.writef("%s: ", name());
-//ToDo: Change from _dot->getPublicNetwork() to the structure we will use for this.
-        _serial.writef("%d\r\n", _dot->getPublicNetwork());
+        _serial.writef("%d\r\n", _dot->getStartUpMode());
     }
     else if (args.size() == 2)
     {
         int32_t code;
         bool enable = (args[1] == "1");
 
-        if ((code = _dot->setPublicNetwork(enable)) != mDot::MDOT_OK) {
+        if ((code = _dot->setStartUpMode(enable)) != mDot::MDOT_OK) {
             std::string error = mDot::getReturnCodeString(code) + " - " + _dot->getLastError();
             setErrorMessage(error);
             return 1;

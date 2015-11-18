@@ -1,5 +1,7 @@
 #include "CmdMaximumSize.h"
 
+//SPECIAL NOTE: Maximum size is stored in the LoraConfig WakeDelay field. We decided to use 5 LoRaConfig locations,
+// that are not used for the DotBox, for the 5 DotBox settings... +minsize, +maxsize, +minpwr, +maxpwr and +data.
 CmdMaximumSize::CmdMaximumSize(mDot* dot, mts::MTSSerial& serial) :
         Command(dot, "Maximum Size", "AT+MAXSIZE", "Set the maximum payload size for sweep survey mode"), _serial(serial)
 {
@@ -14,16 +16,15 @@ uint32_t CmdMaximumSize::action(std::vector<std::string> args)
     {
         if (_dot->getVerbose())
             _serial.writef("Maximum Size: ");
-//ToDo: Change from _dot->getTxPower() to the structure we will use for this.
-        _serial.writef("%lu\r\n", _dot->getTxPower());
+        _serial.writef("%lu\r\n", _dot->getWakeDelay());
     }
     else if (args.size() == 2)
     {
         int32_t code;
-        uint32_t power = 0;
-        sscanf(args[1].c_str(), "%lu", &power);
+        uint32_t size = 0;
+        sscanf(args[1].c_str(), "%lu", &size);
 
-        if ((code = _dot->setTxPower(power)) != mDot::MDOT_OK)
+        if ((code = _dot->setWakeDelay(size)) != mDot::MDOT_OK)
         {
             std::string error = mDot::getReturnCodeString(code) + " - " + _dot->getLastError();
             setErrorMessage(error);
@@ -41,18 +42,23 @@ bool CmdMaximumSize::verify(std::vector<std::string> args)
 
     if (args.size() == 2)
     {
-        uint32_t power = 0;
-        if (sscanf(args[1].c_str(), "%lu", &power) != 1) {
+        uint32_t size = 0;
+        if (sscanf(args[1].c_str(), "%lu", &size) != 1) {
             setErrorMessage("Invalid argument");
             return false;
         }
 
-        if (power < 11 || power > 242)
+        if (size < 11 || size > 242)
         {
             setErrorMessage("Invalid maximum payload size, expects (11-242)");
             return false;
         }
-//ToDo: Output warning if < minimum size.
+        if (size < _dot->getWakeInterval())	//WakeInterval holds the MinSize setting.
+        {
+            setErrorMessage("+MAXSIZE cannot be less than +MINSIZE. Please decrease +MINSIZE first.");
+            return false;
+        }
+
         return true;
     }
 
