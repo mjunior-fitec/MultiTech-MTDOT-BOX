@@ -17,6 +17,9 @@
 #include "LayoutScrollSelect.h"
 #include "LayoutJoin.h"
 #include "LayoutConfig.h"
+#include "LayoutDemoHelp.h"
+#include "LayoutSingleHelp.h"
+#include "LayoutSweepHelp.h"
 // button header
 #include "ButtonHandler.h"
 // LoRa header
@@ -49,6 +52,9 @@ Serial debug(USBTX, USBRX);
 void mainMenu();
 void join();
 void configuration();
+void loraDemo();
+void surveySingle();
+void surveySweep();
 
 int main() {
     debug.baud(115200);
@@ -125,12 +131,15 @@ void mainMenu() {
 
         if (selected == menu_strings[demo]) {
             join();
+            loraDemo();
         } else if (selected == menu_strings[config]) {
             configuration();
         } else if (selected == menu_strings[single]) {
             join();
+            surveySingle();
         } else if (selected == menu_strings[sweep]) {
             join();
+            surveySweep();
         }
 
         mode_selected = false;
@@ -262,3 +271,91 @@ void configuration() {
         }
     }
 }
+
+void loraDemo() {
+    LayoutDemoHelp ldh(lcd);
+
+    // clear any stale signals
+    osSignalClear(main_id, buttonSignal | loraSignal);
+
+    ldh.display();
+    logInfo("demo mode");
+
+    while (true) {
+        osEvent e = Thread::signal_wait(buttonSignal);
+        if (e.status == osEventSignal) {
+            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
+            switch (ev) {
+                case ButtonHandler::sw1_press:
+                    logInfo("trigger TX mode");
+                    break;
+                case ButtonHandler::sw2_press:
+                    logInfo("interval TX mode");
+                    break;
+                case ButtonHandler::sw1_hold:
+                    return;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+void surveySingle() {
+    LayoutSingleHelp lsh(lcd);
+
+    // clear any stale signals
+    osSignalClear(main_id, buttonSignal | loraSignal);
+
+    lsh.display();
+    logInfo("survey single mode");
+
+    while (true) {
+        osEvent e = Thread::signal_wait(buttonSignal);
+        if (e.status == osEventSignal) {
+            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
+            switch (ev) {
+                case ButtonHandler::sw1_press:
+                    logInfo("datarate/power");
+                    break;
+                case ButtonHandler::sw2_press:
+                    logInfo("start survey");
+                    break;
+                case ButtonHandler::sw1_hold:
+                    return;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+void surveySweep() {
+    LayoutSweepHelp lsh(lcd);
+
+    // clear any stale signals
+    osSignalClear(main_id, buttonSignal | loraSignal);
+
+    lsh.display();
+    logInfo("survey sweep mode");
+
+    while (true) {
+        osEvent e = Thread::signal_wait(buttonSignal);
+        if (e.status == osEventSignal) {
+            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
+            switch (ev) {
+                case ButtonHandler::sw1_press:
+                    logInfo("cancel");
+                    break;
+                case ButtonHandler::sw2_press:
+                    logInfo("start sweep");
+                    break;
+                case ButtonHandler::sw1_hold:
+                    return;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
