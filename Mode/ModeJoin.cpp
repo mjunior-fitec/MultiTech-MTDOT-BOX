@@ -19,6 +19,8 @@ ModeJoin::~ModeJoin() {}
 bool ModeJoin::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
+    _joined = false;
+    _index = 1;
 
     _lj.display();
     _lj.updateStatus("Joining...");
@@ -45,7 +47,7 @@ bool ModeJoin::start() {
         if (_next_tx) {
             _lj.updateCountdown(_next_tx * 1000);
         } else {
-            _lj.updateAttempt(++_index);
+            _lj.updateAttempt(_index++);
             _lj.updateStatus("Joining...");
             _lora->join();
         }

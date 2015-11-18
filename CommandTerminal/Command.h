@@ -40,7 +40,6 @@
 #include <string>
 #include <vector>
 #include "limits.h"
-#include "debug.h"
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __command_H
