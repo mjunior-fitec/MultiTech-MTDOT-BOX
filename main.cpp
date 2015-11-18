@@ -51,6 +51,9 @@ ModeJoin* modeJoin;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
+mts::MTSSerial serial(USBTX, USBRX, 512, 512);
+
+
 
 // Prototypes
 void mainMenu();
@@ -120,6 +123,20 @@ void mainMenu() {
     items.push_back(menu_strings[config]);
     items.push_back(menu_strings[single]);
     items.push_back(menu_strings[sweep]);
+
+
+
+    mDot* dot = mDot::getInstance();
+	if(dot){
+		logInfo("dot created");		
+	    CommandTerminal term(serial, dot);
+    	term.start();		
+	}
+	else {
+        logInfo("Radio Init Failed!");
+    }
+
+
 
     while (true) {
         LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
