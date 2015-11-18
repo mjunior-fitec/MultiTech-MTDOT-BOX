@@ -138,6 +138,7 @@ void mainMenu() {
 }
 
 void join() {
+    uint32_t attempts = 1;
     uint32_t next_tx;
     uint8_t rate;
     uint8_t power;
@@ -192,12 +193,13 @@ void join() {
         if (next_tx) {
             lj.updateCountdown(next_tx * 1000);
         } else {
+            lj.updateAttempt(attempts++);
             lj.updateStatus("Joining...");
             if (! lora->join())
                 logError("cannot join - LoRa layer busy");
         }
 
-        osEvent e = Thread::signal_wait(0, 250);
+        osEvent e = Thread::signal_wait(0);
         if (e.status == osEventSignal) {
             if (e.value.signals & buttonSignal) {
                 ev = buttons->getButtonEvent();

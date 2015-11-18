@@ -16,6 +16,7 @@ class LayoutJoin : public Layout {
         void updateFsb(uint8_t band);
         void updateRate(std::string rate);
         void updatePower(uint32_t power);
+        void updateAttempt(uint32_t attempt);
         void updateStatus(std::string status);
         void updateCountdown(uint32_t seconds);
         void removeCountdown();
@@ -27,6 +28,7 @@ class LayoutJoin : public Layout {
         Label _lFsb;
         Label _lRate;
         Label _lPower;
+        Label _lAttempt;
 
         Field _fStatus;
         Field _fId;
@@ -34,6 +36,7 @@ class LayoutJoin : public Layout {
         Field _fFsb;
         Field _fRate;
         Field _fPower;
+        Field _fAttempt;
         Field _fCountdown;
         Field _fCountdownLabel;
         Field _fCancel;

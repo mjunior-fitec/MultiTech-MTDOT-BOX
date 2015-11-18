@@ -7,12 +7,14 @@ LayoutJoin::LayoutJoin(DOGS102* lcd, uint8_t band)
     _lFsb(0, 3, "FSB="),
     _lRate(0, 5, "DR="),
     _lPower(6, 5, "P="),
+    _lAttempt(11, 5, "A="),
     _fStatus(0, 0, 17),
     _fId(3, 1, 14),
     _fKey(3, 2, 14),
     _fFsb(4, 3, 2),
     _fRate(3, 5, 2),
     _fPower(8, 5, 2),
+    _fAttempt(13, 5, 4),
     _fCountdown(0, 7, 9),
     _fCountdownLabel(0, 6, 17),
     _fCancel(11, 7, 6),
@@ -32,6 +34,7 @@ void LayoutJoin::display() {
     }
     writeLabel(_lRate);
     writeLabel(_lPower);
+    writeLabel(_lAttempt);
 
     displayCancel();
     
@@ -64,6 +67,14 @@ void LayoutJoin::updatePower(uint32_t power) {
 
     size = snprintf(buf, sizeof(buf), "%lu", power);
     writeField(_fPower, buf, size, true);
+}
+
+void LayoutJoin::updateAttempt(uint32_t attempt) {
+    char buf[16];
+    size_t size;
+
+    size = snprintf(buf, sizeof(buf), "%lu", attempt);
+    writeField(_fAttempt, buf, size, true);
 }
 
 void LayoutJoin::updateStatus(std::string status) {
