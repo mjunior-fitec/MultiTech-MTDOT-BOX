@@ -36,6 +36,8 @@
 #include "MTSSerial.h"
 #include "Commands.h"
 #include "mDot.h"
+#include "ButtonHandler.h"
+
   
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __command_terminal_H__
@@ -53,7 +55,7 @@ public:
         WAIT_NA
     };
 
-    CommandTerminal(mts::MTSSerial& serial, mDot* dot);
+    CommandTerminal(mts::MTSSerial& serial, mDot* dot, ButtonHandler* buttons);
     
     // Command prompt text...
     static const char banner[];
@@ -73,7 +75,7 @@ public:
     // Escape sequence
     static const char escape_sequence[];
     
-    void start();
+    bool start();
     
 private: 
 
@@ -90,6 +92,8 @@ private:
     std::vector<Command*> _commands;
     Thread _idle_thread;
     bool _serial_up;
+
+	ButtonHandler* _buttons;
 
     void addCommand(Command* cmd);
     

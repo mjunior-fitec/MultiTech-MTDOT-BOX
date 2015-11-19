@@ -2,6 +2,7 @@
 #include "CommandTerminal.h"
 #include "Command.h"
 #include "MTSLog.h"
+#include "ButtonHandler.h"
 #include <cstdarg>
 #include <deque>
 
@@ -28,13 +29,14 @@ void CommandTerminal::addCommand(Command* cmd) {
     _commands.push_back(cmd);
 }
 
-CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot)
+CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot, ButtonHandler* buttons)
 :
   _serial(serial),
   _dot(dot),
   _mode(mDot::COMMAND_MODE),
   _idle_thread(idle, NULL, osPriorityLow),
-  _serial_up(false) {
+  _serial_up(false),
+  _buttons(buttons) {
 
     _serialp = &serial;
 
@@ -141,7 +143,7 @@ void CommandTerminal::writef(const char* format, ...) {
     va_end(ap);
 }
 
-void CommandTerminal::start() {
+bool CommandTerminal::start() {
     char ch;
     bool running = true;
     bool echo = _dot->getEcho();
@@ -185,6 +187,22 @@ void CommandTerminal::start() {
 
     //Run terminal session
     while (running) {
+
+        osEvent e = Thread::signal_wait(buttonSignal);
+        if (e.status == osEventSignal) {
+            ButtonHandler::ButtonEvent _be = _buttons->getButtonEvent();
+            switch (_be) {
+                case ButtonHandler::sw1_press:
+                    break;
+                case ButtonHandler::sw2_press:
+                    break;
+                case ButtonHandler::sw1_hold:
+                    return true;
+                default:
+                    break;
+            }
+        }
+		
         ch = '\0';
 
         // read characters
@@ -354,4 +372,5 @@ void CommandTerminal::start() {
             history.pop_back();
 
     }
+	return false;
 }
