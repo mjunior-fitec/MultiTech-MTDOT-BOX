@@ -14,7 +14,7 @@ class ModeJoin : public Mode {
         bool start();
 
     private:
-        LayoutJoin _lj;
+        LayoutJoin _join;
         mDot* _dot;
         LoRaHandler* _lora;
         uint8_t _band;

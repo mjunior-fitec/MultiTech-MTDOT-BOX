@@ -15,9 +15,7 @@
 #include "LayoutStartup.h"
 #include "LayoutScrollSelect.h"
 #include "LayoutConfig.h"
-#include "LayoutDemoHelp.h"
-#include "LayoutSingleHelp.h"
-#include "LayoutSweepHelp.h"
+#include "LayoutHelp.h"
 // button header
 #include "ButtonHandler.h"
 // LoRa header
@@ -190,12 +188,16 @@ void configuration() {
 }
 
 void loraDemo() {
-    LayoutDemoHelp ldh(lcd);
+    LayoutHelp lh(lcd);
+    lh.display();
+    lh.updateMode("LoRa Demo");
+    lh.updateDescription("Select TX Method");
+    lh.updateSw1(" Trigger");
+    lh.updateSw2("Interval");
 
     // clear any stale signals
     osSignalClear(main_id, buttonSignal | loraSignal);
 
-    ldh.display();
     logInfo("demo mode");
 
     while (true) {
@@ -219,12 +221,15 @@ void loraDemo() {
 }
 
 void surveySingle() {
-    LayoutSingleHelp lsh(lcd);
+    LayoutHelp lh(lcd);
+    lh.display();
+    lh.updateMode("Survey Single");
+    lh.updateSw1("  DR/PWR");
+    lh.updateSw2("Survey");
 
     // clear any stale signals
     osSignalClear(main_id, buttonSignal | loraSignal);
 
-    lsh.display();
     logInfo("survey single mode");
 
     while (true) {
@@ -248,12 +253,15 @@ void surveySingle() {
 }
 
 void surveySweep() {
-    LayoutSweepHelp lsh(lcd);
+    LayoutHelp lh(lcd);
+    lh.display();
+    lh.updateMode("Survey Sweep");
+    lh.updateSw1("  Cancel");
+    lh.updateSw2("Sweep");
 
     // clear any stale signals
     osSignalClear(main_id, buttonSignal | loraSignal);
 
-    lsh.display();
     logInfo("survey sweep mode");
 
     while (true) {

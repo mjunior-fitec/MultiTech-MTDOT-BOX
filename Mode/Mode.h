@@ -42,6 +42,7 @@ class Mode {
         ButtonHandler* _buttons;
         uint32_t _index;
         osThreadId _main_id;
+        static const char* _file_name;
 };
 
 #endif

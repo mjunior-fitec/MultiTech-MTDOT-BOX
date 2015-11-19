@@ -4,7 +4,7 @@
 
 ModeJoin::ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, uint8_t band)
   : Mode(lcd, buttons),
-    _lj(lcd, band),
+    _join(lcd, band),
     _dot(dot),
     _lora(lora),
     _band(band),
@@ -22,22 +22,22 @@ bool ModeJoin::start() {
     _joined = false;
     _index = 1;
 
-    _lj.display();
-    _lj.updateStatus("Joining...");
+    _join.display();
+    _join.updateStatus("Joining...");
     if (_dot->getJoinMode() == mDot::MANUAL) {
-        _lj.updateId(mts::Text::bin2hexString(_dot->getNetworkId()));
-        _lj.updateKey(mts::Text::bin2hexString(_dot->getNetworkKey()));
+        _join.updateId(mts::Text::bin2hexString(_dot->getNetworkId()));
+        _join.updateKey(mts::Text::bin2hexString(_dot->getNetworkKey()));
     } else {
-        _lj.updateId(_dot->getNetworkName());
-        _lj.updateKey(_dot->getNetworkPassphrase());
+        _join.updateId(_dot->getNetworkName());
+        _join.updateKey(_dot->getNetworkPassphrase());
     }
     if (_band == mDot::FB_915) {
         _sub_band = _dot->getFrequencySubBand();
-        _lj.updateFsb(_sub_band);
+        _join.updateFsb(_sub_band);
     }
     // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-    _lj.updateRate(_dot->DataRateStr(_data_rate).substr(3));
-    _lj.updatePower(_power);
+    _join.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+    _join.updatePower(_power);
 
     _lora->setDataRate(_data_rate);
     _lora->setPower(_power);
@@ -45,10 +45,10 @@ bool ModeJoin::start() {
     while (! _joined) {
         _next_tx = _lora->getNextTx();
         if (_next_tx) {
-            _lj.updateCountdown(_next_tx * 1000);
+            _join.updateCountdown(_next_tx * 1000);
         } else {
-            _lj.updateAttempt(_index++);
-            _lj.updateStatus("Joining...");
+            _join.updateAttempt(_index++);
+            _join.updateStatus("Joining...");
             _lora->join();
         }
 
@@ -69,8 +69,8 @@ bool ModeJoin::start() {
                 _ls = _lora->getStatus();
                 switch (_ls) {
                     case LoRaHandler::join_success:
-                        _lj.updateStatus("Join Success!");
-                        _lj.displayCancel(false);
+                        _join.updateStatus("Join Success!");
+                        _join.displayCancel(false);
                         logInfo("joined");
                         _joined = true;
                         osDelay(2000);

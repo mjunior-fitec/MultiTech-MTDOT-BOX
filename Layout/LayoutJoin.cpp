@@ -85,7 +85,7 @@ void LayoutJoin::updateCountdown(uint32_t seconds) {
     char buf[16];
     size_t size;
 
-    writeField(_fCountdownLabel, "No Free Channel");
+    writeField(_fCountdownLabel, "No Free Channel", true);
     size = snprintf(buf, sizeof(buf), "%lu", seconds);
     writeField(_fPower, buf, size, true);
 }

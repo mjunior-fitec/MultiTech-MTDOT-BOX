@@ -1,5 +1,7 @@
 #include "Mode.h"
 
+const char* Mode::_file_name = "SurveyData.txt";
+
 Mode::Mode(DOGS102* lcd, ButtonHandler* buttons)
   : _lcd(lcd),
     _buttons(buttons),
