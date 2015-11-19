@@ -45,14 +45,14 @@ bool ModeJoin::start() {
     while (! _joined) {
         _next_tx = _lora->getNextTx();
         if (_next_tx) {
-            _join.updateCountdown(_next_tx * 1000);
+            _join.updateCountdown(_next_tx / 1000);
         } else {
-            _join.updateAttempt(_index++);
             _join.updateStatus("Joining...");
-            _lora->join();
+            if (_lora->join())
+                _join.updateAttempt(_index++);
         }
 
-        osEvent e = Thread::signal_wait(0);
+        osEvent e = Thread::signal_wait(0, 500);
         if (e.status == osEventSignal) {
             if (e.value.signals & buttonSignal) {
                 _be = _buttons->getButtonEvent();

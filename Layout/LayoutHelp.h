@@ -11,6 +11,8 @@ class LayoutHelp : public Layout {
         void display();
         void updateMode(std::string mode);
         void updateDescription(std::string description);
+        void updateMsg(std::string msg);
+        void removeMsg();
         void updateSw1(std::string s);
         void updateSw2(std::string s);
 
@@ -20,6 +22,7 @@ class LayoutHelp : public Layout {
 
         Field _fMode;
         Field _fDesc;
+        Field _fMsg;
         Field _fSw1;
         Field _fSw2;
 

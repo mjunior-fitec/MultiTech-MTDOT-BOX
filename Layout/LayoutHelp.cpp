@@ -6,6 +6,7 @@ LayoutHelp::LayoutHelp(DOGS102* lcd)
     _lIns2(0, 5, "for Main Menu"),
     _fMode(0, 0, 17),
     _fDesc(0, 1, 17),
+    _fMsg(0, 6, 17),
     _fSw1(9, 7, 8),
     _fSw2(0, 7, 8)
 {}
@@ -23,18 +24,26 @@ void LayoutHelp::display() {
 }
 
 void LayoutHelp::updateMode(std::string mode) {
-    writeField(_fMode, mode);
+    writeField(_fMode, mode, true);
 }
 
 void LayoutHelp::updateDescription(std::string description) {
-    writeField(_fDesc, description);
+    writeField(_fDesc, description, true);
+}
+
+void LayoutHelp::updateMsg(std::string msg) {
+    writeField(_fMsg, msg, true);
+}
+
+void LayoutHelp::removeMsg() {
+    removeField(_fMsg);
 }
 
 void LayoutHelp::updateSw1(std::string s) {
-    writeField(_fSw1, s);
+    writeField(_fSw1, s, true);
 }
 
 void LayoutHelp::updateSw2(std::string s) {
-    writeField(_fSw2, s);
+    writeField(_fSw2, s, true);
 }
 

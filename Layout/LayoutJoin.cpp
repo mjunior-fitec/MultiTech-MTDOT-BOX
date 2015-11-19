@@ -58,7 +58,7 @@ void LayoutJoin::updateFsb(uint8_t band) {
 }
 
 void LayoutJoin::updateRate(std::string rate) {
-    writeField(_fRate, rate);
+    writeField(_fRate, rate, true);
 }
 
 void LayoutJoin::updatePower(uint32_t power) {
