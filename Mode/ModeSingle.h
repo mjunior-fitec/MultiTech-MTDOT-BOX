@@ -2,8 +2,6 @@
 #define __MODESINGLE_H__
 
 #include "Mode.h"
-#include "mDot.h"
-#include "LoRaHandler.h"
 #include "LayoutHelp.h"
 #include "LayoutFile.h"
 #include "LayoutConfirm.h"
@@ -39,17 +37,6 @@ class ModeSingle : public Mode {
         LayoutSurveyProgress _progress;
         LayoutSurveySuccess _success;
         LayoutSurveyFailure _failure;
-        mDot* _dot;
-        LoRaHandler* _lora;
-        uint8_t _band;
-        uint8_t _sub_band;
-        uint8_t _data_rate;
-        uint8_t _power;
-        uint32_t _next_tx;
-        ButtonHandler::ButtonEvent _be;
-        LoRaHandler::LoRaStatus _ls;
-        uint8_t _state;
-        bool _send_data;
 };
 
 #endif

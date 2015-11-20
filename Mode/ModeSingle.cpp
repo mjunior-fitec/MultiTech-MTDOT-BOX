@@ -2,18 +2,13 @@
 #include "MTSLog.h"
 
 ModeSingle::ModeSingle(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
-  : Mode(lcd, buttons),
+  : Mode(lcd, buttons, dot, lora),
     _help(lcd),
     _file(lcd),
     _confirm(lcd),
     _progress(lcd),
     _success(lcd),
-    _failure(lcd),
-    _dot(dot),
-    _data_rate(mDot::SF_7),
-    _power(2),
-    _lora(lora),
-    _send_data(false)
+    _failure(lcd)
 {}
 
 ModeSingle::~ModeSingle() {}
@@ -29,7 +24,6 @@ bool ModeSingle::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
 
-    _band = _dot->getFrequencyBand();
     _sub_band = _dot->getFrequencySubBand();
 
     // see if we're supposed to send the data packet after success
@@ -205,9 +199,7 @@ bool ModeSingle::start() {
                 logInfo("next tx %lu ms", t);
                 _progress.updateCountdown(t / 1000);
             } else {
-                logInfo("ready to transmit");
                 _progress.display();
-                logInfo("countdown removed");
                 no_channel_ping = false;
                 send_ping = true;
             }

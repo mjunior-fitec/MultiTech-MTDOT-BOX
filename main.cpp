@@ -81,7 +81,7 @@ int main() {
     dot->setAck(1);
     // end of temporary stuff!
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora, dot->getFrequencyBand());
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora);
     modeSingle = new ModeSingle(lcd, buttons, dot, lora);
 
     // display startup screen for 3 seconds

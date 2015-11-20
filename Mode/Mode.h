@@ -3,6 +3,8 @@
 
 #include "DOGS102.h"
 #include "ButtonHandler.h"
+#include "mDot.h"
+#include "LoRaHandler.h"
 #include "GPSPARSER.h"
 
 class Mode {
@@ -29,7 +31,7 @@ class Mode {
             uint8_t power;
         } DataItem;
 
-        Mode(DOGS102* lcd, ButtonHandler* buttons);
+        Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
         ~Mode();
 
         virtual bool start() = 0;
@@ -40,9 +42,20 @@ class Mode {
 
         DOGS102* _lcd;
         ButtonHandler* _buttons;
-        uint32_t _index;
+        mDot* _dot;
+        LoRaHandler* _lora;
         osThreadId _main_id;
         static const char* _file_name;
+        uint32_t _index;
+        uint8_t _band;
+        uint8_t _sub_band;
+        uint8_t _data_rate;
+        uint8_t _power;
+        uint32_t _next_tx;
+        ButtonHandler::ButtonEvent _be;
+        LoRaHandler::LoRaStatus _ls;
+        uint8_t _state;
+        bool _send_data;
 };
 
 #endif

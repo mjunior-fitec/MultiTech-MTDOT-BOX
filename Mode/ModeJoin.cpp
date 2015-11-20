@@ -2,15 +2,9 @@
 #include "MTSLog.h"
 #include "MTSText.h"
 
-ModeJoin::ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, uint8_t band)
-  : Mode(lcd, buttons),
-    _join(lcd, band),
-    _dot(dot),
-    _lora(lora),
-    _band(band),
-    _data_rate(band == mDot::FB_915 ? mDot::SF_10 : mDot::SF_12),
-    _power(20),
-    _next_tx(0),
+ModeJoin::ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
+  : Mode(lcd, buttons, dot, lora),
+    _join(lcd, _band),
     _joined(false)
 {}
 
@@ -21,6 +15,9 @@ bool ModeJoin::start() {
 
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
+
+    _data_rate = (_band == mDot::FB_915) ? mDot::SF_10 : mDot::SF_12;
+    _power = 20;
     _joined = false;
 
     display();
@@ -33,6 +30,7 @@ bool ModeJoin::start() {
         _next_tx = _lora->getNextTx();
         if (_next_tx) {
             logInfo("next tx %lu ms", _next_tx);
+            _join.updateStatus("Waiting...");
             _join.updateCountdown(_next_tx / 1000);
         } else if (! joining) {
             logInfo("attempting to join");
