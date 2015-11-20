@@ -36,6 +36,8 @@ class LoRaHandler {
         LoRaStatus getStatus();
         LoRaPing getPingResults();
         uint32_t getNextTx();
+        uint32_t getJoinAttempts();
+        void resetJoinAttempts();
 
 
         osThreadId _main;
@@ -44,6 +46,7 @@ class LoRaHandler {
         LoRaPing _ping;
         mDot* _dot;
         Mutex _mutex;
+        uint32_t _join_attempts;
 };
 
 #endif

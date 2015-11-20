@@ -19,7 +19,6 @@ class LayoutJoin : public Layout {
         void updateAttempt(uint32_t attempt);
         void updateStatus(std::string status);
         void updateCountdown(uint32_t seconds);
-        void removeCountdown();
         void displayCancel(bool display = true);
 
     private:

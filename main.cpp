@@ -22,6 +22,7 @@
 #include "LoRaHandler.h"
 // mode objects
 #include "ModeJoin.h"
+#include "ModeSingle.h"
 // misc heders
 #include <string>
 
@@ -45,6 +46,7 @@ mDot* dot;
 
 // Modes
 ModeJoin* modeJoin;
+ModeSingle* modeSingle;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
@@ -59,7 +61,7 @@ void surveySingle();
 void surveySweep();
 
 int main() {
-    debug.baud(115200);
+    debug.baud(460800);
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     lcd_backlight = new NCP5623B(backlight_i2c);
@@ -69,14 +71,8 @@ int main() {
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora, dot->getFrequencyBand());
-
-    // display startup screen for 3 seconds
-    LayoutStartup ls(lcd);
-    ls.display();
-    osDelay(3000);
-
     // start of temporary stuff!
+    dot->setFrequencyBand(mDot::FB_868);
     if (dot->getFrequencyBand() == mDot::FB_915)
         dot->setFrequencySubBand(mDot::FSB_7);
     dot->setJoinMode(mDot::OTA);
@@ -84,6 +80,14 @@ int main() {
     dot->setNetworkPassphrase("password_123");
     dot->setAck(1);
     // end of temporary stuff!
+
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora, dot->getFrequencyBand());
+    modeSingle = new ModeSingle(lcd, buttons, dot, lora);
+
+    // display startup screen for 3 seconds
+    LayoutStartup ls(lcd);
+    ls.display();
+    osDelay(3000);
 
     //MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
     MTSLog::setLogLevel(MTSLog::INFO_LEVEL);
@@ -120,6 +124,8 @@ void mainMenu() {
     items.push_back(menu_strings[sweep]);
 
     while (true) {
+        // reset session between modes
+        dot->resetNetworkSession();
         LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
         menu.display();
 
@@ -150,7 +156,7 @@ void mainMenu() {
             configuration();
         } else if (selected == menu_strings[single]) {
             if (modeJoin->start())
-                surveySingle();
+                modeSingle->start();
         } else if (selected == menu_strings[sweep]) {
             if (modeJoin->start())
                 surveySweep();
@@ -210,38 +216,6 @@ void loraDemo() {
                     break;
                 case ButtonHandler::sw2_press:
                     logInfo("interval TX mode");
-                    break;
-                case ButtonHandler::sw1_hold:
-                    return;
-                default:
-                    break;
-            }
-        }
-    }
-}
-
-void surveySingle() {
-    LayoutHelp lh(lcd);
-    lh.display();
-    lh.updateMode("Survey Single");
-    lh.updateSw1("  DR/PWR");
-    lh.updateSw2("Survey");
-
-    // clear any stale signals
-    osSignalClear(main_id, buttonSignal | loraSignal);
-
-    logInfo("survey single mode");
-
-    while (true) {
-        osEvent e = Thread::signal_wait(buttonSignal);
-        if (e.status == osEventSignal) {
-            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
-            switch (ev) {
-                case ButtonHandler::sw1_press:
-                    logInfo("datarate/power");
-                    break;
-                case ButtonHandler::sw2_press:
-                    logInfo("start survey");
                     break;
                 case ButtonHandler::sw1_hold:
                     return;

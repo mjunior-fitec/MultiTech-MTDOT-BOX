@@ -60,6 +60,7 @@ void l_worker(void const* argument) {
                 case l_join:
                     l->_mutex.lock();
                     ret = l->_dot->joinNetworkOnce();
+                    l->_join_attempts++;
                     l->_mutex.unlock();
                     if (ret == mDot::MDOT_OK) {
                         l->_status = LoRaHandler::join_success;
@@ -80,7 +81,8 @@ void l_worker(void const* argument) {
 LoRaHandler::LoRaHandler(osThreadId main)
   : _main(main),
     _thread(l_worker, (void*)this),
-    _status(none)
+    _status(none),
+    _join_attempts(1)
 {
     _ping.status = false;
 }
@@ -156,5 +158,21 @@ uint32_t LoRaHandler::getNextTx() {
     _mutex.unlock();
 
     return ms;
+}
+
+uint32_t LoRaHandler::getJoinAttempts() {
+    uint32_t val;
+
+    _mutex.lock();
+    val = _join_attempts;
+    _mutex.unlock();
+
+    return val;
+}
+
+void LoRaHandler::resetJoinAttempts() {
+    _mutex.lock();
+    _join_attempts = 1;
+    _mutex.unlock();
 }
 
