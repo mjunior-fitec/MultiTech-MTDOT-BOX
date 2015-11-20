@@ -52,6 +52,8 @@ ModeConfig* modeConfig;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
+// Config mode serial port.
+mts::MTSSerial serial(USBTX, USBRX, 512, 512);
 
 // Prototypes
 void mainMenu();
@@ -73,7 +75,7 @@ int main() {
     lora = new LoRaHandler(main_id);
 
     modeJoin = new ModeJoin(lcd, buttons, dot, lora, dot->getFrequencyBand());
-    modeConfig = new ModeConfig(lcd, buttons, dot);
+    modeConfig = new ModeConfig(lcd, serial, dot, buttons);
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd);

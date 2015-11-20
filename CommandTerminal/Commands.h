@@ -6,6 +6,7 @@
 #include "CmdFactoryDefault.h"
 #include "CmdSaveConfig.h"
 #include "CmdDisplayConfig.h"
+#include "CmdFrequencyBand.h"
 #include "CmdDeviceId.h"
 #include "CmdPublicNetwork.h"
 #include "CmdNetworkAddress.h"
@@ -25,4 +26,3 @@
 #include "CmdData.h"
 #include "CmdGetSurveyDataFile.h"
 #include "CmdDeleteSurveyDataFile.h"
-#include "CmdExit.h"
