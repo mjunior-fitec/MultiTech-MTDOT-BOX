@@ -24,6 +24,7 @@
 #include "LoRaHandler.h"
 // mode objects
 #include "ModeJoin.h"
+#include "ModeConfig.h"
 // misc heders
 #include <string>
 
@@ -47,10 +48,10 @@ mDot* dot;
 
 // Modes
 ModeJoin* modeJoin;
+ModeConfig* modeConfig;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
-mts::MTSSerial serial(USBTX, USBRX, 512, 512);
 
 // Prototypes
 void mainMenu();
@@ -72,6 +73,7 @@ int main() {
     lora = new LoRaHandler(main_id);
 
     modeJoin = new ModeJoin(lcd, buttons, dot, lora, dot->getFrequencyBand());
+    modeConfig = new ModeConfig(lcd, buttons, dot);
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd);
@@ -149,7 +151,7 @@ void mainMenu() {
             if (modeJoin->start())
                 loraDemo();
         } else if (selected == menu_strings[config]) {
-            configuration();
+            modeConfig->start();
         } else if (selected == menu_strings[single]) {
             if (modeJoin->start())
                 surveySingle();
@@ -159,33 +161,6 @@ void mainMenu() {
         }
 
         mode_selected = false;
-    }
-}
-
-void configuration() {
-    LayoutConfig lc(lcd);
-
-    // clear any stale signals
-    osSignalClear(main_id, buttonSignal | loraSignal);
-
-    lc.display();
-    logInfo("config mode");
-
-    while (true) {
-        osEvent e = Thread::signal_wait(buttonSignal);
-        if (e.status == osEventSignal) {
-            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
-            switch (ev) {
-                case ButtonHandler::sw1_press:
-                    break;
-                case ButtonHandler::sw2_press:
-                    break;
-                case ButtonHandler::sw1_hold:
-                    return;
-                default:
-                    break;
-            }
-        }
     }
 }
 

@@ -17,9 +17,8 @@ bool ModeConfig::start() {
 
     _lc.display();
 
-    logInfo("config mode");
-
 	mts::MTSSerial serial(USBTX, USBRX, 512, 512);
+    serial.baud(115200);
 
     CommandTerminal term(serial, _dot, _buttons);
    	return term.start();		

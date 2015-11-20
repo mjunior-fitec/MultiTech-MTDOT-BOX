@@ -152,43 +152,10 @@ bool CommandTerminal::start() {
     int history_index = -1;
     std::vector<std::string> args;
 
-    if (_dot->getStartUpMode() == mDot::SERIAL_MODE) {
-        std::string escape_buffer;
-        char ch;
-
-        int escape_timeout = 1000;
-        Timer tmr;
-        Timer escape_tmr;
-
-        // wait one second for possible escape
-        tmr.reset();
-        tmr.start();
-        escape_tmr.reset();
-        escape_tmr.start();
-        while (tmr.read_ms() < escape_timeout) {
-            if (_serial.readable()) {
-                _serial.read(&ch, 1);
-                escape_buffer += ch;
-            }
-
-            if (escape_buffer.find(escape_sequence) != std::string::npos) {
-                _mode = mDot::COMMAND_MODE;
-                command.clear();
-                break;
-            }
-
-            if (escape_tmr.read_ms() > escape_timeout)
-                escape_buffer.clear();
-
-            osDelay(1);
-        }
-
-    }
-
     //Run terminal session
     while (running) {
 
-        osEvent e = Thread::signal_wait(buttonSignal);
+        osEvent e = Thread::signal_wait(buttonSignal, 20);
         if (e.status == osEventSignal) {
             ButtonHandler::ButtonEvent _be = _buttons->getButtonEvent();
             switch (_be) {
