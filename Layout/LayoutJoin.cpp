@@ -89,7 +89,9 @@ void LayoutJoin::updateCountdown(uint32_t seconds) {
     size_t size;
 
     memset(buf, 0, sizeof(buf));
-    writeField(_fCountdownLabel, "No Free Channel", true);
+    // for some reason, there's a % character that gets displayed in the last column
+    // add the extra spaces to wipe it out
+    writeField(_fCountdownLabel, "No Free Channel  ", true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fCountdown, buf, size, true);
 }
