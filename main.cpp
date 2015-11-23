@@ -52,13 +52,10 @@ ModeConfig* modeConfig;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
-// Config mode serial port.
-mts::MTSSerial serial(USBTX, USBRX, 512, 512);
 
 // Prototypes
 void mainMenu();
 void join();
-void configuration();
 void loraDemo();
 void surveySingle();
 void surveySweep();
@@ -74,24 +71,9 @@ int main() {
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
 
-    // display startup screen for 3 seconds
-    LayoutStartup ls(lcd);
-    ls.display();
-    osDelay(3000);
-
-    // start of temporary stuff!
-    //dot->setFrequencyBand(mDot::FB_868);
-    if (dot->getFrequencyBand() == mDot::FB_915)
-        dot->setFrequencySubBand(mDot::FSB_7);
-    dot->setJoinMode(mDot::OTA);
-    dot->setNetworkName("mikes_lora_network");
-    dot->setNetworkPassphrase("password_123");
-    dot->setAck(1);
-    // end of temporary stuff!
-
     modeJoin = new ModeJoin(lcd, buttons, dot, lora);
     modeSingle = new ModeSingle(lcd, buttons, dot, lora);
-    modeConfig = new ModeConfig(lcd, serial, dot, buttons);
+    modeConfig = new ModeConfig(lcd, buttons, dot, lora);
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd);

@@ -13,7 +13,7 @@ class ModeConfig : public Mode {
 
 public:
 
-    ModeConfig(DOGS102* lcd, mts::MTSSerial& serial, mDot* dot, ButtonHandler* buttons);
+    ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
     
     // Command error text...
     static const char command_error[];
@@ -27,22 +27,9 @@ public:
     
 private: 
 
-    static void idle(void const* args) {
-        while (1)
-            __WFI();
-    }
-
-    mts::MTSSerial& _serial;
-    static mts::MTSSerial* _serialp;
-
-	LayoutConfig _lc;
-	ButtonHandler::ButtonEvent _be;
-	ButtonHandler* _buttons;	
-    mDot* _dot;
-    mDot::Mode _mode;
+    mts::MTSSerial _serial;
+    LayoutConfig _lc;
     std::vector<Command*> _commands;
-    Thread _idle_thread;
-    bool _serial_up;
 
     void addCommand(Command* cmd);
     

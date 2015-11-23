@@ -15,53 +15,44 @@ const char ModeConfig::command_error[] = "Command not found!\r\n";
 const char ModeConfig::done[] = "\r\nOK\r\n";
 const char ModeConfig::error[] = "\r\nERROR\r\n";
 
-mts::MTSSerial* ModeConfig::_serialp = NULL;
-
 void ModeConfig::addCommand(Command* cmd) {
     _commands.push_back(cmd);
 }
 
-ModeConfig::ModeConfig(DOGS102* lcd, mts::MTSSerial& serial, mDot* dot, ButtonHandler* buttons)
-: Mode(lcd, buttons),
+ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
+: Mode(lcd, buttons, dot, lora),
   _lc(lcd),
-  _serial(serial),
-  _dot(dot),
-  _mode(mDot::COMMAND_MODE),
-  _idle_thread(idle, NULL, osPriorityLow),
-  _serial_up(false),
-  _buttons(buttons) {
-
-    _serialp = &serial;
+  _serial(USBTX, USBRX, 512, 512)
+{
 
     addCommand(new CmdAttention(_dot));
-    addCommand(new CmdIdentification(_dot, serial));
+    addCommand(new CmdIdentification(_dot, _serial));
     addCommand(new CmdFactoryDefault(_dot));
     addCommand(new CmdSaveConfig(_dot));
-    addCommand(new CmdDisplayConfig(_dot, serial));
+    addCommand(new CmdDisplayConfig(_dot, _serial));
 
-    addCommand(new CmdFrequencyBand(_dot, serial));
-    addCommand(new CmdFrequencySubBand(_dot, serial));
-    addCommand(new CmdPublicNetwork(_dot, serial));
-    addCommand(new CmdDeviceId(_dot, serial));
+    addCommand(new CmdFrequencyBand(_dot, _serial));
+    addCommand(new CmdFrequencySubBand(_dot, _serial));
+    addCommand(new CmdPublicNetwork(_dot, _serial));
+    addCommand(new CmdDeviceId(_dot, _serial));
 
-    addCommand(new CmdNetworkAddress(_dot, serial));
-    addCommand(new CmdNetworkSessionKey(_dot, serial));
-    addCommand(new CmdDataSessionKey(_dot, serial));
-    addCommand(new CmdNetworkKey(_dot, serial));
-    addCommand(new CmdNetworkId(_dot, serial));
+    addCommand(new CmdNetworkAddress(_dot, _serial));
+    addCommand(new CmdNetworkSessionKey(_dot, _serial));
+    addCommand(new CmdDataSessionKey(_dot, _serial));
+    addCommand(new CmdNetworkKey(_dot, _serial));
+    addCommand(new CmdNetworkId(_dot, _serial));
 
-    addCommand(new CmdNetworkJoinMode(_dot, serial));
-    addCommand(new CmdTxDataRate(_dot, serial));
-    addCommand(new CmdTxPower(_dot, serial));
+    addCommand(new CmdNetworkJoinMode(_dot, _serial));
+    addCommand(new CmdTxDataRate(_dot, _serial));
+    addCommand(new CmdTxPower(_dot, _serial));
 
-    addCommand(new CmdMinimumSize(_dot, serial));
-    addCommand(new CmdMaximumSize(_dot, serial));
-    addCommand(new CmdMinimumPower(_dot, serial));
-    addCommand(new CmdMaximumPower(_dot, serial));
-    addCommand(new CmdData(_dot, serial));
-    addCommand(new CmdGetSurveyDataFile(_dot, serial));
-    addCommand(new CmdDeleteSurveyDataFile(_dot, serial));
-    
+    addCommand(new CmdMinimumSize(_dot, _serial));
+    addCommand(new CmdMaximumSize(_dot, _serial));
+    addCommand(new CmdMinimumPower(_dot, _serial));
+    addCommand(new CmdMaximumPower(_dot, _serial));
+    addCommand(new CmdData(_dot, _serial));
+    addCommand(new CmdGetSurveyDataFile(_dot, _serial));
+    addCommand(new CmdDeleteSurveyDataFile(_dot, _serial));
 }
 
 void ModeConfig::printHelp() {
