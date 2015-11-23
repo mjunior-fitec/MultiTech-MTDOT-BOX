@@ -1,5 +1,6 @@
 #include "CmdDisplayConfig.h"
 #include "version.h"
+#include "MTSLog.h"
 
 std::string version = MTDOT_BOX_VERSION;
 
@@ -45,7 +46,8 @@ uint32_t CmdDisplayConfig::action(std::vector<std::string> args) {
 
     _serial.writef("Tx Data Rate:\t\t%s\r\n", mDot::DataRateStr(_dot->getTxDataRate()).c_str());
     _serial.writef("Tx Power:\t\t%u\r\n", _dot->getTxPower());
-    _serial.writef("Log Level:\t\t%ld\r\n", _dot->getLogLevel());
+    //_serial.writef("Log Level:\t\t%ld\r\n", _dot->getLogLevel());
+    _serial.writef("Log Level:\t\t%ld\r\n", mts::MTSLog::TRACE_LEVEL);
 
     _serial.writef("Maximum Size:\t\t%u\r\n",	_dot->getWakeDelay());		//DotBox +MaxSize is stored here.
     _serial.writef("Minimum Size:\t\t%u\r\n",	_dot->getWakeInterval());	//DotBox +MinSize is stored here.

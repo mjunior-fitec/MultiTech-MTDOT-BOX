@@ -24,6 +24,7 @@ ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHand
   _lc(lcd),
   _serial(USBTX, USBRX, 512, 512)
 {
+    _serial.baud(115200);
 
     addCommand(new CmdAttention(_dot));
     addCommand(new CmdIdentification(_dot, _serial));

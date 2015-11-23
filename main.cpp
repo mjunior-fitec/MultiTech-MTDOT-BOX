@@ -61,7 +61,7 @@ void surveySingle();
 void surveySweep();
 
 int main() {
-    debug.baud(460800);
+    debug.baud(115200);
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     lcd_backlight = new NCP5623B(backlight_i2c);
@@ -76,12 +76,11 @@ int main() {
     modeConfig = new ModeConfig(lcd, buttons, dot, lora);
 
     // display startup screen for 3 seconds
-    LayoutStartup ls(lcd);
+    LayoutStartup ls(lcd, dot);
     ls.display();
     osDelay(3000);
 
-    //MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
-    MTSLog::setLogLevel(MTSLog::INFO_LEVEL);
+    MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
     logInfo("displaying main menu");
     mainMenu();
 
