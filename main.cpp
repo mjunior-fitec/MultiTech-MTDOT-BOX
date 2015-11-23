@@ -72,7 +72,7 @@ int main() {
     lora = new LoRaHandler(main_id);
 
     // start of temporary stuff!
-    dot->setFrequencyBand(mDot::FB_868);
+    //dot->setFrequencyBand(mDot::FB_868);
     if (dot->getFrequencyBand() == mDot::FB_915)
         dot->setFrequencySubBand(mDot::FSB_7);
     dot->setJoinMode(mDot::OTA);
