@@ -262,8 +262,8 @@ bool ModeSingle::start() {
                 _success.updateCountdown(t / 1000);
             } else {
                 displaySuccess();
-                no_channel_ping = false;
-                send_ping = true;
+                no_channel_data = false;
+                send_data = true;
             }
         }
         if (send_ping) {
