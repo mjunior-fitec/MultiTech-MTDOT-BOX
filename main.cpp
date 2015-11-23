@@ -4,11 +4,6 @@
 // MTS headers
 #include "mDot.h"
 #include "MTSLog.h"
-// sensor headers
-#include "ISL29011.h"
-#include "MMA845x.h"
-#include "MPL3115A2.h"
-#include "GPSPARSER.h"
 // display headers
 #include "DOGS102.h"
 #include "NCP5623B.h"

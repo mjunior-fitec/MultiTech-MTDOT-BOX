@@ -127,3 +127,15 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.power = _power;
 }
 
+std::vector<uint8_t> Mode::formatSurveyData(DataItem& data) {
+    std::vector<uint8_t> send_data;
+
+    return send_data;
+}
+
+std::vector<uint8_t> Mode::formatSensorData(SensorItem& data) {
+    std::vector<uint8_t> send_data;
+
+    return send_data;
+}
+
