@@ -18,6 +18,7 @@ class ModeSingle : public Mode {
 
     private:
         void displayHelp();
+        void displaySuccess();
         std::string formatNewRatePower();
         void incrementRatePower();
 
@@ -37,6 +38,7 @@ class ModeSingle : public Mode {
         LayoutSurveyProgress _progress;
         LayoutSurveySuccess _success;
         LayoutSurveyFailure _failure;
+        DataItem _data;
 };
 
 #endif

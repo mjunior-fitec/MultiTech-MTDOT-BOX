@@ -19,7 +19,9 @@ class LayoutSurveySuccess : public Layout {
         void updateGpsLongitude(GPSPARSER::longitude lon);
         void updateGpsTime(struct tm time);
         void updateInfo(std::string info);
+        void updateSw1(std::string sw1);
         void updateSw2(std::string sw2);
+        void updateCountdown(uint32_t seconds);
 
     private:
         Label _lId;
@@ -27,7 +29,6 @@ class LayoutSurveySuccess : public Layout {
         Label _lPwr;
         Label _lUp;
         Label _lDown;
-        Label _lSw1;
         
         Field _fId;
         Field _fDr;
@@ -40,6 +41,7 @@ class LayoutSurveySuccess : public Layout {
         Field _fGpsLon;
         Field _fGpsTime;
         Field _fInfo;
+        Field _fSw1;
         Field _fSw2;
 };
 

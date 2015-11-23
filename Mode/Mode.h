@@ -23,12 +23,9 @@ class Mode {
             GPSPARSER::latitude gps_latitude;
             int16_t gps_altitude;
             struct tm gps_time;
-            int16_t rssi_up;
-            int16_t snr_up;
-            int16_t rssi_down;
-            int16_t snr_down;
+            LoRaHandler::LoRaPing ping;
             uint8_t data_rate;
-            uint8_t power;
+            uint32_t power;
         } DataItem;
 
         Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
@@ -39,6 +36,7 @@ class Mode {
     protected:
         bool deleteDataFile();
         bool appendDataFile(const DataItem& data);
+        void updateData(DataItem& data, DataType type, bool status);
 
         DOGS102* _lcd;
         ButtonHandler* _buttons;
@@ -54,6 +52,7 @@ class Mode {
         uint32_t _next_tx;
         ButtonHandler::ButtonEvent _be;
         LoRaHandler::LoRaStatus _ls;
+        LoRaHandler::LoRaPing _ping_result;
         uint8_t _state;
         bool _send_data;
 };

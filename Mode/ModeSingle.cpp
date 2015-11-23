@@ -19,12 +19,9 @@ bool ModeSingle::start() {
     bool send_data = false;
     bool no_channel_ping = false;
     bool no_channel_data = false;
-    LoRaHandler::LoRaPing ping_result;
 
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
-
-    _sub_band = _dot->getFrequencySubBand();
 
     // see if we're supposed to send the data packet after success
     // that item is stored in the mDot::StartUpMode config field
@@ -33,7 +30,7 @@ bool ModeSingle::start() {
     // see if survey data file exists
     std::vector<mDot::mdot_file> files = _dot->listUserFiles();
     for (std::vector<mDot::mdot_file>::iterator it = files.begin(); it != files.end(); it++) {
-        if (it->name == _file_name) {
+        if (strcmp(it->name, _file_name) == 0) {
             logInfo("found survey data file");
             data_file = true;
             break;
@@ -94,6 +91,7 @@ bool ModeSingle::start() {
                                 break;
                             case confirm:
                                 _state = show_help;
+                                logInfo("deleting survey data file");
                                 _dot->deleteUserFile(_file_name);
                                 _index = 0;
                                 displayHelp();
@@ -145,16 +143,21 @@ bool ModeSingle::start() {
                             case show_help:
                                 break;
                             case in_progress:
-                                _state = success;
-                                ping_result = _lora->getPingResults();
-                                _success.display();
-                                _success.updateId(_index);
-                                // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-                                _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
-                                _success.updatePower(_power);
-                                _success.updateStats(ping_result);
-                                _success.updateInfo("No GPS Lock");
-                                _success.updateSw2("Survey");
+                                _ping_result = _lora->getPingResults();
+                                displaySuccess();
+                                updateData(_data, single, true);
+                                appendDataFile(_data);
+                                if (_send_data) {
+                                    _state = data;
+                                    if (_lora->getNextTx() > 0)
+                                        no_channel_data = true;
+                                    else
+                                        send_data = true;
+                                } else {
+                                    _state = success;
+                                    _success.updateSw1("   Power");
+                                    _success.updateSw2("Survey");
+                                }
                                 break;
                             case success:
                                 break;
@@ -179,11 +182,59 @@ bool ModeSingle::start() {
                                 _failure.updateId(_index);
                                 // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
                                 _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+                                updateData(_data, single, false);
+                                appendDataFile(_data);
                                 _failure.updatePower(_power);
                                 break;
                             case success:
                                 break;
                             case data:
+                                break;
+                            case failure:
+                                break;
+                        }
+                        break;
+
+                    case LoRaHandler::send_success:
+                        switch (_state) {
+                            case check_file:
+                                break;
+                            case confirm:
+                                break;
+                            case show_help:
+                                break;
+                            case in_progress:
+                                break;
+                            case success:
+                                break;
+                            case data:
+                                _state = success;
+                                _success.updateInfo("Data Send Success");
+                                _success.updateSw1("   Power");
+                                _success.updateSw2("Survey");
+                                break;
+                            case failure:
+                                break;
+                        }
+                        break;
+
+                    case LoRaHandler::send_failure:
+                        switch (_state) {
+                            case check_file:
+                                break;
+                            case confirm:
+                                break;
+                            case show_help:
+                                break;
+                            case in_progress:
+                                break;
+                            case success:
+                                break;
+                            case data:
+                                _state = success;
+                                _success.updateInfo("Data Send Failure");
+                                _success.updateSw1("   Power");
+                                _success.updateSw2("Survey");
                                 break;
                             case failure:
                                 break;
@@ -205,6 +256,15 @@ bool ModeSingle::start() {
             }
         }
         if (no_channel_data) {
+            uint32_t t = _lora->getNextTx();
+            if (t > 0) {
+                logInfo("next tx %lu ms", t);
+                _success.updateCountdown(t / 1000);
+            } else {
+                displaySuccess();
+                no_channel_ping = false;
+                send_ping = true;
+            }
         }
         if (send_ping) {
             logInfo("sending ping");
@@ -215,6 +275,12 @@ bool ModeSingle::start() {
             _index++;
         }
         if (send_data) {
+            std::vector<uint8_t> s_data;
+            logInfo("sending data");
+            _success.updateInfo("Data Sending...");
+            _lora->setDataRate(_data_rate);
+            _lora->setPower(_power);
+            _lora->send(s_data);
         }
     }
 }
@@ -224,6 +290,20 @@ void ModeSingle::displayHelp() {
     _help.updateMode("Survey Single");
     _help.updateSw1("  DR/PWR");
     _help.updateSw2("Survey");
+}
+
+void ModeSingle::displaySuccess() {
+    _success.display();
+    _success.updateId(_index);
+    // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
+    _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+    _success.updatePower(_power);
+    _success.updateStats(_ping_result);
+    // if GPS lock
+    // display GPS latitude, longitude, and time
+    // else
+    // display "no lock"
+    _success.updateInfo("No GPS Lock");
 }
 
 std::string ModeSingle::formatNewRatePower() {

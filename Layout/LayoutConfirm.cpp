@@ -6,8 +6,8 @@ LayoutConfirm::LayoutConfirm(DOGS102* lcd)
     _lMsg2(0, 1, "Want to Erase It?"),
     _lIns1(0, 4, "Hold SW1 any time"),
     _lIns2(0, 5, "for Main Menu"),
-    _lSw1(14, 7, "No"),
-    _lSw2(1, 7, "Yes")
+    _lSw1(15, 7, "No"),
+    _lSw2(0, 7, "Yes")
 {}
 
 LayoutConfirm::~LayoutConfirm() {}

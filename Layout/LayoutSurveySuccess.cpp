@@ -7,7 +7,6 @@ LayoutSurveySuccess::LayoutSurveySuccess(DOGS102* lcd)
     _lPwr(13, 0, "P"),
     _lUp(0, 1, "UP"),
     _lDown(0, 2, "DWN"),
-    _lSw1(12, 7, "Power"),
     _fId(2, 0, 5),
     _fDr(10, 0, 2),
     _fPwr(14, 0, 2),
@@ -19,6 +18,7 @@ LayoutSurveySuccess::LayoutSurveySuccess(DOGS102* lcd)
     _fGpsLon(0, 3, 17),
     _fGpsTime(0, 5, 17),
     _fInfo(0, 6, 17),
+    _fSw1(9, 7, 8),
     _fSw2(0, 7, 8)
 {}
 
@@ -33,7 +33,6 @@ void LayoutSurveySuccess::display() {
     writeLabel(_lPwr);
     writeLabel(_lUp);
     writeLabel(_lDown);
-    writeLabel(_lSw1);
 
     endUpdate();
 }
@@ -76,7 +75,7 @@ void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
     writeField(_fDownRssi, buf, size);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%2d.%1d", ping.down.snr / 4, abs(ping.up.snr) % 10 * 25);
+    size = snprintf(buf, sizeof(buf), "%2d.%1d", ping.down.snr / 4, abs(ping.down.snr) % 10 * 25);
     writeField(_fDownSnr, buf, size);
 
     endUpdate();
@@ -95,7 +94,23 @@ void LayoutSurveySuccess::updateInfo(std::string info) {
     writeField(_fInfo, info, true);
 }
 
+void LayoutSurveySuccess::updateSw1(std::string sw1) {
+    writeField(_fSw1, sw1, true);
+}
+
 void LayoutSurveySuccess::updateSw2(std::string sw2) {
     writeField(_fSw2, sw2, true);
+}
+
+void LayoutSurveySuccess::updateCountdown(uint32_t seconds) {
+    char buf[16];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    // for some reason, there's a % character that gets displayed in the last column
+    // add the extra spaces to wipe it out
+    writeField(_fInfo, "No Free Channel  ", true);
+    size = snprintf(buf, sizeof(buf), "%lu s", seconds);
+    writeField(_fSw2, buf, size, true);
 }
 
