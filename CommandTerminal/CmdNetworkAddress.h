@@ -3,7 +3,7 @@
 
 #include "Command.h"
 
-class CommandTerminal;
+class ModeConfig;
 
 class CmdNetworkAddress : public Command {
 

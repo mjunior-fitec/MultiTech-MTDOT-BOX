@@ -1,40 +1,35 @@
+#include "ModeConfig.h"
 #include "ctype.h"
-#include "CommandTerminal.h"
 #include "Command.h"
 #include "MTSLog.h"
+#include "ButtonHandler.h"
 #include <cstdarg>
 #include <deque>
 
-const char CommandTerminal::banner[] = "\r\n\nMultiTech Systems LoRa XBee Module\r\n\n";
-const char CommandTerminal::helpline[] = "Enter '?' for help\r\n";
-
-const char CommandTerminal::newline[] = "\r\n";
+const char ModeConfig::newline[] = "\r\n";
 
 // Command error text...
-const char CommandTerminal::command_error[] = "Command not found!\r\n";
+const char ModeConfig::command_error[] = "Command not found!\r\n";
 
 // Response texts...
-const char CommandTerminal::help[] = "\r\nHelp\r\n";
-const char CommandTerminal::cmd_error[] = "Invalid command\r\n";
-const char CommandTerminal::done[] = "\r\nOK\r\n";
-const char CommandTerminal::error[] = "\r\nERROR\r\n";
+const char ModeConfig::done[] = "\r\nOK\r\n";
+const char ModeConfig::error[] = "\r\nERROR\r\n";
 
-// Escape sequence...
-const char CommandTerminal::escape_sequence[] = "+++";
+mts::MTSSerial* ModeConfig::_serialp = NULL;
 
-mts::MTSSerial* CommandTerminal::_serialp = NULL;
-
-void CommandTerminal::addCommand(Command* cmd) {
+void ModeConfig::addCommand(Command* cmd) {
     _commands.push_back(cmd);
 }
 
-CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot)
-:
+ModeConfig::ModeConfig(DOGS102* lcd, mts::MTSSerial& serial, mDot* dot, ButtonHandler* buttons)
+: Mode(lcd, buttons),
+  _lc(lcd),
   _serial(serial),
   _dot(dot),
   _mode(mDot::COMMAND_MODE),
   _idle_thread(idle, NULL, osPriorityLow),
-  _serial_up(false) {
+  _serial_up(false),
+  _buttons(buttons) {
 
     _serialp = &serial;
 
@@ -44,6 +39,7 @@ CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot)
     addCommand(new CmdSaveConfig(_dot));
     addCommand(new CmdDisplayConfig(_dot, serial));
 
+    addCommand(new CmdFrequencyBand(_dot, serial));
     addCommand(new CmdFrequencySubBand(_dot, serial));
     addCommand(new CmdPublicNetwork(_dot, serial));
     addCommand(new CmdDeviceId(_dot, serial));
@@ -65,11 +61,10 @@ CommandTerminal::CommandTerminal(mts::MTSSerial& serial, mDot* dot)
     addCommand(new CmdData(_dot, serial));
     addCommand(new CmdGetSurveyDataFile(_dot, serial));
     addCommand(new CmdDeleteSurveyDataFile(_dot, serial));
-    addCommand(new CmdExit(_dot, serial));
     
 }
 
-void CommandTerminal::printHelp() {
+void ModeConfig::printHelp() {
     const char* name = NULL;
     const char* text = NULL;
     const char* desc = NULL;
@@ -109,27 +104,27 @@ void CommandTerminal::printHelp() {
     write(newline);
 }
 
-bool CommandTerminal::writeable() {
+bool ModeConfig::writeable() {
     return _serial.writeable();
 }
 
-bool CommandTerminal::readable() {
+bool ModeConfig::readable() {
     return _serial.readable();
 }
 
-char CommandTerminal::read() {
+char ModeConfig::read() {
     char ch;
     _serial.read(&ch, 1);
     return ch;
 }
 
-void CommandTerminal::write(const char* message) {
+void ModeConfig::write(const char* message) {
     while (!writeable())
         ;
     _serial.write(message, strlen(message));
 }
 
-void CommandTerminal::writef(const char* format, ...) {
+void ModeConfig::writef(const char* format, ...) {
     char buff[256];
 
     va_list ap;
@@ -141,7 +136,7 @@ void CommandTerminal::writef(const char* format, ...) {
     va_end(ap);
 }
 
-void CommandTerminal::start() {
+bool ModeConfig::start() {
     char ch;
     bool running = true;
     bool echo = _dot->getEcho();
@@ -150,41 +145,28 @@ void CommandTerminal::start() {
     int history_index = -1;
     std::vector<std::string> args;
 
-    if (_dot->getStartUpMode() == mDot::SERIAL_MODE) {
-        std::string escape_buffer;
-        char ch;
+    osSignalClear(_main_id, buttonSignal);
 
-        int escape_timeout = 1000;
-        Timer tmr;
-        Timer escape_tmr;
-
-        // wait one second for possible escape
-        tmr.reset();
-        tmr.start();
-        escape_tmr.reset();
-        escape_tmr.start();
-        while (tmr.read_ms() < escape_timeout) {
-            if (_serial.readable()) {
-                _serial.read(&ch, 1);
-                escape_buffer += ch;
-            }
-
-            if (escape_buffer.find(escape_sequence) != std::string::npos) {
-                _mode = mDot::COMMAND_MODE;
-                command.clear();
-                break;
-            }
-
-            if (escape_tmr.read_ms() > escape_timeout)
-                escape_buffer.clear();
-
-            osDelay(1);
-        }
-
-    }
+    _lc.display();
 
     //Run terminal session
     while (running) {
+
+        osEvent e = Thread::signal_wait(buttonSignal, 20);
+        if (e.status == osEventSignal) {
+            ButtonHandler::ButtonEvent _be = _buttons->getButtonEvent();
+            switch (_be) {
+                case ButtonHandler::sw1_press:
+                    break;
+                case ButtonHandler::sw2_press:
+                    break;
+                case ButtonHandler::sw1_hold:
+                    return true;
+                default:
+                    break;
+            }
+        }
+		
         ch = '\0';
 
         // read characters
@@ -294,6 +276,9 @@ void CommandTerminal::start() {
         if ((args[0].find("?") == 0 || args[0].find("HELP") == 0) && args.size() == 1) {
             printHelp();
             command.clear();
+        } else if (args[0].find("AT+EXIT") == 0 && args[0].length() == 7) {
+            write(done);        
+			return true;
         } else {
             bool found = false;
             bool query = false;
@@ -354,4 +339,5 @@ void CommandTerminal::start() {
             history.pop_back();
 
     }
+	return false;
 }

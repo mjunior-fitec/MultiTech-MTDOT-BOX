@@ -3,7 +3,7 @@
 
 #include "Command.h"
 
-class CommandTerminal;
+class ModeConfig;
 
 class CmdMaximumSize: public Command
 {

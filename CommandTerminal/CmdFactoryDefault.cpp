@@ -16,6 +16,8 @@ uint32_t CmdFactoryDefault::action(std::vector<std::string> args)
 	_dot->setWakeMode(20);			//DotBox +MaxPwr is stored here. Default is 20.
 	_dot->setWakeTimeout(2);		//DotBox +MinPwr is stored here. Default is 2.
 	_dot->setStartUpMode(0);		//DotBox +Data is stored here. Default is 0.
+	_dot->setVerbose(1);
+	_dot->setEcho(1);
 	
     _dot->resetNetworkSession();
     return 0;

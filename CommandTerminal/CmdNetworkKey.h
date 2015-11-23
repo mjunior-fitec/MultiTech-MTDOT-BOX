@@ -5,7 +5,7 @@
 
 #include "Command.h"
 
-class CommandTerminal;
+class ModeConfig;
 
 class CmdNetworkKey : public Command {
 

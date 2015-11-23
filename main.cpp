@@ -23,6 +23,7 @@
 // mode objects
 #include "ModeJoin.h"
 #include "ModeSingle.h"
+#include "ModeConfig.h"
 // misc heders
 #include <string>
 
@@ -47,9 +48,11 @@ mDot* dot;
 // Modes
 ModeJoin* modeJoin;
 ModeSingle* modeSingle;
+ModeConfig* modeConfig;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
+// Config mode serial port.
 mts::MTSSerial serial(USBTX, USBRX, 512, 512);
 
 // Prototypes
@@ -71,6 +74,11 @@ int main() {
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
 
+    // display startup screen for 3 seconds
+    LayoutStartup ls(lcd);
+    ls.display();
+    osDelay(3000);
+
     // start of temporary stuff!
     //dot->setFrequencyBand(mDot::FB_868);
     if (dot->getFrequencyBand() == mDot::FB_915)
@@ -83,6 +91,7 @@ int main() {
 
     modeJoin = new ModeJoin(lcd, buttons, dot, lora);
     modeSingle = new ModeSingle(lcd, buttons, dot, lora);
+    modeConfig = new ModeConfig(lcd, serial, dot, buttons);
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd);
@@ -153,7 +162,7 @@ void mainMenu() {
             if (modeJoin->start())
                 loraDemo();
         } else if (selected == menu_strings[config]) {
-            configuration();
+            modeConfig->start();
         } else if (selected == menu_strings[single]) {
             if (modeJoin->start())
                 modeSingle->start();
@@ -163,33 +172,6 @@ void mainMenu() {
         }
 
         mode_selected = false;
-    }
-}
-
-void configuration() {
-    LayoutConfig lc(lcd);
-
-    // clear any stale signals
-    osSignalClear(main_id, buttonSignal | loraSignal);
-
-    lc.display();
-    logInfo("config mode");
-
-    while (true) {
-        osEvent e = Thread::signal_wait(buttonSignal);
-        if (e.status == osEventSignal) {
-            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
-            switch (ev) {
-                case ButtonHandler::sw1_press:
-                    break;
-                case ButtonHandler::sw2_press:
-                    break;
-                case ButtonHandler::sw1_hold:
-                    return;
-                default:
-                    break;
-            }
-        }
     }
 }
 
