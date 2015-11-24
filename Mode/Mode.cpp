@@ -58,13 +58,13 @@ bool Mode::appendDataFile(const DataItem& data) {
 
     // if we had GPS lock, format GPS data
     if (data.lock > 0) {
-        snprintf(lat_buf, sizeof(lat_buf), "%d %d %d.%03d %c",
+        snprintf(lat_buf, sizeof(lat_buf), "%3d %2d %2d.%03d %c",
             abs(data.gps_latitude.degrees),
             data.gps_latitude.minutes,
             (data.gps_latitude.seconds * 6) / 1000,
             (data.gps_latitude.seconds % 6) / 1000,
             (data.gps_latitude.degrees > 0) ? 'N' : 'S');
-        snprintf(lon_buf, sizeof(lon_buf), "%d %d %d.%03d %c",
+        snprintf(lon_buf, sizeof(lon_buf), "%3d %2d %2d.%03d %c",
             abs(data.gps_longitude.degrees),
             data.gps_longitude.minutes,
             (data.gps_longitude.seconds * 6) / 1000,
@@ -82,11 +82,13 @@ bool Mode::appendDataFile(const DataItem& data) {
     }
 
     if (data.status) {
-        snprintf(stats_buf, sizeof(stats_buf), "%d,%d.%ld,%d,%d.%ld",
+        float up_snr = (float)data.ping.up.snr / 10.0;
+        float down_snr = (float)data.ping.up.snr / 4.0;
+        snprintf(stats_buf, sizeof(stats_buf), "%3d,%2.1f,%3d,%2.1f",
             data.ping.up.rssi,
-            data.ping.up.snr / 10, abs(data.ping.up.snr) % 10,
+            up_snr,
             data.ping.down.rssi,
-            data.ping.down.snr / 4, (abs(data.ping.down.snr) % 10) * 25);
+            down_snr);
     }
 
     size = snprintf(main_buf, sizeof(main_buf), "%s,%c,%ld,%s,%s,%s,%s,%s,%s,%lu\n",
@@ -110,7 +112,7 @@ bool Mode::appendDataFile(const DataItem& data) {
         logError("failed to write survey data to file");
         return false;
     } else {
-        logInfo("successfully wrote survey data to file");
+        logInfo("successfully wrote survey data to file\r\n\t%s", main_buf);
     }
 
     return true;
@@ -125,5 +127,20 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.ping = _ping_result;
     data.data_rate = _data_rate;
     data.power = _power;
+}
+
+uint32_t Mode::getIndex(DataType type) {
+    uint32_t index = 0;
+    mDot::mdot_file file;
+
+    file = _dot->openUserFile(_file_name, mDot::FM_RDONLY);
+    if (file.fd < 0) {
+        logError("failed to open survey data file");
+    } else {
+        logInfo("file size %d", file.size);
+        _dot->closeUserFile(file);
+    }
+
+    return index;
 }
 

@@ -37,6 +37,7 @@ class Mode {
         bool deleteDataFile();
         bool appendDataFile(const DataItem& data);
         void updateData(DataItem& data, DataType type, bool status);
+        uint32_t getIndex(DataType type);
 
         DOGS102* _lcd;
         ButtonHandler* _buttons;

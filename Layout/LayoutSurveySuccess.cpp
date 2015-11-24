@@ -1,4 +1,5 @@
 #include "LayoutSurveySuccess.h"
+#include "MTSLog.h"
 
 LayoutSurveySuccess::LayoutSurveySuccess(DOGS102* lcd)
   : Layout(lcd),
@@ -67,7 +68,7 @@ void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
     writeField(_fUpRssi, buf, size);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%2d.%1d", ping.up.snr / 10, abs(ping.up.snr) % 10);
+    size = snprintf(buf, sizeof(buf), "%2.1f", (float)ping.up.snr / 10.0);
     writeField(_fUpSnr, buf, size);
 
     memset(buf, 0, sizeof(buf));
@@ -75,7 +76,7 @@ void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
     writeField(_fDownRssi, buf, size);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%2d.%1d", ping.down.snr / 4, abs(ping.down.snr) % 10 * 25);
+    size = snprintf(buf, sizeof(buf), "%2.1f", (float)ping.down.snr / 4.0);
     writeField(_fDownSnr, buf, size);
 
     endUpdate();

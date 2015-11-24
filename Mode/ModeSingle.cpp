@@ -56,7 +56,7 @@ bool ModeSingle::start() {
                         switch (_state) {
                             case check_file:
                                 _state = show_help;
-                                _index = 0;     // need to get index from NVM
+                                _index = getIndex(single);
                                 displayHelp();
                                 break;
                             case confirm:
@@ -66,6 +66,7 @@ bool ModeSingle::start() {
                             case show_help:
                                 incrementRatePower();
                                 _help.updateMsg(formatNewRatePower());
+                                logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                             case in_progress:
                                 // do nothing
@@ -73,12 +74,14 @@ bool ModeSingle::start() {
                             case success:
                                 incrementRatePower();
                                 _success.updateInfo(formatNewRatePower());
+                                logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                             case data:
                                 break;
                             case failure:
                                 incrementRatePower();
                                 _failure.updateInfo(formatNewRatePower());
+                                logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                         }
                         break;
@@ -145,6 +148,7 @@ bool ModeSingle::start() {
                             case in_progress:
                                 _ping_result = _lora->getPingResults();
                                 displaySuccess();
+                                logInfo("ping successful");
                                 updateData(_data, single, true);
                                 appendDataFile(_data);
                                 if (_send_data) {
@@ -181,10 +185,11 @@ bool ModeSingle::start() {
                                 _failure.display();
                                 _failure.updateId(_index);
                                 // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-                                _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+                                _failure.updateRate(_dot->DataRateStr(_data_rate).substr(3));
                                 updateData(_data, single, false);
                                 appendDataFile(_data);
                                 _failure.updatePower(_power);
+                                logInfo("ping failed");
                                 break;
                             case success:
                                 break;
@@ -212,6 +217,7 @@ bool ModeSingle::start() {
                                 _success.updateInfo("Data Send Success");
                                 _success.updateSw1("   Power");
                                 _success.updateSw2("Survey");
+                                logInfo("data send success");
                                 break;
                             case failure:
                                 break;
@@ -235,6 +241,7 @@ bool ModeSingle::start() {
                                 _success.updateInfo("Data Send Failure");
                                 _success.updateSw1("   Power");
                                 _success.updateSw2("Survey");
+                                logInfo("data send failed");
                                 break;
                             case failure:
                                 break;
@@ -267,7 +274,7 @@ bool ModeSingle::start() {
             }
         }
         if (send_ping) {
-            logInfo("sending ping");
+            logInfo("sending ping %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_ping = false;
             _lora->setDataRate(_data_rate);
             _lora->setPower(_power);
@@ -276,7 +283,7 @@ bool ModeSingle::start() {
         }
         if (send_data) {
             std::vector<uint8_t> s_data;
-            logInfo("sending data");
+            logInfo("sending data %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             _success.updateInfo("Data Sending...");
             _lora->setDataRate(_data_rate);
             _lora->setPower(_power);
