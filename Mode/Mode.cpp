@@ -83,7 +83,7 @@ bool Mode::appendDataFile(const DataItem& data) {
 
     if (data.status) {
         float up_snr = (float)data.ping.up.snr / 10.0;
-        float down_snr = (float)data.ping.up.snr / 4.0;
+        float down_snr = (float)data.ping.down.snr / 4.0;
         snprintf(stats_buf, sizeof(stats_buf), "%3d,%2.1f,%3d,%2.1f",
             data.ping.up.rssi,
             up_snr,

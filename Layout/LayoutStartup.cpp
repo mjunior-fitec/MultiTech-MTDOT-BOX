@@ -10,7 +10,7 @@ LayoutStartup::LayoutStartup(DOGS102* lcd, mDot* dot)
     _lInfo(0, 4, "Factory Firmware"),
     _lVersion(0, 5, "Version"),
     _fVersion(8, 5, 9),
-    _fId(0, 6, 17),
+    _fId(0, 7, 17),
     _iLogo(0, 0, MultiTech_Logo)
 {}
 
