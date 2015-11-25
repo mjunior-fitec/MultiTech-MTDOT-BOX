@@ -85,9 +85,9 @@ bool Mode::appendDataFile(const DataItem& data) {
         float up_snr = (float)data.ping.up.snr / 10.0;
         float down_snr = (float)data.ping.down.snr / 4.0;
         snprintf(stats_buf, sizeof(stats_buf), "%3d,%2.1f,%3d,%2.1f",
-            data.ping.up.rssi,
+            abs(data.ping.up.rssi),
             up_snr,
-            data.ping.down.rssi,
+            abs(data.ping.down.rssi),
             down_snr);
     }
 
@@ -132,14 +132,74 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
 uint32_t Mode::getIndex(DataType type) {
     uint32_t index = 0;
     mDot::mdot_file file;
+    size_t buf_size = 128;
+    char buf[buf_size];
+    bool done = false;
+    char search;
+
+    int read_offset;
+    int read_size;
+    int reduce = buf_size - 32;
+    int bytes_read;
+    int ret;
+    int current;
+
+    if (type == single)
+        search = 'P';
+    else
+        search = 'S';
 
     file = _dot->openUserFile(_file_name, mDot::FM_RDONLY);
     if (file.fd < 0) {
         logError("failed to open survey data file");
     } else {
         logInfo("file size %d", file.size);
+        if (file.size > buf_size) {
+            read_offset = file.size - buf_size - 1;
+            read_size = buf_size;
+        } else {
+            read_offset = 0;
+            read_size = file.size;
+        }
+
+        while (! done) {
+            if (read_offset == 0)
+                done = true;
+
+            logInfo("reading from index %d, %d bytes", read_offset, read_size);
+
+            if (! _dot->seekUserFile(file, read_offset, SEEK_SET)) {
+                logError("failed to seek %d/%d", read_offset, file.size);
+                return 0;
+            }
+            memset(buf, 0, buf_size);
+            ret = _dot->readUserFile(file, (void*)buf, read_size);
+            if (ret != read_size) {
+                logError("failed to read");
+                return 0;
+            }
+            logInfo("read %d bytes [%s]", ret, buf);
+
+            // read_size - 1 is the last byte in the buffer
+            for (current = read_size - 1; current >= 0; current--) {
+                if ((buf[current] == '\n' && current != read_size - 1) || current == 0) {
+                    int test = current;
+                    logInfo("found potential %d, %c", read_offset + current, buf[test + 1]);
+                    if (buf[test + 1] == search) {
+                        logInfo("reading index");
+                        sscanf(&buf[test + 2], "%ld", &index);
+                        done = true;
+                        break;
+                    }
+                }
+            }
+
+            read_offset = (read_offset - reduce > 0) ? read_offset - reduce : 0;
+        }
         _dot->closeUserFile(file);
     }
+
+    logInfo("returning index %d", index);
 
     return index;
 }
