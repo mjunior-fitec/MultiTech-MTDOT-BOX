@@ -23,6 +23,7 @@
 // mode objects
 #include "ModeJoin.h"
 #include "ModeSingle.h"
+#include "ModeSweep.h"
 #include "ModeConfig.h"
 // misc heders
 #include <string>
@@ -48,6 +49,7 @@ mDot* dot;
 // Modes
 ModeJoin* modeJoin;
 ModeSingle* modeSingle;
+ModeSweep* modeSweep;
 ModeConfig* modeConfig;
 
 // Serial debug port
@@ -73,6 +75,7 @@ int main() {
 
     modeJoin = new ModeJoin(lcd, buttons, dot, lora);
     modeSingle = new ModeSingle(lcd, buttons, dot, lora);
+    modeSweep = new ModeSweep(lcd, buttons, dot, lora);
     modeConfig = new ModeConfig(lcd, buttons, dot, lora);
 
     // display startup screen for 3 seconds
@@ -149,7 +152,7 @@ void mainMenu() {
                 modeSingle->start();
         } else if (selected == menu_strings[sweep]) {
             if (modeJoin->start())
-                surveySweep();
+                modeSweep->start();
         }
 
         mode_selected = false;
@@ -179,38 +182,6 @@ void loraDemo() {
                     break;
                 case ButtonHandler::sw2_press:
                     logInfo("interval TX mode");
-                    break;
-                case ButtonHandler::sw1_hold:
-                    return;
-                default:
-                    break;
-            }
-        }
-    }
-}
-
-void surveySweep() {
-    LayoutHelp lh(lcd);
-    lh.display();
-    lh.updateMode("Survey Sweep");
-    lh.updateSw1("  Cancel");
-    lh.updateSw2("Sweep");
-
-    // clear any stale signals
-    osSignalClear(main_id, buttonSignal | loraSignal);
-
-    logInfo("survey sweep mode");
-
-    while (true) {
-        osEvent e = Thread::signal_wait(buttonSignal);
-        if (e.status == osEventSignal) {
-            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
-            switch (ev) {
-                case ButtonHandler::sw1_press:
-                    logInfo("cancel");
-                    break;
-                case ButtonHandler::sw2_press:
-                    logInfo("start sweep");
                     break;
                 case ButtonHandler::sw1_hold:
                     return;
