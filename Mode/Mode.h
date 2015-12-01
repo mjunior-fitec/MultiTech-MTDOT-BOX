@@ -9,7 +9,6 @@
 #include "ISL29011.h"
 #include "MMA845x.h"
 #include "MPL3115A2.h"
-#include "GPSPARSER.h"
 
 class Mode {
     public:
@@ -69,6 +68,8 @@ class Mode {
         LoRaHandler::LoRaPing _ping_result;
         uint8_t _state;
         bool _send_data;
+		mts::MTSSerial _gpsUART;
+		GPSPARSER _mdot_gps;
 };
 
 #endif
