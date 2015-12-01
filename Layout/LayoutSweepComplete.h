@@ -18,7 +18,6 @@ class LayoutSweepComplete : public Layout {
         Label _lInfo;
         Label _lPass;
         Label _lFail;
-        Label _lSw1;
         Label _lSw2;
         
         Field _fId;

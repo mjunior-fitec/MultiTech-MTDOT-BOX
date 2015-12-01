@@ -41,17 +41,15 @@ bool ModeSweep::start() {
     _max_power = _dot->getWakeMode();
     
     // compute the total number of surveys we will do
-    _survey_current = 1;
     _points = generatePoints();
     _survey_total = _points.size();
+    _survey_current = 0;
     _survey_success = 0;
     _survey_failure = 0;
 
     logInfo("%u points", _survey_total);
     for (std::vector<point>::iterator it = _points.begin(); it != _points.end(); it++)
         logInfo("%s,%lu", _dot->DataRateStr(it->first).substr(3).c_str(), it->second);
-
-    return true;
 
     // see if survey data file exists
     std::vector<mDot::mdot_file> files = _dot->listUserFiles();
@@ -67,9 +65,11 @@ bool ModeSweep::start() {
         _file.display();
     } else {
         _state = show_help;
-        _index = 0;
+        _index = 1;
         displayHelp();
     }
+
+    _display_timer.reset();
 
     while (true) {
         osEvent e = Thread::signal_wait(0, 250);
@@ -82,7 +82,7 @@ bool ModeSweep::start() {
                         switch (_state) {
                             case check_file:
                                 _state = show_help;
-                                _index = getIndex(sweep);
+                                _index = getIndex(sweep) + 1;
                                 displayHelp();
                                 break;
                             case confirm:
@@ -92,13 +92,32 @@ bool ModeSweep::start() {
                             case show_help:
                                 break;
                             case in_progress:
-                                // do nothing
                                 break;
                             case success:
+                                _state = complete;
+                                _display_timer.stop();
+                                _display_timer.reset();
+                                logInfo("sweep finished");
+                                _complete.display();
+                                _complete.updateId(_index++);
+                                _complete.updatePass(_survey_success);
+                                _complete.updateFail(_survey_failure);
+                                _survey_success = 0;
+                                _survey_failure = 0;
                                 break;
                             case data:
                                 break;
                             case failure:
+                                _state = complete;
+                                _display_timer.stop();
+                                _display_timer.reset();
+                                logInfo("sweep finished");
+                                _complete.display();
+                                _complete.updateId(_index++);
+                                _complete.updatePass(_survey_success);
+                                _complete.updateFail(_survey_failure);
+                                _survey_success = 0;
+                                _survey_failure = 0;
                                 break;
                             case complete:
                                 break;
@@ -115,39 +134,36 @@ bool ModeSweep::start() {
                                 _state = show_help;
                                 logInfo("deleting survey data file");
                                 _dot->deleteUserFile(_file_name);
-                                _index = 0;
+                                _index = 1;
                                 displayHelp();
                                 break;
                             case show_help:
                                 _state = in_progress;
+                                _survey_current++;
                                 _progress.display();
+                                _progress.updateProgress(_survey_current, _survey_total);
                                 if (_lora->getNextTx() > 0)
                                     no_channel_ping = true;
-                                else 
+                                else
                                     send_ping = true;
                                 break;
                             case in_progress:
-                                // do nothing
                                 break;
                             case success:
-                                _state = in_progress;
-                                _progress.display();
-                                if (_lora->getNextTx() > 0)
-                                    no_channel_ping = true;
-                                else 
-                                    send_ping = true;
                                 break;
                             case data:
                                 break;
                             case failure:
-                                _state = in_progress;
-                                _progress.display();
-                                if (_lora->getNextTx() > 0)
-                                    no_channel_ping = true;
-                                else 
-                                    send_ping = true;
                                 break;
                             case complete:
+                                _state = in_progress;
+                                _survey_current = 1;
+                                _progress.display();
+                                _progress.updateProgress(_survey_current, _survey_total);
+                                if (_lora->getNextTx() > 0)
+                                    no_channel_ping = true;
+                                else
+                                    send_ping = true;
                                 break;
                         }
                         break;
@@ -167,6 +183,7 @@ bool ModeSweep::start() {
                             case show_help:
                                 break;
                             case in_progress:
+                                _survey_success++;
                                 _ping_result = _lora->getPingResults();
                                 displaySuccess();
                                 logInfo("ping successful");
@@ -181,7 +198,7 @@ bool ModeSweep::start() {
                                 } else {
                                     _state = success;
                                     _success.updateSw1("  Cancel");
-                                    _success.updateSw2("Survey");
+                                    _display_timer.start();
                                 }
                                 break;
                             case success:
@@ -204,15 +221,17 @@ bool ModeSweep::start() {
                             case show_help:
                                 break;
                             case in_progress:
+                                _survey_failure++;
                                 _state = failure;
                                 _failure.display();
                                 _failure.updateId(_index);
                                 // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
                                 _failure.updateRate(_dot->DataRateStr(_data_rate).substr(3));
-                                updateData(_data, single, false);
+                                updateData(_data, sweep, false);
                                 appendDataFile(_data);
                                 _failure.updatePower(_power);
                                 logInfo("ping failed");
+                                _display_timer.start();
                                 break;
                             case success:
                                 break;
@@ -241,8 +260,8 @@ bool ModeSweep::start() {
                                 _state = success;
                                 _success.updateInfo("Data Send Success");
                                 _success.updateSw1("  Cancel");
-                                _success.updateSw2("Survey");
                                 logInfo("data send success");
+                                _display_timer.start();
                                 break;
                             case failure:
                                 break;
@@ -267,8 +286,8 @@ bool ModeSweep::start() {
                                 _state = success;
                                 _success.updateInfo("Data Send Failure");
                                 _success.updateSw1("  Cancel");
-                                _success.updateSw2("Survey");
                                 logInfo("data send failed");
+                                _display_timer.start();
                                 break;
                             case failure:
                                 break;
@@ -280,13 +299,37 @@ bool ModeSweep::start() {
             }
         }
 
+        if (_display_timer.read_ms() > 2000) {
+            _display_timer.stop();
+            _display_timer.reset();
+            if (_survey_current == _survey_total) {
+                logInfo("sweep finished");
+                _state = complete;
+                _complete.display();
+                _complete.updateId(_index++);
+                _complete.updatePass(_survey_success);
+                _complete.updateFail(_survey_failure);
+                _survey_success = 0;
+                _survey_failure = 0;
+            } else {
+                logInfo("starting next ping");
+                _state = in_progress;
+                _survey_current++;
+                _progress.display();
+                _progress.updateProgress(_survey_current, _survey_total);
+                send_ping = true;
+            }
+        }
+
         if (no_channel_ping) {
             uint32_t t = _lora->getNextTx();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
                 _progress.updateCountdown(t / 1000);
             } else {
+                _survey_current++;
                 _progress.display();
+                _progress.updateProgress(_survey_current, _survey_total);
                 no_channel_ping = false;
                 send_ping = true;
             }
@@ -303,12 +346,14 @@ bool ModeSweep::start() {
             }
         }
         if (send_ping) {
+            point p = _points[_survey_current - 1];
+            _data_rate = p.first;
+            _power = p.second;
             logInfo("sending ping %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_ping = false;
             _lora->setDataRate(_data_rate);
             _lora->setPower(_power);
             _lora->ping();
-            _index++;
         }
         if (send_data) {
             std::vector<uint8_t> s_data;

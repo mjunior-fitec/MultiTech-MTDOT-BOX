@@ -6,7 +6,6 @@ LayoutSweepComplete::LayoutSweepComplete(DOGS102* lcd)
     _lInfo(0, 1, "Sweep Finished"),
     _lPass(0, 5, "Pass"),
     _lFail(9, 5, "Fail"),
-    _lSw1(11, 7, "Cancel"),
     _lSw2(0, 7, "Sweep"),
     _fId(2, 0, 5),
     _fPass(5, 5, 2),
@@ -23,7 +22,6 @@ void LayoutSweepComplete::display() {
     writeLabel(_lInfo);
     writeLabel(_lPass);
     writeLabel(_lFail);
-    writeLabel(_lSw1);
     writeLabel(_lSw2);
 
     endUpdate();
