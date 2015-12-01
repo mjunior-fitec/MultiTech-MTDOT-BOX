@@ -358,6 +358,7 @@ bool ModeSweep::start() {
         if (send_data) {
             std::vector<uint8_t> s_data;
             logInfo("sending data %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
+            send_data = false;
             _success.updateInfo("Data Sending...");
             _lora->setDataRate(_data_rate);
             _lora->setPower(_power);

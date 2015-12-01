@@ -20,6 +20,10 @@ uint32_t CmdFactoryDefault::action(std::vector<std::string> args)
     _dot->setStartUpMode(0);		//DotBox +Data is stored here. Default is 0.
     _dot->setVerbose(1);
     _dot->setEcho(1);
+    _dot->setAck(1);
+    _dot->setJoinMode(mDot::OTA);
+    _dot->setNetworkName("MultiTech");
+    _dot->setNetworkPassphrase("MultiTech");
 	
     _dot->resetNetworkSession();
     return 0;
