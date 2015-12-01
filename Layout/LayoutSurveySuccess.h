@@ -16,12 +16,14 @@ class LayoutSurveySuccess : public Layout {
         void updatePower(uint32_t power);
         void updateStats(LoRaHandler::LoRaPing ping);
         void updateGpsLatitude(GPSPARSER::latitude lat);
+        void updateGpsLatitude(std::string msg);
         void updateGpsLongitude(GPSPARSER::longitude lon);
         void updateGpsTime(struct tm time);
         void updateInfo(std::string info);
         void updateSw1(std::string sw1);
         void updateSw2(std::string sw2);
         void updateCountdown(uint32_t seconds);
+        void updatePassFail(uint8_t pass, uint8_t fail);
 
     private:
         Label _lId;

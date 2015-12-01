@@ -226,9 +226,11 @@ bool ModeSweep::start() {
                                 _failure.updateId(_index);
                                 // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
                                 _failure.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+                                _failure.updatePower(_power);
+                                _failure.updatePassFail(_survey_success, _survey_failure);
+                                _failure.updateSw1("  Cancel");
                                 updateData(_data, sweep, false);
                                 appendDataFile(_data);
-                                _failure.updatePower(_power);
                                 logInfo("ping failed");
                                 _display_timer.start();
                                 break;
@@ -383,7 +385,8 @@ void ModeSweep::displaySuccess() {
     // display GPS latitude, longitude, and time
     // else
     // display "no lock"
-    _success.updateInfo("No GPS Lock");
+    _success.updateGpsLatitude("No GPS Lock");
+    _success.updatePassFail(_survey_success, _survey_failure);
 }
 
 std::vector<point> ModeSweep::generatePoints() {

@@ -14,13 +14,11 @@ class LayoutSweepProgress : public Layout {
         void updateCountdown(uint32_t seconds);
 
     private:
-        Label _lSlash;
         Label _lMsg1;
         Label _lMsg2;
         Label _lMsg3;
 
-        Field _fComplete;
-        Field _fTotal;
+        Field _fProgress;
         Field _fCountdownLabel;
         Field _fCountdown;
 };

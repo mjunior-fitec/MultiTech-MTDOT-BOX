@@ -80,7 +80,7 @@ bool ModeSingle::start() {
                                 break;
                             case failure:
                                 incrementRatePower();
-                                _failure.updateInfo(formatNewRatePower());
+                                _failure.updateInfo2(formatNewRatePower());
                                 logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                         }
@@ -189,6 +189,8 @@ bool ModeSingle::start() {
                                 updateData(_data, single, false);
                                 appendDataFile(_data);
                                 _failure.updatePower(_power);
+                                _failure.updateSw1("   Power");
+                                _failure.updateSw2("Survey");
                                 logInfo("ping failed");
                                 break;
                             case success:
@@ -311,7 +313,7 @@ void ModeSingle::displaySuccess() {
     // display GPS latitude, longitude, and time
     // else
     // display "no lock"
-    _success.updateInfo("No GPS Lock");
+    _success.updateGpsLatitude("No GPS Lock");
 }
 
 std::string ModeSingle::formatNewRatePower() {

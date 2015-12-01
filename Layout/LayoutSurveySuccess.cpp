@@ -85,6 +85,10 @@ void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
 void LayoutSurveySuccess::updateGpsLatitude(GPSPARSER::latitude lat) {
 }
 
+void LayoutSurveySuccess::updateGpsLatitude(std::string msg) {
+    writeField(_fGpsLat, msg, true);
+}
+
 void LayoutSurveySuccess::updateGpsLongitude(GPSPARSER::longitude lon) {
 }
 
@@ -104,7 +108,7 @@ void LayoutSurveySuccess::updateSw2(std::string sw2) {
 }
 
 void LayoutSurveySuccess::updateCountdown(uint32_t seconds) {
-    char buf[16];
+    char buf[32];
     size_t size;
 
     memset(buf, 0, sizeof(buf));
@@ -113,5 +117,14 @@ void LayoutSurveySuccess::updateCountdown(uint32_t seconds) {
     writeField(_fInfo, "No Free Channel  ", true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fSw2, buf, size, true);
+}
+
+void LayoutSurveySuccess::updatePassFail(uint8_t pass, uint8_t fail) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "Pass %u Fail %u", pass, fail);
+    writeField(_fGpsTime, buf, size, true);
 }
 
