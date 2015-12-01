@@ -20,7 +20,8 @@ uint32_t CmdDisplayConfig::action(std::vector<std::string> args) {
     _serial.writef("%s\r\n", mts::Text::bin2hexString(_dot->getDeviceId(), ":").c_str());
 
     _serial.writef("Frequency Band:\t\t%s\r\n", mDot::FrequencyBandStr(_dot->getFrequencyBand()).c_str());
-    _serial.writef("Frequency Sub Band:\t%u\r\n", _dot->getFrequencySubBand());
+    if (_dot->getFrequencyBand() == mDot::FB_915)
+	_serial.writef("Frequency Sub Band:\t%u\r\n", _dot->getFrequencySubBand());
 
     _serial.writef("Public Network:\t\t%s\r\n", _dot->getPublicNetwork() ? "on" : "off");
 
