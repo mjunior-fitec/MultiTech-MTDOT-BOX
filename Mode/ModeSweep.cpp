@@ -43,7 +43,7 @@ bool ModeSweep::start() {
     // compute the total number of surveys we will do
     _points = generatePoints();
     _survey_total = _points.size();
-    _survey_current = 0;
+    _survey_current = 1;
     _survey_success = 0;
     _survey_failure = 0;
 
@@ -139,7 +139,6 @@ bool ModeSweep::start() {
                                 break;
                             case show_help:
                                 _state = in_progress;
-                                _survey_current++;
                                 _progress.display();
                                 _progress.updateProgress(_survey_current, _survey_total);
                                 if (_lora->getNextTx() > 0)
@@ -317,7 +316,7 @@ bool ModeSweep::start() {
                 _survey_current++;
                 _progress.display();
                 _progress.updateProgress(_survey_current, _survey_total);
-                send_ping = true;
+                no_channel_ping = true;
             }
         }
 
@@ -327,7 +326,6 @@ bool ModeSweep::start() {
                 logInfo("next tx %lu ms", t);
                 _progress.updateCountdown(t / 1000);
             } else {
-                _survey_current++;
                 _progress.display();
                 _progress.updateProgress(_survey_current, _survey_total);
                 no_channel_ping = false;
