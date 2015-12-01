@@ -6,6 +6,9 @@
 #include "mDot.h"
 #include "LoRaHandler.h"
 #include "GPSPARSER.h"
+#include "ISL29011.h"
+#include "MMA845x.h"
+#include "MPL3115A2.h"
 
 class Mode {
     public:
@@ -28,6 +31,13 @@ class Mode {
             uint32_t power;
         } DataItem;
 
+        typedef struct {
+            MMA845x_DATA accel_data;
+            MPL3115A2_DATA baro_data;
+            uint16_t lux_data;
+            uint32_t pressure;
+        } SensorItem;
+
         Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
         ~Mode();
 
@@ -38,6 +48,9 @@ class Mode {
         bool appendDataFile(const DataItem& data);
         void updateData(DataItem& data, DataType type, bool status);
         uint32_t getIndex(DataType type);
+
+        std::vector<uint8_t> formatSurveyData(DataItem& data);
+        std::vector<uint8_t> formatSensorData(SensorItem& data);
 
         DOGS102* _lcd;
         ButtonHandler* _buttons;
@@ -56,6 +69,8 @@ class Mode {
         LoRaHandler::LoRaPing _ping_result;
         uint8_t _state;
         bool _send_data;
+		mts::MTSSerial _gpsUART;
+		GPSPARSER _mdot_gps;
 };
 
 #endif
