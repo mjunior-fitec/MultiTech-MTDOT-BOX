@@ -393,10 +393,10 @@ std::vector<point> ModeSweep::generatePoints() {
     uint8_t min_rate;
     uint8_t max_rate;
 
-    min_rate = payloadToRate(_min_payload);
-    max_rate = payloadToRate(_max_payload);
+    max_rate = payloadToRate(_min_payload);
+    min_rate = payloadToRate(_max_payload);
 
-    for (uint8_t rate = max_rate; rate >= min_rate; rate--) {
+    for (int rate = min_rate; rate >= max_rate; rate--) {
         if (_max_power - _min_power < 4) {
             for (uint32_t power = _min_power; power <= _max_power; power++)
                 p.push_back(std::make_pair(rate, power));
@@ -424,14 +424,8 @@ uint8_t ModeSweep::payloadToRate(uint8_t payload) {
     } else {
         if (payload <= mDot::MaxLengths_868[mDot::SF_12])
             return mDot::SF_12;
-        else if (payload <= mDot::MaxLengths_868[mDot::SF_11])
-            return mDot::SF_11;
-        else if (payload <= mDot::MaxLengths_868[mDot::SF_10])
-            return mDot::SF_10;
         else if (payload <= mDot::MaxLengths_868[mDot::SF_9])
             return mDot::SF_9;
-        else if (payload <= mDot::MaxLengths_868[mDot::SF_8])
-            return mDot::SF_8;
         else
             return mDot::SF_7;
     }
