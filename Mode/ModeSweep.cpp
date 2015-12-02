@@ -364,7 +364,7 @@ bool ModeSweep::start() {
             _lora->ping();
         }
         if (send_data) {
-            std::vector<uint8_t> s_data;
+            std::vector<uint8_t> s_data = formatSurveyData(_data);
             logInfo("sending data %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_data = false;
             _success.updateInfo("Data Sending...");
