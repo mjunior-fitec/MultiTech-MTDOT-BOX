@@ -1,4 +1,5 @@
 #include "CmdDeleteSurveyDataFile.h"
+#include "FileName.h"
 
 CmdDeleteSurveyDataFile::CmdDeleteSurveyDataFile(mDot* dot, mts::MTSSerial& serial) :
         Command(dot, "Delete Survey Data File", "AT+DSDF", "Delete the survey data file"), _serial(serial)
@@ -8,14 +9,12 @@ CmdDeleteSurveyDataFile::CmdDeleteSurveyDataFile(mDot* dot, mts::MTSSerial& seri
 
 uint32_t CmdDeleteSurveyDataFile::action(std::vector<std::string> args)
 {
-//ToDo: Delete the file.
-	if (!_dot->saveConfig()) {
-	  setErrorMessage("Failed to save to flash");
-	  return 1;
-	}
-	
-	return 0;
+    if (!_dot->deleteUserFile(file_name)) {
+	setErrorMessage("Failed to delete survey data file");
+	return 1;
+    }
 
+    return 0;
 }
 
 

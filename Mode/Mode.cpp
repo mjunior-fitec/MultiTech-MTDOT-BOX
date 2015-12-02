@@ -1,8 +1,6 @@
 #include "Mode.h"
 #include "MTSLog.h"
 
-const char* Mode::_file_name = "SurveyData.txt";
-
 /*
  * union for converting from 16- bit to 2 8-bit values
  */
@@ -38,8 +36,8 @@ bool Mode::deleteDataFile() {
     // if survey data file exists, attempt to delete it
     std::vector<mDot::mdot_file> files = _dot->listUserFiles();
     for (std::vector<mDot::mdot_file>::iterator it = files.begin(); it != files.end(); it++)
-        if (it->name == _file_name) {
-            if (! _dot->deleteUserFile(_file_name))
+        if (it->name == file_name) {
+            if (! _dot->deleteUserFile(file_name))
                 ret = false;
             break;
         }
@@ -120,7 +118,7 @@ bool Mode::appendDataFile(const DataItem& data) {
         return false;
     }
 
-    if (! _dot->appendUserFile(_file_name, (void*)main_buf, size)) {
+    if (! _dot->appendUserFile(file_name, (void*)main_buf, size)) {
         logError("failed to write survey data to file");
         return false;
     } else {
@@ -165,7 +163,7 @@ uint32_t Mode::getIndex(DataType type) {
     else
         search = 'S';
 
-    file = _dot->openUserFile(_file_name, mDot::FM_RDONLY);
+    file = _dot->openUserFile(file_name, mDot::FM_RDONLY);
     if (file.fd < 0) {
         logError("failed to open survey data file");
     } else {

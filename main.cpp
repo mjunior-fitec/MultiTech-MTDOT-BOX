@@ -21,6 +21,7 @@
 #include "ModeSweep.h"
 #include "ModeConfig.h"
 // misc heders
+#include "FileName.h"
 #include <string>
 
 // LCD and backlight controllers
@@ -54,6 +55,8 @@ ModeConfig* modeConfig;
 // Serial debug port
 Serial debug(USBTX, USBRX);
 
+// Survey Data File
+char* file_name;
 
 // Prototypes
 void mainMenu();
@@ -64,6 +67,7 @@ void surveySweep();
 
 int main() {
     debug.baud(115200);
+    file_name = "SurveyData.txt";
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     lcd_backlight = new NCP5623B(backlight_i2c);

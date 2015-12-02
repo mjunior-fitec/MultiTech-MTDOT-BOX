@@ -30,7 +30,7 @@ bool ModeSingle::start() {
     // see if survey data file exists
     std::vector<mDot::mdot_file> files = _dot->listUserFiles();
     for (std::vector<mDot::mdot_file>::iterator it = files.begin(); it != files.end(); it++) {
-        if (strcmp(it->name, _file_name) == 0) {
+        if (strcmp(it->name, file_name) == 0) {
             logInfo("found survey data file");
             data_file = true;
             break;
@@ -95,7 +95,7 @@ bool ModeSingle::start() {
                             case confirm:
                                 _state = show_help;
                                 logInfo("deleting survey data file");
-                                _dot->deleteUserFile(_file_name);
+                                _dot->deleteUserFile(file_name);
                                 _index = 0;
                                 displayHelp();
                                 break;

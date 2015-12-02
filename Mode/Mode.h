@@ -9,6 +9,7 @@
 #include "ISL29011.h"
 #include "MMA845x.h"
 #include "MPL3115A2.h"
+#include "FileName.h"
 
 class Mode {
     public:
@@ -59,7 +60,6 @@ class Mode {
         LoRaHandler* _lora;
 	GPSPARSER* _gps;
         osThreadId _main_id;
-        static const char* _file_name;
         uint32_t _index;
         uint8_t _band;
         uint8_t _sub_band;
