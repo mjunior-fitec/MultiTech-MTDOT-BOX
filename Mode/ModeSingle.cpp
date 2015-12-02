@@ -80,7 +80,7 @@ bool ModeSingle::start() {
                                 break;
                             case failure:
                                 incrementRatePower();
-                                _failure.updateInfo2(formatNewRatePower());
+                                _failure.updateInfo(formatNewRatePower());
                                 logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                         }
@@ -189,6 +189,16 @@ bool ModeSingle::start() {
                                 updateData(_data, single, false);
                                 appendDataFile(_data);
                                 _failure.updatePower(_power);
+                                if (_gps_available && _gps->getLockStatus()) {
+                                    GPSPARSER::latitude lat = _gps->getLatitude();
+                                    GPSPARSER::longitude lon = _gps->getLongitude();
+                                    struct tm time = _gps->getTimestamp();
+                                    _failure.updateGpsLatitude(lat);
+                                    _failure.updateGpsLongitude(lon);
+                                    _failure.updateGpsTime(time);
+                                } else {
+                                    _failure.updateGpsLatitude("No GPS Lock");
+                                }
                                 _failure.updateSw1("   Power");
                                 _failure.updateSw2("Survey");
                                 logInfo("ping failed");
@@ -303,17 +313,25 @@ void ModeSingle::displayHelp() {
 }
 
 void ModeSingle::displaySuccess() {
+    logInfo("gps lock: %s", _gps->getLockStatus() ? "true" : "false");
+    uint8_t fix = _gps->getFixStatus();
+    logInfo("gps fix: %s", fix == 3 ? "3D" : fix == 2 ? "2D" : "none");
     _success.display();
     _success.updateId(_index);
     // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
     _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
     _success.updatePower(_power);
     _success.updateStats(_ping_result);
-    // if GPS lock
-    // display GPS latitude, longitude, and time
-    // else
-    // display "no lock"
-    _success.updateGpsLatitude("No GPS Lock");
+    if (_gps_available && _gps->getLockStatus()) {
+        GPSPARSER::latitude lat = _gps->getLatitude();
+        GPSPARSER::longitude lon = _gps->getLongitude();
+        struct tm time = _gps->getTimestamp();
+        _success.updateGpsLatitude(lat);
+        _success.updateGpsLongitude(lon);
+        _success.updateGpsTime(time);
+    } else {
+        _success.updateGpsLatitude("No GPS Lock");
+    }
 }
 
 std::string ModeSingle::formatNewRatePower() {

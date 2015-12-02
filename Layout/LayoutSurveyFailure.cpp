@@ -9,10 +9,10 @@ LayoutSurveyFailure::LayoutSurveyFailure(DOGS102* lcd)
     _fId(2, 0, 5),
     _fDr(10, 0, 2),
     _fPwr(14, 0, 2),
-    _fMsg1(0, 2, 17),
-    _fMsg2(0, 3, 17),
-    _fInfo1(0, 5, 17),
-    _fInfo2(0, 6, 17),
+    _fGpsLat(0, 4, 17),
+    _fGpsLon(0, 3, 17),
+    _fGpsTime(0, 5, 17),
+    _fInfo(0, 6, 17),
     _fSw1(9, 7, 8),
     _fSw2(0, 7, 8)
 {}
@@ -51,21 +51,54 @@ void LayoutSurveyFailure::updatePower(uint32_t power) {
     writeField(_fPwr, buf, size, true);
 }
 
-void LayoutSurveyFailure::updateInfo1(std::string info) {
-    writeField(_fInfo1, info, true);
-}
-
-void LayoutSurveyFailure::updateInfo2(std::string info) {
-    writeField(_fInfo2, info, true);
-}
-
-void LayoutSurveyFailure::updatePassFail(uint8_t pass, uint8_t fail) {
+void LayoutSurveyFailure::updateGpsLatitude(GPSPARSER::latitude lat) {
     char buf[32];
     size_t size;
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "Pass %u Fail %u", pass, fail);
-    writeField(_fInfo1, buf, size, true);
+    size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
+        abs(lat.degrees),
+        lat.minutes,
+        (lat.seconds * 6) / 1000,
+        (lat.seconds * 6) % 1000,
+        (lat.degrees > 0) ? 'N' : 'S');
+    writeField(_fGpsLat, buf, size, true);
+}
+
+void LayoutSurveyFailure::updateGpsLatitude(std::string msg) {
+    writeField(_fGpsLat, msg, true);
+}
+
+void LayoutSurveyFailure::updateGpsLongitude(GPSPARSER::longitude lon) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
+        abs(lon.degrees),
+        lon.minutes,
+        (lon.seconds * 6) / 1000,
+        (lon.seconds * 6) % 1000,
+        (lon.degrees > 0) ? 'E' : 'W');
+    writeField(_fGpsLon, buf, size, true);
+}
+
+void LayoutSurveyFailure::updateGpsTime(struct tm time) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "%02d:%02d %02d/%02d/%04d",
+        time.tm_hour,
+        time.tm_min,
+        time.tm_mon + 1,
+        time.tm_mday,
+        time.tm_year + 1900);
+    writeField(_fGpsTime, buf, size, true);
+}
+
+void LayoutSurveyFailure::updateInfo(std::string info) {
+    writeField(_fInfo, info, true);
 }
 
 void LayoutSurveyFailure::updateSw1(std::string sw1) {
@@ -74,5 +107,14 @@ void LayoutSurveyFailure::updateSw1(std::string sw1) {
 
 void LayoutSurveyFailure::updateSw2(std::string sw2) {
     writeField(_fSw2, sw2, true);
+}
+
+void LayoutSurveyFailure::updatePassFail(uint8_t pass, uint8_t fail) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "Pass %u Fail %u", pass, fail);
+    writeField(_fGpsTime, buf, size, true);
 }
 

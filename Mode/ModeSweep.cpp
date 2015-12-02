@@ -227,6 +227,14 @@ bool ModeSweep::start() {
                                 // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
                                 _failure.updateRate(_dot->DataRateStr(_data_rate).substr(3));
                                 _failure.updatePower(_power);
+                                if (_gps_available && _gps->getLockStatus()) {
+                                    GPSPARSER::latitude lat = _gps->getLatitude();
+                                    GPSPARSER::longitude lon = _gps->getLongitude();
+                                    _failure.updateGpsLatitude(lat);
+                                    _failure.updateGpsLongitude(lon);
+                                } else {
+                                    _failure.updateGpsLatitude("No GPS Lock");
+                                }
                                 _failure.updatePassFail(_survey_success, _survey_failure);
                                 _failure.updateSw1("  Cancel");
                                 updateData(_data, sweep, false);
@@ -381,11 +389,14 @@ void ModeSweep::displaySuccess() {
     _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
     _success.updatePower(_power);
     _success.updateStats(_ping_result);
-    // if GPS lock
-    // display GPS latitude, longitude, and time
-    // else
-    // display "no lock"
-    _success.updateGpsLatitude("No GPS Lock");
+    if (_gps_available && _gps->getLockStatus()) {
+        GPSPARSER::latitude lat = _gps->getLatitude();
+        GPSPARSER::longitude lon = _gps->getLongitude();
+        _success.updateGpsLatitude(lat);
+        _success.updateGpsLongitude(lon);
+    } else {
+        _success.updateGpsLatitude("No GPS Lock");
+    }
     _success.updatePassFail(_survey_success, _survey_failure);
 }
 

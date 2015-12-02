@@ -21,7 +21,8 @@ class Mode {
             DataType type;
             int32_t index;
             bool status;
-            int32_t lock;
+	    bool gps_lock;
+            int32_t gps_sats;
             GPSPARSER::longitude gps_longitude;
             GPSPARSER::latitude gps_latitude;
             int16_t gps_altitude;
@@ -70,6 +71,7 @@ class Mode {
         LoRaHandler::LoRaPing _ping_result;
         uint8_t _state;
         bool _send_data;
+	bool _gps_available;
 };
 
 #endif

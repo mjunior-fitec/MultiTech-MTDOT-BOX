@@ -26,7 +26,8 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, G
     _data_rate(mDot::SF_7),
     _power(2),
     _next_tx(0),
-    _send_data(false)
+    _send_data(false),
+    _gps_available(_gps->gpsDetected())
 {}
 
 Mode::~Mode() {}
@@ -68,18 +69,18 @@ bool Mode::appendDataFile(const DataItem& data) {
     snprintf(id_buf, sizeof(id_buf), "%c%ld", (data.type == single) ? 'P' : 'S', data.index);
 
     // if we had GPS lock, format GPS data
-    if (data.lock > 0) {
-        snprintf(lat_buf, sizeof(lat_buf), "%3d %2d %2d.%03d %c",
+    if (data.gps_lock) {
+        snprintf(lat_buf, sizeof(lat_buf), "%d %d %d.%03d %c",
             abs(data.gps_latitude.degrees),
             data.gps_latitude.minutes,
             (data.gps_latitude.seconds * 6) / 1000,
-            (data.gps_latitude.seconds % 6) / 1000,
+            (data.gps_latitude.seconds * 6) % 1000,
             (data.gps_latitude.degrees > 0) ? 'N' : 'S');
-        snprintf(lon_buf, sizeof(lon_buf), "%3d %2d %2d.%03d %c",
+        snprintf(lon_buf, sizeof(lon_buf), "%d %d %d.%03d %c",
             abs(data.gps_longitude.degrees),
             data.gps_longitude.minutes,
             (data.gps_longitude.seconds * 6) / 1000,
-            (data.gps_longitude.seconds % 6) / 1000,
+            (data.gps_longitude.seconds * 6) % 1000,
             (data.gps_longitude.degrees > 0) ? 'E' : 'W');
         snprintf(alt_buf, sizeof(alt_buf), "%d",
             data.gps_altitude);
@@ -95,7 +96,7 @@ bool Mode::appendDataFile(const DataItem& data) {
     if (data.status) {
         float up_snr = (float)data.ping.up.snr / 10.0;
         float down_snr = (float)data.ping.down.snr / 4.0;
-        snprintf(stats_buf, sizeof(stats_buf), "%3d,%2.1f,%3d,%2.1f",
+        snprintf(stats_buf, sizeof(stats_buf), "%d,%2.1f,%d,%2.1f",
             abs(data.ping.up.rssi),
             up_snr,
             abs(data.ping.down.rssi),
@@ -105,11 +106,11 @@ bool Mode::appendDataFile(const DataItem& data) {
     size = snprintf(main_buf, sizeof(main_buf), "%s,%c,%ld,%s,%s,%s,%s,%s,%s,%lu\n",
         id_buf,
         data.status ? 'S' : 'F',
-        data.lock,
-        (data.lock > 0) ? lat_buf : "",
-        (data.lock > 0) ? lon_buf : "",
-        (data.lock > 0) ? alt_buf : "",
-        (data.lock > 0) ? time_buf : "",
+        data.gps_lock ? data.gps_sats : 0,
+        (data.gps_lock) ? lat_buf : "",
+        (data.gps_lock) ? lon_buf : "",
+        (data.gps_lock) ? alt_buf : "",
+        (data.gps_lock) ? time_buf : "",
         data.status ? stats_buf : ",,,",
         _dot->DataRateStr(data.data_rate).substr(3).c_str(),
         data.power);
@@ -133,10 +134,12 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.type = type;
     data.index = _index;
     data.status = status;
-    data.lock = 0;
+    data.gps_lock = _gps->getLockStatus();
+    data.gps_sats = _gps->getNumSatellites();
     data.gps_longitude = _gps->getLongitude();
     data.gps_latitude = _gps->getLatitude();
     data.gps_altitude = _gps->getAltitude();
+    data.gps_time = _gps->getTimestamp();
     data.ping = _ping_result;
     data.data_rate = _data_rate;
     data.power = _power;

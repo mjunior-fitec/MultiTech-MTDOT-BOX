@@ -83,6 +83,17 @@ void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
 }
 
 void LayoutSurveySuccess::updateGpsLatitude(GPSPARSER::latitude lat) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
+        abs(lat.degrees),
+        lat.minutes,
+        (lat.seconds * 6) / 1000,
+        (lat.seconds * 6) % 1000,
+        (lat.degrees > 0) ? 'N' : 'S');
+    writeField(_fGpsLat, buf, size, true);
 }
 
 void LayoutSurveySuccess::updateGpsLatitude(std::string msg) {
@@ -90,9 +101,31 @@ void LayoutSurveySuccess::updateGpsLatitude(std::string msg) {
 }
 
 void LayoutSurveySuccess::updateGpsLongitude(GPSPARSER::longitude lon) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
+        abs(lon.degrees),
+        lon.minutes,
+        (lon.seconds * 6) / 1000,
+        (lon.seconds * 6) % 1000,
+        (lon.degrees > 0) ? 'E' : 'W');
+    writeField(_fGpsLon, buf, size, true);
 }
 
 void LayoutSurveySuccess::updateGpsTime(struct tm time) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "%02d:%02d %02d/%02d/%04d",
+        time.tm_hour,
+        time.tm_min,
+        time.tm_mon + 1,
+        time.tm_mday,
+        time.tm_year + 1900);
+    writeField(_fGpsTime, buf, size, true);
 }
 
 void LayoutSurveySuccess::updateInfo(std::string info) {
