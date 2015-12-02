@@ -2,8 +2,8 @@
 #include "MTSLog.h"
 #include "MTSText.h"
 
-ModeJoin::ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
-  : Mode(lcd, buttons, dot, lora),
+ModeJoin::ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
+  : Mode(lcd, buttons, dot, lora, gps),
     _join(lcd, _band),
     _joined(false)
 {}

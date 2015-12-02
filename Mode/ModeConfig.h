@@ -13,7 +13,7 @@ class ModeConfig : public Mode {
 
 public:
 
-    ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
+    ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
     
     // Command error text...
     static const char command_error[];

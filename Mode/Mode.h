@@ -38,7 +38,7 @@ class Mode {
             uint32_t pressure;
         } SensorItem;
 
-        Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
+        Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
         ~Mode();
 
         virtual bool start() = 0;
@@ -56,6 +56,7 @@ class Mode {
         ButtonHandler* _buttons;
         mDot* _dot;
         LoRaHandler* _lora;
+	GPSPARSER* _gps;
         osThreadId _main_id;
         static const char* _file_name;
         uint32_t _index;
@@ -69,8 +70,6 @@ class Mode {
         LoRaHandler::LoRaPing _ping_result;
         uint8_t _state;
         bool _send_data;
-		mts::MTSSerial _gpsUART;
-		GPSPARSER _mdot_gps;
 };
 
 #endif

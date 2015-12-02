@@ -13,11 +13,12 @@ union convert16 {
 } convertS;
 
 
-Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
+Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
   : _lcd(lcd),
     _buttons(buttons),
     _dot(dot),
     _lora(lora),
+    _gps(gps),
     _main_id(Thread::gettid()),
     _index(0),
     _band(_dot->getFrequencyBand()),
@@ -25,9 +26,7 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
     _data_rate(mDot::SF_7),
     _power(2),
     _next_tx(0),
-    _send_data(false),
-	_gpsUART(PA_2, PA_3),
-	_mdot_gps(&_gpsUART)
+    _send_data(false)
 {}
 
 Mode::~Mode() {}
@@ -135,9 +134,9 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.index = _index;
     data.status = status;
     data.lock = 0;
-    data.gps_longitude = _mdot_gps.getLongitude();
-    data.gps_latitude = _mdot_gps.getLatitude();
-    data.gps_altitude = _mdot_gps.getAltitude();
+    data.gps_longitude = _gps->getLongitude();
+    data.gps_latitude = _gps->getLatitude();
+    data.gps_altitude = _gps->getAltitude();
     data.ping = _ping_result;
     data.data_rate = _data_rate;
     data.power = _power;
@@ -238,12 +237,12 @@ std::vector<uint8_t> Mode::formatSurveyData(DataItem& data) {
     send_data.push_back(data.ping.down.snr);
 
     // collect GPS data if GPS device detected
-    if (_mdot_gps.gpsDetected() && ((_data_rate != mDot::SF_10) || (_band == mDot::FB_868))){
+    if (_gps->gpsDetected() && ((_data_rate != mDot::SF_10) || (_band == mDot::FB_868))){
 	    send_data.push_back(0x19);			// key for GPS Lock Status
-	    satfix = (_mdot_gps.getNumSatellites() << 4 ) | (_mdot_gps.getFixStatus() & 0x0F );
+	    satfix = (_gps->getNumSatellites() << 4 ) | (_gps->getFixStatus() & 0x0F );
 	    send_data.push_back(satfix);
 
-	    if (_mdot_gps.getLockStatus()){			// if gps has a lock
+	    if (_gps->getLockStatus()){			// if gps has a lock
 		    // Send GPS data if GPS device locked
 		    send_data.push_back(0x15);			// key for GPS Latitude
 		    send_data.push_back(data.gps_latitude.degrees);

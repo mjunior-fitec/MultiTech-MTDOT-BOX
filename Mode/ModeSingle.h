@@ -11,7 +11,7 @@
 
 class ModeSingle : public Mode {
     public:
-        ModeSingle(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
+        ModeSingle(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
         ~ModeSingle();
 
         bool start();

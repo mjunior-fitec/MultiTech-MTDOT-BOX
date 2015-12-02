@@ -14,7 +14,7 @@ typedef std::pair<uint8_t, uint32_t> point;
 
 class ModeSweep : public Mode {
     public:
-        ModeSweep(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
+        ModeSweep(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
         ~ModeSweep();
 
         bool start();

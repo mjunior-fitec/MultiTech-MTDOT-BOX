@@ -41,6 +41,10 @@ ButtonHandler* buttons;
 LoRaHandler* lora;
 mDot* dot;
 
+// GPS
+GPSPARSER* gps;
+MTSSerial gps_serial(XBEE_DOUT, XBEE_DIN, 256, 2048);
+
 // Modes
 ModeJoin* modeJoin;
 ModeSingle* modeSingle;
@@ -49,6 +53,7 @@ ModeConfig* modeConfig;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
+
 
 // Prototypes
 void mainMenu();
@@ -67,18 +72,22 @@ int main() {
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
+    gps = new GPSPARSER(&gps_serial);
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora);
-    modeSingle = new ModeSingle(lcd, buttons, dot, lora);
-    modeSweep = new ModeSweep(lcd, buttons, dot, lora);
-    modeConfig = new ModeConfig(lcd, buttons, dot, lora);
+    MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
+
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps);
+    modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps);
+    modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps);
+    modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps);
+
+    logInfo("GPS %sdetected", gps->gpsDetected() ? "" : "not ");
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd, dot);
     ls.display();
     osDelay(3000);
 
-    MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
     logInfo("displaying main menu");
     mainMenu();
 
