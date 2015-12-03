@@ -87,28 +87,6 @@ LoRaHandler::LoRaHandler(osThreadId main)
     _ping.status = false;
 }
 
-bool LoRaHandler::setDataRate(uint8_t rate) {
-    int32_t res;
-    _mutex.lock();
-    res = _dot->setTxDataRate(rate);
-    _mutex.unlock();
-    if (res == mDot::MDOT_OK)
-        return true;
-
-    return false;
-}
-
-bool LoRaHandler::setPower(uint32_t power) {
-    int32_t res;
-    _mutex.lock();
-    res = _dot->setTxPower(power);
-    _mutex.unlock();
-    if (res == mDot::MDOT_OK)
-        return true;
-
-    return false;
-}
-
 bool LoRaHandler::ping() {
     return action(l_ping);
 }
@@ -149,15 +127,6 @@ LoRaHandler::LoRaPing LoRaHandler::getPingResults() {
     _mutex.unlock();
 
     return ping;
-}
-
-uint32_t LoRaHandler::getNextTx() {
-    uint32_t ms;
-    _mutex.lock();
-    ms = _dot->getNextTxMs();
-    _mutex.unlock();
-
-    return ms;
 }
 
 uint32_t LoRaHandler::getJoinAttempts() {

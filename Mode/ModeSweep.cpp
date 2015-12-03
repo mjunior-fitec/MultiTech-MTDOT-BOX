@@ -141,7 +141,7 @@ bool ModeSweep::start() {
                                 _state = in_progress;
                                 _progress.display();
                                 _progress.updateProgress(_survey_current, _survey_total);
-                                if (_lora->getNextTx() > 0)
+                                if (_dot->getNextTxMs() > 0)
                                     no_channel_ping = true;
                                 else
                                     send_ping = true;
@@ -159,7 +159,7 @@ bool ModeSweep::start() {
                                 _survey_current = 1;
                                 _progress.display();
                                 _progress.updateProgress(_survey_current, _survey_total);
-                                if (_lora->getNextTx() > 0)
+                                if (_dot->getNextTxMs() > 0)
                                     no_channel_ping = true;
                                 else
                                     send_ping = true;
@@ -190,7 +190,7 @@ bool ModeSweep::start() {
                                 appendDataFile(_data);
                                 if (_send_data) {
                                     _state = data;
-                                    if (_lora->getNextTx() > 0)
+                                    if (_dot->getNextTxMs() > 0)
                                         no_channel_data = true;
                                     else
                                         send_data = true;
@@ -267,9 +267,12 @@ bool ModeSweep::start() {
                                 break;
                             case data:
                                 _state = success;
-                                _success.updateInfo("Data Send Success");
+                                _success.updateInfo("                 ");
                                 _success.updateSw1("  Cancel");
                                 logInfo("data send success");
+                                // turn acks and receive windows back on
+                                _dot->setAck(1);
+                                _dot->setTxWait(true);
                                 _display_timer.start();
                                 break;
                             case failure:
@@ -293,9 +296,12 @@ bool ModeSweep::start() {
                                 break;
                             case data:
                                 _state = success;
-                                _success.updateInfo("Data Send Failure");
+                                _success.updateInfo("                 ");
                                 _success.updateSw1("  Cancel");
                                 logInfo("data send failed");
+                                // turn acks and receive windows back on
+                                _dot->setAck(1);
+                                _dot->setTxWait(true);
                                 _display_timer.start();
                                 break;
                             case failure:
@@ -331,7 +337,7 @@ bool ModeSweep::start() {
         }
 
         if (no_channel_ping) {
-            uint32_t t = _lora->getNextTx();
+            uint32_t t = _dot->getNextTxMs();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
                 _progress.updateCountdown(t / 1000);
@@ -343,7 +349,7 @@ bool ModeSweep::start() {
             }
         }
         if (no_channel_data) {
-            uint32_t t = _lora->getNextTx();
+            uint32_t t = _dot->getNextTxMs();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
                 _success.updateCountdown(t / 1000);
@@ -359,8 +365,8 @@ bool ModeSweep::start() {
             _power = p.second;
             logInfo("sending ping %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_ping = false;
-            _lora->setDataRate(_data_rate);
-            _lora->setPower(_power);
+            _dot->setTxDataRate(_data_rate);
+            _dot->setTxPower(_power);
             _lora->ping();
         }
         if (send_data) {
@@ -368,8 +374,12 @@ bool ModeSweep::start() {
             logInfo("sending data %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_data = false;
             _success.updateInfo("Data Sending...");
-            _lora->setDataRate(_data_rate);
-            _lora->setPower(_power);
+            _dot->setTxDataRate(_data_rate);
+            _dot->setTxPower(_power);
+            // we don't care if the server actually gets this packet or not
+            // we won't retry anyway
+            _dot->setAck(0);
+            _dot->setTxWait(false);
             _lora->send(s_data);
         }
     }

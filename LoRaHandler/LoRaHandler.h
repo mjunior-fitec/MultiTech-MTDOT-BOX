@@ -27,15 +27,12 @@ class LoRaHandler {
         LoRaHandler(osThreadId main);
         ~LoRaHandler();
 
-        bool setDataRate(uint8_t rate);
-        bool setPower(uint32_t power);
         bool ping();
         bool send(std::vector<uint8_t> data);
         bool join();
         bool action(uint8_t cmd);
         LoRaStatus getStatus();
         LoRaPing getPingResults();
-        uint32_t getNextTx();
         uint32_t getJoinAttempts();
         void resetJoinAttempts();
 

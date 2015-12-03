@@ -22,12 +22,12 @@ bool ModeJoin::start() {
 
     display();
 
-    _lora->setDataRate(_data_rate);
-    _lora->setPower(_power);
+    _dot->setTxDataRate(_data_rate);
+    _dot->setTxPower(_power);
     _lora->resetJoinAttempts();
 
     while (! _joined) {
-        _next_tx = _lora->getNextTx();
+        _next_tx = _dot->getNextTxMs();
         if (_next_tx) {
             logInfo("next tx %lu ms", _next_tx);
             _join.updateStatus("Waiting...");

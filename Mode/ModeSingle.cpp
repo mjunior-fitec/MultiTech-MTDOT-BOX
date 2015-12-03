@@ -102,7 +102,7 @@ bool ModeSingle::start() {
                             case show_help:
                                 _state = in_progress;
                                 _progress.display();
-                                if (_lora->getNextTx() > 0)
+                                if (_dot->getNextTxMs() > 0)
                                     no_channel_ping = true;
                                 else 
                                     send_ping = true;
@@ -113,7 +113,7 @@ bool ModeSingle::start() {
                             case success:
                                 _state = in_progress;
                                 _progress.display();
-                                if (_lora->getNextTx() > 0)
+                                if (_dot->getNextTxMs() > 0)
                                     no_channel_ping = true;
                                 else 
                                     send_ping = true;
@@ -123,7 +123,7 @@ bool ModeSingle::start() {
                             case failure:
                                 _state = in_progress;
                                 _progress.display();
-                                if (_lora->getNextTx() > 0)
+                                if (_dot->getNextTxMs() > 0)
                                     no_channel_ping = true;
                                 else 
                                     send_ping = true;
@@ -153,7 +153,7 @@ bool ModeSingle::start() {
                                 appendDataFile(_data);
                                 if (_send_data) {
                                     _state = data;
-                                    if (_lora->getNextTx() > 0)
+                                    if (_dot->getNextTxMs() > 0)
                                         no_channel_data = true;
                                     else
                                         send_data = true;
@@ -226,9 +226,12 @@ bool ModeSingle::start() {
                                 break;
                             case data:
                                 _state = success;
-                                _success.updateInfo("Data Send Success");
+                                _success.updateInfo("                 ");
                                 _success.updateSw1("   Power");
                                 _success.updateSw2("Survey");
+                                // turn acks and receive windows back on
+                                _dot->setAck(1);
+                                _dot->setTxWait(true);
                                 logInfo("data send success");
                                 break;
                             case failure:
@@ -250,9 +253,12 @@ bool ModeSingle::start() {
                                 break;
                             case data:
                                 _state = success;
-                                _success.updateInfo("Data Send Failure");
+                                _success.updateInfo("                 ");
                                 _success.updateSw1("   Power");
                                 _success.updateSw2("Survey");
+                                // turn acks and receive windows back on
+                                _dot->setAck(1);
+                                _dot->setTxWait(true);
                                 logInfo("data send failed");
                                 break;
                             case failure:
@@ -264,7 +270,7 @@ bool ModeSingle::start() {
         }
 
         if (no_channel_ping) {
-            uint32_t t = _lora->getNextTx();
+            uint32_t t = _dot->getNextTxMs();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
                 _progress.updateCountdown(t / 1000);
@@ -275,7 +281,7 @@ bool ModeSingle::start() {
             }
         }
         if (no_channel_data) {
-            uint32_t t = _lora->getNextTx();
+            uint32_t t = _dot->getNextTxMs();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
                 _success.updateCountdown(t / 1000);
@@ -288,8 +294,8 @@ bool ModeSingle::start() {
         if (send_ping) {
             logInfo("sending ping %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_ping = false;
-            _lora->setDataRate(_data_rate);
-            _lora->setPower(_power);
+            _dot->setTxDataRate(_data_rate);
+            _dot->setTxPower(_power);
             _lora->ping();
             _index++;
         }
@@ -298,8 +304,12 @@ bool ModeSingle::start() {
             logInfo("sending data %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
             send_data = false;
             _success.updateInfo("Data Sending...");
-            _lora->setDataRate(_data_rate);
-            _lora->setPower(_power);
+            _dot->setTxDataRate(_data_rate);
+            _dot->setTxPower(_power);
+            // we don't care if the server actually gets this packet or not
+            // we won't retry anyway
+            _dot->setAck(0);
+            _dot->setTxWait(false);
             _lora->send(s_data);
         }
     }
