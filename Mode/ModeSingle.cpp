@@ -65,7 +65,7 @@ bool ModeSingle::start() {
                                 break;
                             case show_help:
                                 incrementRatePower();
-                                _help.updateMsg(formatNewRatePower());
+                                _help.updateMsg(formatRatePower());
                                 logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                             case in_progress:
@@ -73,14 +73,14 @@ bool ModeSingle::start() {
                                 break;
                             case success:
                                 incrementRatePower();
-                                _success.updateInfo(formatNewRatePower());
+                                _success.updateInfo(formatRatePower());
                                 logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                             case data:
                                 break;
                             case failure:
                                 incrementRatePower();
-                                _failure.updateInfo(formatNewRatePower());
+                                _failure.updateInfo(formatRatePower());
                                 logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                         }
@@ -310,6 +310,7 @@ void ModeSingle::displayHelp() {
     _help.updateMode("Survey Single");
     _help.updateSw1("  DR/PWR");
     _help.updateSw2("Survey");
+    _help.updateMsg(formatRatePower());
 }
 
 void ModeSingle::displaySuccess() {
@@ -334,13 +335,13 @@ void ModeSingle::displaySuccess() {
     }
 }
 
-std::string ModeSingle::formatNewRatePower() {
+std::string ModeSingle::formatRatePower() {
     std::string msg;
     char buf[8];
     size_t size;
 
     memset(buf, 0, sizeof(buf));
-    msg += "New DR=";
+    msg += "DR=";
     msg += _dot->DataRateStr(_data_rate).substr(3);
     msg += " P=";
     size = snprintf(buf, sizeof(buf), "%u", _power);

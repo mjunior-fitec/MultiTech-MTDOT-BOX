@@ -19,7 +19,7 @@ class ModeSingle : public Mode {
     private:
         void displayHelp();
         void displaySuccess();
-        std::string formatNewRatePower();
+        std::string formatRatePower();
         void incrementRatePower();
 
         typedef enum {
