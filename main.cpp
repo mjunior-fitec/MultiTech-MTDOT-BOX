@@ -24,13 +24,13 @@
 #include "FileName.h"
 #include <string>
 
-// LCD and backlight controllers
+// LCD and LED controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
-I2C backlight_i2c(I2C_SDA, I2C_SCL);
+I2C led_i2c(I2C_SDA, I2C_SCL);
 DigitalOut lcd_spi_cs(SPI1_CS, 1);
 DigitalOut lcd_cd(XBEE_ON_SLEEP, 1);
 DOGS102* lcd;
-NCP5623B* lcd_backlight;
+NCP5623B* led_cont;
 
 // Thread informaiton
 osThreadId main_id;
@@ -70,13 +70,18 @@ int main() {
     file_name = "SurveyData.txt";
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
-    lcd_backlight = new NCP5623B(backlight_i2c);
+    led_cont = new NCP5623B(led_i2c);
 
     main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
     gps = new GPSPARSER(&gps_serial);
+
+    // NCP5623B::LEDs 1 & 2 are the screen backlight - not used on default build
+    // NCP5623B::LED3 is EVB LED2
+    led_cont->setPWM(NCP5623B::LED_3, 16);
+    led_cont->setLEDCurrent(16);
 
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
 
