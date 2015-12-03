@@ -36,7 +36,8 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora)
     _next_tx(0),
     _send_data(false),
 	_gpsUART(PA_2, PA_3),
-	_mdot_gps(&_gpsUART)
+	_mdot_gps(&_gpsUART),
+	_mdot_sensors()
 {}
 
 Mode::~Mode() {}
@@ -150,6 +151,13 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.ping = _ping_result;
     data.data_rate = _data_rate;
     data.power = _power;
+}
+
+void Mode::updateSensors(SensorItem& data) {
+    data.accel_data = _mdot_sensors.getAcceleration();
+    data.baro_data = _mdot_sensors.getBarometer();
+    data.lux_data = _mdot_sensors.getLight();
+    data.pressure = _mdot_sensors.getPressure();
 }
 
 uint32_t Mode::getIndex(DataType type) {

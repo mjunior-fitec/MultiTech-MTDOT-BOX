@@ -5,15 +5,8 @@
  * @version 1.0
  *
  */
+
 #include "SensorHandler.h"
-#include "mbed.h"
-#include "MMA845x.h"
-#include "MPL3115A2.h"
-#include "ISL29011.h"
-#include "DOGS102.h"
-#include "rtos.h"
-#include <string>
-#include <vector>
 
 SensorHandler::SensorHandler()
   : _getSensorThread(&SensorHandler::startSensorThread,this),
@@ -23,7 +16,7 @@ SensorHandler::SensorHandler()
 	_lightSensor(_mDoti2c)
 {
     _getSensorThread.signal_set(START_THREAD);
-
+    return;
 }
 
 SensorHandler::~SensorHandler(void)
@@ -62,6 +55,8 @@ void SensorHandler::startSensorThread(void const *p)
 
 void SensorHandler::readSensors()
 {
+    uint8_t result;
+    _getSensorThread.signal_wait(START_THREAD);
     while(1){
         // Test Accelerometer XYZ data ready bit to see if acquisition complete
         do {
@@ -70,7 +65,7 @@ void SensorHandler::readSensors()
         } while ((result & MMA845x::XYZDR) == 0 );
 	 
         // Retrieve accelerometer data
-        accel_data = _accelerometer.getXYZ();
+        _accelerometerData = _accelerometer.getXYZ();
 	 
         // Trigger a Pressure reading
         _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_BAROMETER, MPL3115A2::OR_16,
@@ -84,7 +79,7 @@ void SensorHandler::readSensors()
         } while ((result & MPL3115A2::PTDR) == 0 );
 	 
         // Retrieve barometric pressure
-        pressure = _barometricSensor.getBaroData() >> 12; // convert 32 bit signed to 20 bit unsigned value
+        _pressure = _barometricSensor.getBaroData() >> 12; // convert 32 bit signed to 20 bit unsigned value
 	 
         // Trigger a Altitude reading
         _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_ALTIMETER, MPL3115A2::OR_16,
@@ -98,22 +93,26 @@ void SensorHandler::readSensors()
         } while ((result & MPL3115A2::PTDR) == 0 );
 	 
         // Retrieve temperature
-        baro_data = _barometricSensor.getAllData(false);
+        _barometerData = _barometricSensor.getAllData(false);
 	 
         // Retrieve light level
-        lux_data = _lightSensor.getData();
+        _light = _lightSensor.getData();
     }
 }
 
-MMA845x_DATA getAcceleration(){
+MMA845x_DATA SensorHandler::getAcceleration(){
+    return _accelerometerData;
 }
 
-uint16_t getLight(){
+uint16_t SensorHandler::getLight(){
+    return _light;
 }
 
-uint_32t getPressure(){
+uint32_t SensorHandler::getPressure(){
+    return _pressure;
 }
 
-MPL3115A2_DATA getTemp(){
+MPL3115A2_DATA SensorHandler::getBarometer(){
+    return _barometerData;
 }
 

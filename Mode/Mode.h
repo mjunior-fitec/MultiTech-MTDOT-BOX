@@ -9,6 +9,7 @@
 #include "ISL29011.h"
 #include "MMA845x.h"
 #include "MPL3115A2.h"
+#include "SensorHandler.h"
 
 class Mode {
     public:
@@ -47,6 +48,7 @@ class Mode {
         bool deleteDataFile();
         bool appendDataFile(const DataItem& data);
         void updateData(DataItem& data, DataType type, bool status);
+		void updateSensors(SensorItem& data);
         uint32_t getIndex(DataType type);
 
         std::vector<uint8_t> formatSurveyData(DataItem& data);
@@ -71,6 +73,7 @@ class Mode {
         bool _send_data;
 		mts::MTSSerial _gpsUART;
 		GPSPARSER _mdot_gps;
+		SensorHandler _mdot_sensors;
 };
 
 #endif
