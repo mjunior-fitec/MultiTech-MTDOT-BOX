@@ -28,7 +28,7 @@ bool ModeJoin::start() {
 
     while (! _joined) {
         _next_tx = _dot->getNextTxMs();
-        if (_next_tx) {
+        if (! joining && _next_tx > 0) {
             logInfo("next tx %lu ms", _next_tx);
             _join.updateStatus("Waiting...");
             _join.updateCountdown(_next_tx / 1000);
