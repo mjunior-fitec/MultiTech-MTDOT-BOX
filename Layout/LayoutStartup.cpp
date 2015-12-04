@@ -11,6 +11,7 @@ LayoutStartup::LayoutStartup(DOGS102* lcd, mDot* dot)
     _lVersion(0, 5, "Version"),
     _fVersion(8, 5, 9),
     _fId(0, 7, 17),
+    _fGps(0, 6, 17),
     _iLogo(0, 0, MultiTech_Logo)
 {}
 
@@ -32,3 +33,13 @@ void LayoutStartup::display() {
 
     endUpdate();
 }
+
+void LayoutStartup::updateGPS(bool gps) {
+    char buf[32];
+    size_t size;
+
+    memset(buf, 0, sizeof(buf));
+    size = snprintf(buf, sizeof(buf), "%sGPS Detected", gps ? "" : "No ");
+    writeField(_fGps, buf, size);
+}
+

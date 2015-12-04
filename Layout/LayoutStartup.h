@@ -10,6 +10,7 @@ class LayoutStartup : public Layout {
         ~LayoutStartup();
 
         void display();
+        void updateGPS(bool gps);
 
     private:
         mDot* _dot;
@@ -19,6 +20,7 @@ class LayoutStartup : public Layout {
         Label _lVersion;
 
         Field _fVersion;
+        Field _fGps;
         Field _fId;
 
         Image _iLogo;

@@ -62,10 +62,6 @@ char* file_name;
 
 // Prototypes
 void mainMenu();
-void join();
-void loraDemo();
-void surveySingle();
-void surveySweep();
 
 int main() {
     debug.baud(115200);
@@ -93,11 +89,13 @@ int main() {
     modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps);
     modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps);
 
-    logInfo("GPS %sdetected", gps->gpsDetected() ? "" : "not ");
+    osDelay(1000);
+    logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
 
     // display startup screen for 3 seconds
     LayoutStartup ls(lcd, dot);
     ls.display();
+    ls.updateGPS(gps->gpsDetected());
     osDelay(3000);
 
     logInfo("displaying main menu");
