@@ -311,6 +311,7 @@ bool ModeSingle::start() {
             _dot->setAck(0);
             _dot->setTxWait(false);
             _lora->send(s_data);
+            osDelay(500);
         }
     }
 }
