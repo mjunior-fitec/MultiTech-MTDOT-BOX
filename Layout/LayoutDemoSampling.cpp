@@ -58,7 +58,7 @@ void LayoutDemoSampling::updateCountdown(uint32_t seconds) {
     // for some reason, there's a % character that gets displayed in the last column
     // add the extra spaces to wipe it out
     writeField(_fInfo, "No Free Channel  ", true);
-    size = snprintf(buf, sizeof(buf), "%lu s", seconds);
+    size = snprintf(buf, sizeof(buf), "%lu s      ", seconds);
     writeField(_fSw2, buf, size, true);
 }
 

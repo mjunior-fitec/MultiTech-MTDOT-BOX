@@ -91,6 +91,7 @@ bool ModeDemo::start() {
                             case sampling:
                                 if (_mode == trigger) {
                                     _sam.updateSw2("Send");
+                                    _sam.updateInfo("                 ");
                                 } else {
                                     _sam.updateSw1("Interval");
                                     _sam.updateInterval(_intervals[_interval]);
@@ -110,6 +111,7 @@ bool ModeDemo::start() {
                             case sampling:
                                 if (_mode == trigger) {
                                     _sam.updateSw2("Send");
+                                    _sam.updateInfo("                 ");
                                 } else {
                                     _sam.updateSw1("Interval");
                                     _sam.updateInterval(_intervals[_interval]);
@@ -144,20 +146,17 @@ bool ModeDemo::start() {
         }
         if (send) {
             std::vector<uint8_t> s_data = formatSensorData(_data);
-            logInfo("sending data %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
+            logInfo("sending data %s %d", _dot->DataRateStr(_dot->getTxDataRate()).c_str(), _dot->getTxPower());
             _sam.updateInfo("Sending...");
             _sam.updateSw1("        ");
             _sam.updateSw2("        ");
             send = false;
-            _dot->setTxDataRate(_data_rate);
-            _dot->setTxPower(_power);
             // we don't care if the server actually gets this packet or not
             // we won't retry anyway
             _dot->setAck(0);
             _dot->setTxWait(false);
             _lora->send(s_data);
             osDelay(500);
-            _sam.updateInfo("                 ");
         }
     }
 }
