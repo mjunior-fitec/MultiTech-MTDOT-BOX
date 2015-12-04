@@ -19,6 +19,7 @@
 #include "ModeJoin.h"
 #include "ModeSingle.h"
 #include "ModeSweep.h"
+#include "ModeDemo.h"
 #include "ModeConfig.h"
 // misc heders
 #include "FileName.h"
@@ -50,6 +51,7 @@ MTSSerial gps_serial(XBEE_DOUT, XBEE_DIN, 256, 2048);
 ModeJoin* modeJoin;
 ModeSingle* modeSingle;
 ModeSweep* modeSweep;
+ModeDemo* modeDemo;
 ModeConfig* modeConfig;
 
 // Serial debug port
@@ -88,6 +90,7 @@ int main() {
     modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps);
     modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps);
     modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps);
+    modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps);
     modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps);
 
     logInfo("GPS %sdetected", gps->gpsDetected() ? "" : "not ");
@@ -157,7 +160,7 @@ void mainMenu() {
 
         if (selected == menu_strings[demo]) {
             if (modeJoin->start())
-                loraDemo();
+                modeDemo->start();
         } else if (selected == menu_strings[config]) {
             modeConfig->start();
         } else if (selected == menu_strings[single]) {
@@ -169,39 +172,6 @@ void mainMenu() {
         }
 
         mode_selected = false;
-    }
-}
-
-void loraDemo() {
-    LayoutHelp lh(lcd);
-    lh.display();
-    lh.updateMode("LoRa Demo");
-    lh.updateDescription("Select TX Method");
-    lh.updateSw1(" Trigger");
-    lh.updateSw2("Interval");
-
-    // clear any stale signals
-    osSignalClear(main_id, buttonSignal | loraSignal);
-
-    logInfo("demo mode");
-
-    while (true) {
-        osEvent e = Thread::signal_wait(buttonSignal);
-        if (e.status == osEventSignal) {
-            ButtonHandler::ButtonEvent ev = buttons->getButtonEvent();
-            switch (ev) {
-                case ButtonHandler::sw1_press:
-                    logInfo("trigger TX mode");
-                    break;
-                case ButtonHandler::sw2_press:
-                    logInfo("interval TX mode");
-                    break;
-                case ButtonHandler::sw1_hold:
-                    return;
-                default:
-                    break;
-            }
-        }
     }
 }
 
