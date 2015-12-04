@@ -68,17 +68,16 @@ int main() {
     file_name = "SurveyData.txt";
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
+    // NCP5623B::LEDs 1 & 2 are the screen backlight - not used on default build
+    // NCP5623B::LED3 is EVB LED2
     led_cont = new NCP5623B(led_i2c);
 
     main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
-    gps = new GPSPARSER(&gps_serial);
+    gps = new GPSPARSER(&gps_serial, led_cont);
 
-    // NCP5623B::LEDs 1 & 2 are the screen backlight - not used on default build
-    // NCP5623B::LED3 is EVB LED2
-    led_cont->setPWM(NCP5623B::LED_3, 16);
     led_cont->setLEDCurrent(16);
 
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
