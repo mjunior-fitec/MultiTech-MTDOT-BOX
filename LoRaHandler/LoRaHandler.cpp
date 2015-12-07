@@ -26,6 +26,7 @@ void l_worker(void const* argument) {
         e = Thread::signal_wait(signal);
         if (e.status == osEventSignal) {
             l->_status = LoRaHandler::busy;
+            l->_tick.attach(l, &LoRaHandler::blinker, 0.05);
             switch (cmd) {
                 case l_ping:
                     l->_mutex.lock();
@@ -44,6 +45,8 @@ void l_worker(void const* argument) {
                         l->_status = LoRaHandler::ping_failure;
                     }
                     osSignalSet(l->_main, loraSignal);
+                    l->_tick.detach();
+                    l->_activity_led = LoRaHandler::green;
                     break;
                 
                 case l_send:
@@ -55,6 +58,8 @@ void l_worker(void const* argument) {
                     else
                         l->_status = LoRaHandler::send_failure;
                     osSignalSet(l->_main, loraSignal);
+                    l->_tick.detach();
+                    l->_activity_led = LoRaHandler::green;
                     break;
 
                 case l_join:
@@ -68,6 +73,8 @@ void l_worker(void const* argument) {
                         l->_status = LoRaHandler::join_failure;
                     }
                     osSignalSet(l->_main, loraSignal);
+                    l->_tick.detach();
+                    l->_activity_led = LoRaHandler::green;
                     break;
 
                 default:
@@ -82,9 +89,11 @@ LoRaHandler::LoRaHandler(osThreadId main)
   : _main(main),
     _thread(l_worker, (void*)this),
     _status(none),
-    _join_attempts(1)
+    _join_attempts(1),
+    _activity_led(XBEE_DIO1, PIN_OUTPUT, PullNone, red)
 {
     _ping.status = false;
+    _activity_led = red;
 }
 
 bool LoRaHandler::ping() {
@@ -143,5 +152,9 @@ void LoRaHandler::resetJoinAttempts() {
     _mutex.lock();
     _join_attempts = 1;
     _mutex.unlock();
+}
+
+void LoRaHandler::blinker() {
+    _activity_led = !_activity_led;
 }
 

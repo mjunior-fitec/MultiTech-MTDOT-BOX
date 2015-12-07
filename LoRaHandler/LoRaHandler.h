@@ -24,6 +24,11 @@ class LoRaHandler {
             mDot::ping_response down;
         } LoRaPing;
 
+        typedef enum {
+            green = 0,
+            red
+        } LedColor;
+
         LoRaHandler(osThreadId main);
         ~LoRaHandler();
 
@@ -35,7 +40,7 @@ class LoRaHandler {
         LoRaPing getPingResults();
         uint32_t getJoinAttempts();
         void resetJoinAttempts();
-
+        void blinker();
 
         osThreadId _main;
         Thread _thread;
@@ -44,6 +49,8 @@ class LoRaHandler {
         mDot* _dot;
         Mutex _mutex;
         uint32_t _join_attempts;
+        DigitalInOut _activity_led;
+        Ticker _tick;
 };
 
 #endif
