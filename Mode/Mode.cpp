@@ -193,10 +193,12 @@ uint32_t Mode::getIndex(DataType type) {
                 return 0;
             }
             logInfo("read %d bytes [%s]", ret, buf);
+	    bytes_read = file.size - read_offset - 1;
+	    logInfo("read %d total bytes", bytes_read);
 
             // read_size - 1 is the last byte in the buffer
             for (current = read_size - 1; current >= 0; current--) {
-                if ((buf[current] == '\n' && current != read_size - 1) || current == 0) {
+                if ((buf[current] == '\n' && current != read_size - 1) || (current == 0 && bytes_read >= file.size)) {
                     int test = current;
                     logInfo("found potential %d, %c", read_offset + current, buf[test + 1]);
                     if (buf[test + 1] == search) {
