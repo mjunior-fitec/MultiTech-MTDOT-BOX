@@ -9,12 +9,15 @@
 #include "SensorHandler.h"
 
 SensorHandler::SensorHandler()
-  : _getSensorThread(&SensorHandler::startSensorThread,this),
+  : _getSensorThread(&SensorHandler::startSensorThread, this),
     _mDoti2c(PC_9,PA_8),
 	_accelerometer(_mDoti2c,MMA845x::SA0_VSS),
 	_barometricSensor(_mDoti2c),
 	_lightSensor(_mDoti2c)
 {
+    printf("init Sensors");
+    SensorHandler::initSensors();
+    printf("start Sensor thread");
     _getSensorThread.signal_set(START_THREAD);
     return;
 }
@@ -45,18 +48,21 @@ void SensorHandler::initSensors(){
 	 
     // Clear the min-max registers in the Barometric Sensor
     _barometricSensor.clearMinMaxRegs();    
+    printf("Sensors initialized");
 }
 
 void SensorHandler::startSensorThread(void const *p)
 {
     SensorHandler *instance = (SensorHandler*)p;
     instance->readSensors();
+    printf("Sensor thread started");
 }
 
 void SensorHandler::readSensors()
 {
     uint8_t result;
     _getSensorThread.signal_wait(START_THREAD);
+    printf("read Sensors");
     while(1){
         // Test Accelerometer XYZ data ready bit to see if acquisition complete
         do {
@@ -65,7 +71,9 @@ void SensorHandler::readSensors()
         } while ((result & MMA845x::XYZDR) == 0 );
 	 
         // Retrieve accelerometer data
+        _mutex.lock();        
         _accelerometerData = _accelerometer.getXYZ();
+        _mutex.unlock();
 	 
         // Trigger a Pressure reading
         _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_BAROMETER, MPL3115A2::OR_16,
@@ -79,8 +87,10 @@ void SensorHandler::readSensors()
         } while ((result & MPL3115A2::PTDR) == 0 );
 	 
         // Retrieve barometric pressure
+        _mutex.lock();        
         _pressure = _barometricSensor.getBaroData() >> 12; // convert 32 bit signed to 20 bit unsigned value
-	 
+        _mutex.unlock();
+        
         // Trigger a Altitude reading
         _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_ALTIMETER, MPL3115A2::OR_16,
         					MPL3115A2::AT_1);
@@ -93,26 +103,46 @@ void SensorHandler::readSensors()
         } while ((result & MPL3115A2::PTDR) == 0 );
 	 
         // Retrieve temperature
+        _mutex.lock();
         _barometerData = _barometricSensor.getAllData(false);
+        _mutex.unlock();        
 	 
         // Retrieve light level
+        _mutex.lock();
         _light = _lightSensor.getData();
+        _mutex.unlock();        
     }
 }
 
 MMA845x_DATA SensorHandler::getAcceleration(){
-    return _accelerometerData;
+    MMA845x_DATA data;
+    _mutex.lock();
+    data = _accelerometerData;
+    _mutex.unlock();
+    return data;
 }
 
 uint16_t SensorHandler::getLight(){
-    return _light;
+    uint16_t light;
+    _mutex.lock();
+    light = _light;
+    _mutex.unlock();
+    return light; 
 }
 
 uint32_t SensorHandler::getPressure(){
-    return _pressure;
+    uint32_t pressure;
+    _mutex.lock();
+    pressure = _pressure;
+    _mutex.unlock();
+    return pressure;    
 }
 
 MPL3115A2_DATA SensorHandler::getBarometer(){
-    return _barometerData;
+    MPL3115A2_DATA data;
+    _mutex.lock();
+    data = _barometerData;
+    _mutex.unlock();
+    return data;
 }
 

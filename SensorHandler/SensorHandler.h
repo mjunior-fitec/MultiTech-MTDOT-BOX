@@ -43,6 +43,7 @@ private:
 	MPL3115A2_DATA _barometerData;
 	uint16_t _light;
 	uint32_t _pressure;
+	Mutex _mutex;	
 };
 	
 #endif //SENSORHANDLER_H
