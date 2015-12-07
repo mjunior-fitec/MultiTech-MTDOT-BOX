@@ -132,6 +132,7 @@ void mainMenu() {
     while (true) {
         // reset session between modes
         dot->resetNetworkSession();
+        lora->resetActivityLed();
         LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
         menu.display();
 

@@ -158,3 +158,7 @@ void LoRaHandler::blinker() {
     _activity_led = !_activity_led;
 }
 
+void LoRaHandler::resetActivityLed() {
+    _activity_led = red;
+}
+

@@ -41,6 +41,7 @@ class LoRaHandler {
         uint32_t getJoinAttempts();
         void resetJoinAttempts();
         void blinker();
+        void resetActivityLed();
 
         osThreadId _main;
         Thread _thread;
