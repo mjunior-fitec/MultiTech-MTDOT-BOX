@@ -44,10 +44,6 @@ bool ModeDemo::start() {
                                     _sam.updateInterval(_intervals[_interval]);
                                 }
                                 break;
-                            case success:
-                                break;
-                            case failure:
-                                break;
                         }
                         break;
 
@@ -69,10 +65,6 @@ bool ModeDemo::start() {
                                         send = true;
                                 }
                                 break;
-                            case success:
-                                break;
-                            case failure:
-                                break;
                         }
                         break;
                     case ButtonHandler::sw1_hold:
@@ -86,8 +78,6 @@ bool ModeDemo::start() {
                 switch (_ls) {
                     case LoRaHandler::send_success:
                         switch (_state) {
-                            case show_help:
-                                break;
                             case sampling:
                                 if (_mode == trigger) {
                                     _sam.updateSw2("Send");
@@ -96,18 +86,12 @@ bool ModeDemo::start() {
                                     _sam.updateSw1("Interval");
                                     _sam.updateInterval(_intervals[_interval]);
                                 }
-                                break;
-                            case success:
-                                break;
-                            case failure:
                                 break;
                         }
                         break;
 
                     case LoRaHandler::send_failure:
                         switch (_state) {
-                            case show_help:
-                                break;
                             case sampling:
                                 if (_mode == trigger) {
                                     _sam.updateSw2("Send");
@@ -116,10 +100,6 @@ bool ModeDemo::start() {
                                     _sam.updateSw1("Interval");
                                     _sam.updateInterval(_intervals[_interval]);
                                 }
-                                break;
-                            case success:
-                                break;
-                            case failure:
                                 break;
                         }
                         break;

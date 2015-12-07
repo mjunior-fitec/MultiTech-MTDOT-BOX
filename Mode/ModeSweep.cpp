@@ -89,10 +89,6 @@ bool ModeSweep::start() {
                                 _state = check_file;
                                 _file.display();
                                 break;
-                            case show_help:
-                                break;
-                            case in_progress:
-                                break;
                             case success:
                                 _state = complete;
                                 _display_timer.stop();
@@ -105,8 +101,6 @@ bool ModeSweep::start() {
                                 _survey_success = 0;
                                 _survey_failure = 0;
                                 break;
-                            case data:
-                                break;
                             case failure:
                                 _state = complete;
                                 _display_timer.stop();
@@ -118,8 +112,6 @@ bool ModeSweep::start() {
                                 _complete.updateFail(_survey_failure);
                                 _survey_success = 0;
                                 _survey_failure = 0;
-                                break;
-                            case complete:
                                 break;
                         }
                         break;
@@ -146,14 +138,6 @@ bool ModeSweep::start() {
                                 else
                                     send_ping = true;
                                 break;
-                            case in_progress:
-                                break;
-                            case success:
-                                break;
-                            case data:
-                                break;
-                            case failure:
-                                break;
                             case complete:
                                 _state = in_progress;
                                 _survey_current = 1;
@@ -175,12 +159,6 @@ bool ModeSweep::start() {
                 switch (_ls) {
                     case LoRaHandler::ping_success:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
                             case in_progress:
                                 _survey_success++;
                                 _ping_result = _lora->getPingResults();
@@ -200,25 +178,11 @@ bool ModeSweep::start() {
                                     _display_timer.start();
                                 }
                                 break;
-                            case success:
-                                break;
-                            case data:
-                                break;
-                            case failure:
-                                break;
-                            case complete:
-                                break;
                         }
                         break;
 
                     case LoRaHandler::ping_failure:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
                             case in_progress:
                                 _survey_failure++;
                                 _state = failure;
@@ -242,29 +206,11 @@ bool ModeSweep::start() {
                                 logInfo("ping failed");
                                 _display_timer.start();
                                 break;
-                            case success:
-                                break;
-                            case data:
-                                break;
-                            case failure:
-                                break;
-                            case complete:
-                                break;
                         }
                         break;
 
                     case LoRaHandler::send_success:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
-                            case in_progress:
-                                break;
-                            case success:
-                                break;
                             case data:
                                 _state = success;
                                 _success.updateInfo("                 ");
@@ -275,25 +221,11 @@ bool ModeSweep::start() {
                                 _dot->setTxWait(true);
                                 _display_timer.start();
                                 break;
-                            case failure:
-                                break;
-                            case complete:
-                                break;
                         }
                         break;
 
                     case LoRaHandler::send_failure:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
-                            case in_progress:
-                                break;
-                            case success:
-                                break;
                             case data:
                                 _state = success;
                                 _success.updateInfo("                 ");
@@ -303,10 +235,6 @@ bool ModeSweep::start() {
                                 _dot->setAck(1);
                                 _dot->setTxWait(true);
                                 _display_timer.start();
-                                break;
-                            case failure:
-                                break;
-                            case complete:
                                 break;
                         }
                         break;

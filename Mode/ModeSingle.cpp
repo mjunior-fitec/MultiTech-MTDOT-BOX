@@ -66,22 +66,14 @@ bool ModeSingle::start() {
                             case show_help:
                                 incrementRatePower();
                                 _help.updateMsg(formatRatePower());
-                                logInfo("new data rate %u, power %lu", _data_rate, _power);
-                                break;
-                            case in_progress:
-                                // do nothing
                                 break;
                             case success:
                                 incrementRatePower();
                                 _success.updateInfo(formatRatePower());
-                                logInfo("new data rate %u, power %lu", _data_rate, _power);
-                                break;
-                            case data:
                                 break;
                             case failure:
                                 incrementRatePower();
                                 _failure.updateInfo(formatRatePower());
-                                logInfo("new data rate %u, power %lu", _data_rate, _power);
                                 break;
                         }
                         break;
@@ -107,9 +99,6 @@ bool ModeSingle::start() {
                                 else 
                                     send_ping = true;
                                 break;
-                            case in_progress:
-                                // do nothing
-                                break;
                             case success:
                                 _state = in_progress;
                                 _progress.display();
@@ -117,8 +106,6 @@ bool ModeSingle::start() {
                                     no_channel_ping = true;
                                 else 
                                     send_ping = true;
-                                break;
-                            case data:
                                 break;
                             case failure:
                                 _state = in_progress;
@@ -139,12 +126,6 @@ bool ModeSingle::start() {
                 switch (_ls) {
                     case LoRaHandler::ping_success:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
                             case in_progress:
                                 _ping_result = _lora->getPingResults();
                                 displaySuccess();
@@ -163,23 +144,11 @@ bool ModeSingle::start() {
                                     _success.updateSw2("Survey");
                                 }
                                 break;
-                            case success:
-                                break;
-                            case data:
-                                break;
-                            case failure:
-                                break;
                         }
                         break;
 
                     case LoRaHandler::ping_failure:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
                             case in_progress:
                                 _state = failure;
                                 _failure.display();
@@ -203,27 +172,11 @@ bool ModeSingle::start() {
                                 _failure.updateSw2("Survey");
                                 logInfo("ping failed");
                                 break;
-                            case success:
-                                break;
-                            case data:
-                                break;
-                            case failure:
-                                break;
                         }
                         break;
 
                     case LoRaHandler::send_success:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
-                            case in_progress:
-                                break;
-                            case success:
-                                break;
                             case data:
                                 _state = success;
                                 _success.updateInfo("                 ");
@@ -234,23 +187,11 @@ bool ModeSingle::start() {
                                 _dot->setTxWait(true);
                                 logInfo("data send success");
                                 break;
-                            case failure:
-                                break;
                         }
                         break;
 
                     case LoRaHandler::send_failure:
                         switch (_state) {
-                            case check_file:
-                                break;
-                            case confirm:
-                                break;
-                            case show_help:
-                                break;
-                            case in_progress:
-                                break;
-                            case success:
-                                break;
                             case data:
                                 _state = success;
                                 _success.updateInfo("                 ");
@@ -260,8 +201,6 @@ bool ModeSingle::start() {
                                 _dot->setAck(1);
                                 _dot->setTxWait(true);
                                 logInfo("data send failed");
-                                break;
-                            case failure:
                                 break;
                         }
                         break;
@@ -390,5 +329,7 @@ void ModeSingle::incrementRatePower() {
     } else {
         _power += 3;
     }
+
+    logInfo("new data rate %u, power %lu", _data_rate, _power);
 }
 
