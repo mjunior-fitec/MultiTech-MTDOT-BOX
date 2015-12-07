@@ -15,9 +15,7 @@ SensorHandler::SensorHandler()
 	_barometricSensor(_mDoti2c),
 	_lightSensor(_mDoti2c)
 {
-    printf("init Sensors");
     SensorHandler::initSensors();
-    printf("start Sensor thread");
     _getSensorThread.signal_set(START_THREAD);
     return;
 }
@@ -48,21 +46,18 @@ void SensorHandler::initSensors(){
 	 
     // Clear the min-max registers in the Barometric Sensor
     _barometricSensor.clearMinMaxRegs();    
-    printf("Sensors initialized");
 }
 
 void SensorHandler::startSensorThread(void const *p)
 {
     SensorHandler *instance = (SensorHandler*)p;
     instance->readSensors();
-    printf("Sensor thread started");
 }
 
 void SensorHandler::readSensors()
 {
     uint8_t result;
     _getSensorThread.signal_wait(START_THREAD);
-    printf("read Sensors");
     while(1){
         // Test Accelerometer XYZ data ready bit to see if acquisition complete
         do {
