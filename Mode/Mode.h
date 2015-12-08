@@ -35,9 +35,12 @@ class Mode {
         typedef struct {
             MMA845x_DATA accel_data;
             MPL3115A2_DATA baro_data;
-            uint16_t lux_data;
-            uint32_t pressure;
-        } SensorItem;
+            uint16_t lux_data_raw;
+            uint32_t pressure_raw;
+            float light;
+            float pressure;
+			float altitude;
+        } SensorItem;		
 
         Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora);
         ~Mode();

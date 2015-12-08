@@ -156,8 +156,11 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
 void Mode::updateSensors(SensorItem& data) {
     data.accel_data = _mdot_sensors.getAcceleration();
     data.baro_data = _mdot_sensors.getBarometer();
-    data.lux_data = _mdot_sensors.getLight();
+    data.lux_data_raw = _mdot_sensors.getLightRaw();
+    data.pressure_raw = _mdot_sensors.getPressureRaw();
+    data.light = _mdot_sensors.getLight();
     data.pressure = _mdot_sensors.getPressure();
+    data.altitude = _mdot_sensors.getAltitude();
 }
 
 uint32_t Mode::getIndex(DataType type) {
@@ -297,12 +300,12 @@ std::vector<uint8_t> Mode::formatSensorData(SensorItem& data) {
 	convertS.f_s = data.accel_data._z * 4;	// shift data 2 bits while retaining sign
 	send_data.push_back(convertS.t_u[1]);	// get 8 MSB of 14 bit value
 	send_data.push_back(0x08);			    // key for Current Pressure Value
-	convertL.f_u = data.pressure;			// pressure data is 20 bits unsigned
+	convertL.f_u = data.pressure_raw;			// pressure data is 20 bits unsigned
 	send_data.push_back(convertL.t_u[2]);
 	send_data.push_back(convertL.t_u[1]);
 	send_data.push_back(convertL.t_u[0]);
 	send_data.push_back(0x05);			    // key for Current Ambient Light Value
-	convertS.f_u = data.lux_data;			// data is 16 bits unsigned
+	convertS.f_u = data.lux_data_raw;			// data is 16 bits unsigned
 	send_data.push_back(convertS.t_u[1]);
 	send_data.push_back(convertS.t_u[0]);
 	send_data.push_back(0x0B);			    // key for Current Temperature Value

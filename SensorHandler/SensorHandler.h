@@ -22,14 +22,18 @@
 class SensorHandler
 {
 public:
+	enum Scale{CELSIUS, FAHRENHEIT};
 	SensorHandler(void);
 	~SensorHandler(void);
 	MMA845x_DATA getAcceleration(void);
-	uint16_t getLight(void);
-	uint32_t getPressure(void);
+	float getLight(void);
+	uint16_t getLightRaw(void);
+	float getPressure(void);
+	uint32_t getPressureRaw(void);
+	float getTemp(Scale);
+	float getAltitude(void);
 	MPL3115A2_DATA getBarometer(void);
-
-
+		
 private:
     Thread _getSensorThread;
     static void startSensorThread (void const *p);	
