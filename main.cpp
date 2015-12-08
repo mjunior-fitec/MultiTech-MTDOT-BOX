@@ -23,11 +23,6 @@
 // misc heders
 #include <string>
 
-/*------------------------------------------------------*/
-#include "SensorHandler.h"
-/*------------------------------------------------------*/
-
-
 // LCD and backlight controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
 I2C backlight_i2c(I2C_SDA, I2C_SCL);
@@ -115,71 +110,6 @@ void mainMenu() {
     items.push_back(menu_strings[config]);
     items.push_back(menu_strings[single]);
     items.push_back(menu_strings[sweep]);
-
-    /*------------------------------------------------------*/
-        SensorHandler *sensors = new SensorHandler();
-        MMA845x_DATA accel;
-        uint16_t light;
-        int32_t num_whole;
-        int16_t num_frac;
-        uint32_t pressure;
-        float temp;
-        char txtstr[17];
-        while(1){
-            accel = sensors->getAcceleration();
-            sprintf(txtstr, "Accel: x = %d", accel._x);
-            printf("%s\r\n", txtstr);
-            sprintf(txtstr, "y = %d", accel._y);
-            printf("%s\r\n", txtstr);
-            sprintf(txtstr, "z = %d", accel._z );
-            printf("%s\r\n", txtstr);
-
-            light = sensors->getLightRaw();
-            num_whole = light * 24 / 100;		// 16000 lux full scale .24 lux per bit
-            num_frac = light * 24 % 100;
-            sprintf(txtstr, "Light=%ld.%02d lux", num_whole, num_frac );
-            printf("%s\r\n", txtstr);
-
-            temp = sensors->getLight();
-            printf("getLight call = %4.3f\r\n", temp);
-           
-            printf("----------------------Pressure-----------------------\r\n");
-            pressure = sensors->getPressureRaw();
-            num_whole = pressure >> 2;			// 18 bit integer significant
-            num_frac = (pressure & 0x3) * 25;		// 2 bit fractional  0.25 per bit
-            sprintf(txtstr,"Raw...Press=%ld.%02d Pa", num_whole, num_frac);            
-            printf("%s\r\n", txtstr);
-
-            temp = sensors->getPressure();
-            printf("getPressure call = %3.2f\r\n", temp);
-            printf("-----------------------------------------------------\r\n");
-
-            printf("----------------------Altitude-----------------------\r\n");
-            num_whole = sensors->getBarometer()._baro;     // 8 bit signed significant integer
-            num_whole /= 4096;
-            num_frac = (num_whole & 0x0F) * 625 / 10;      // 4 bit fractional .0625 per bit
-            num_whole /= 16;
-            sprintf(txtstr,"Alti=%ld.%02d m", num_whole, num_frac);
-            printf("%s\r\n", txtstr);
-
-            temp = sensors->getAltitude();
-            printf("getAltitude call = %3.3f\r\n", temp);
-            printf("-----------------------------------------------------\r\n");
-
-            printf("---------------------Temperature---------------------\r\n");            
-            num_whole = ((sensors->getBarometer())._temp) / 16;     // 8 bit signed significant integer
-            num_frac = (((sensors->getBarometer())._temp) & 0x0F) * 625 / 10;      // 4 bit fractional .0625 per bit
-            sprintf(txtstr,"Temp=%ld.%03d C", num_whole, num_frac);
-            printf("%s\r\n", txtstr);
-
-            temp = sensors->getTemp(SensorHandler::CELSIUS);
-            printf("getTemp call = %3.3f\r\n", temp);
-            printf("-----------------------------------------------------\r\n\r\n");            
-
-            osDelay(5000);
-        }
-        
-    /*------------------------------------------------------*/
 
     while (true) {
         // reset session between modes
