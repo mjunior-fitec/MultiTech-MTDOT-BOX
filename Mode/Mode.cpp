@@ -92,12 +92,11 @@ bool Mode::appendDataFile(const DataItem& data) {
     }
 
     if (data.status) {
-        float up_snr = (float)data.ping.up.snr / 10.0;
-        float down_snr = (float)data.ping.down.snr / 4.0;
-        snprintf(stats_buf, sizeof(stats_buf), "%d,%2.1f,%d,%2.1f",
-            abs(data.ping.up.rssi),
-            up_snr,
-            abs(data.ping.down.rssi),
+        float down_snr = (float)data.link.down.snr / 4.0;
+        snprintf(stats_buf, sizeof(stats_buf), "%d,%d,%d,%2.1f",
+            data.link.up.gateways,
+            data.link.up.dBm,
+            abs(data.link.down.rssi),
             down_snr);
     }
 
@@ -138,7 +137,7 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.gps_latitude = _gps->getLatitude();
     data.gps_altitude = _gps->getAltitude();
     data.gps_time = _gps->getTimestamp();
-    data.ping = _ping_result;
+    data.link = _link_check_result;
     data.data_rate = _data_rate;
     data.power = _power;
 }
@@ -227,17 +226,17 @@ std::vector<uint8_t> Mode::formatSurveyData(DataItem& data) {
     send_data.clear();
     send_data.push_back(0x1D);			// key for start of data structure
     send_data.push_back(0x1A);			// key for uplink QOS + RF Pwr
-    convertS.f_s = data.ping.up.rssi;
+    convertS.f_s = data.link.up.gateways;
     send_data.push_back(convertS.t_u[1]);
     send_data.push_back(convertS.t_u[0]);
-    send_data.push_back((data.ping.up.snr/10) & 0xFF);
+    send_data.push_back((data.link.up.dBm) & 0xFF);
     send_data.push_back(data.power);
 
     send_data.push_back(0x1B);			// key for downlink QOS
-    convertS.f_s=data.ping.down.rssi;
+    convertS.f_s=data.link.down.rssi;
     send_data.push_back(convertS.t_u[1]);
     send_data.push_back(convertS.t_u[0]);
-    send_data.push_back(data.ping.down.snr);
+    send_data.push_back(data.link.down.snr);
 
     // collect GPS data if GPS device detected
     if (_gps->gpsDetected() && ((_data_rate != mDot::SF_10) || (_band == mDot::FB_868))){

@@ -6,13 +6,12 @@ LayoutSurveySuccess::LayoutSurveySuccess(DOGS102* lcd)
     _lId(0, 0, "ID"),
     _lDr(8, 0, "DR"),
     _lPwr(13, 0, "P"),
-    _lUp(0, 1, "UP"),
+    _lUp(0, 1, "UP Margin"),
     _lDown(0, 2, "DWN"),
     _fId(2, 0, 5),
     _fDr(10, 0, 2),
     _fPwr(14, 0, 2),
-    _fUpRssi(3, 1, 7),
-    _fUpSnr(11, 1, 5),
+    _fUpMargin(10, 1, 5),
     _fDownRssi(4, 2, 7),
     _fDownSnr(12, 2, 5),
     _fGpsLat(0, 4, 17),
@@ -58,25 +57,21 @@ void LayoutSurveySuccess::updatePower(uint32_t power) {
     writeField(_fPwr, buf, size, true);
 }
 
-void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
+void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaLink link) {
     char buf[16];
     size_t size;
 
     startUpdate();
 
-    size = snprintf(buf, sizeof(buf), "%3d dbm", ping.up.rssi);
-    writeField(_fUpRssi, buf, size);
+    size = snprintf(buf, sizeof(buf), "%d", link.up.dBm);
+    writeField(_fUpMargin, buf, size);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%2.1f", (float)ping.up.snr / 10.0);
-    writeField(_fUpSnr, buf, size);
-
-    memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%3d dbm", ping.down.rssi);
+    size = snprintf(buf, sizeof(buf), "%3d dbm", link.down.rssi);
     writeField(_fDownRssi, buf, size);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%2.1f", (float)ping.down.snr / 4.0);
+    size = snprintf(buf, sizeof(buf), "%2.1f", (float)link.down.snr / 4.0);
     writeField(_fDownSnr, buf, size);
 
     endUpdate();

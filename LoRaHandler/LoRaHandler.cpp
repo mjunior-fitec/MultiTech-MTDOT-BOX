@@ -4,7 +4,7 @@
 
 typedef enum {
     l_none = 0,
-    l_ping,
+    l_link_check,
     l_send,
     l_join
 } InternalLoRa;
@@ -18,7 +18,7 @@ void l_worker(void const* argument) {
 
     l->_dot = mDot::getInstance();
     int32_t ret;
-    mDot::ping_response pr;
+    mDot::link_check lc;
     mDot::rssi_stats rs;
     mDot::snr_stats ss;
 
@@ -28,21 +28,21 @@ void l_worker(void const* argument) {
             l->_status = LoRaHandler::busy;
             l->_tick.attach(l, &LoRaHandler::blinker, 0.05);
             switch (cmd) {
-                case l_ping:
+                case l_link_check:
                     l->_mutex.lock();
-                    pr = l->_dot->ping();
+                    lc = l->_dot->networkLinkCheck();
                     l->_mutex.unlock();
-                    if (pr.status == mDot::MDOT_OK) {
-                        l->_ping.up = pr;
+                    if (lc.status) {
+                        l->_link.up = lc;
                         l->_mutex.lock();
                         rs = l->_dot->getRssiStats();
                         ss = l->_dot->getSnrStats();
                         l->_mutex.unlock();
-                        l->_ping.down.rssi = rs.last;
-                        l->_ping.down.snr = ss.last;
-                        l->_status = LoRaHandler::ping_success;
+                        l->_link.down.rssi = rs.last;
+                        l->_link.down.snr = ss.last;
+                        l->_status = LoRaHandler::link_check_success;
                     } else {
-                        l->_status = LoRaHandler::ping_failure;
+                        l->_status = LoRaHandler::link_check_failure;
                     }
                     osSignalSet(l->_main, loraSignal);
                     l->_tick.detach();
@@ -92,12 +92,12 @@ LoRaHandler::LoRaHandler(osThreadId main)
     _join_attempts(1),
     _activity_led(XBEE_DIO1, PIN_OUTPUT, PullNone, red)
 {
-    _ping.status = false;
+    _link.status = false;
     _activity_led = red;
 }
 
-bool LoRaHandler::ping() {
-    return action(l_ping);
+bool LoRaHandler::linkCheck() {
+    return action(l_link_check);
 }
 
 bool LoRaHandler::send(std::vector<uint8_t> data) {
@@ -129,13 +129,13 @@ LoRaHandler::LoRaStatus LoRaHandler::getStatus() {
     return status;
 }
 
-LoRaHandler::LoRaPing LoRaHandler::getPingResults() {
-    LoRaPing ping;
+LoRaHandler::LoRaLink LoRaHandler::getLinkCheckResults() {
+    LoRaLink link;
     _mutex.lock();
-    ping = _ping;
+    link = _link;
     _mutex.unlock();
 
-    return ping;
+    return link;
 }
 
 uint32_t LoRaHandler::getJoinAttempts() {

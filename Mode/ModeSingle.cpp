@@ -124,10 +124,10 @@ bool ModeSingle::start() {
             if (e.value.signals & loraSignal) {
                 _ls = _lora->getStatus();
                 switch (_ls) {
-                    case LoRaHandler::ping_success:
+                    case LoRaHandler::link_check_success:
                         switch (_state) {
                             case in_progress:
-                                _ping_result = _lora->getPingResults();
+                                _link_check_result = _lora->getLinkCheckResults();
                                 displaySuccess();
                                 logInfo("ping successful");
                                 updateData(_data, single, true);
@@ -147,7 +147,7 @@ bool ModeSingle::start() {
                         }
                         break;
 
-                    case LoRaHandler::ping_failure:
+                    case LoRaHandler::link_check_failure:
                         switch (_state) {
                             case in_progress:
                                 _state = failure;
@@ -235,7 +235,7 @@ bool ModeSingle::start() {
             send_ping = false;
             _dot->setTxDataRate(_data_rate);
             _dot->setTxPower(_power);
-            _lora->ping();
+            _lora->linkCheck();
             _index++;
         }
         if (send_data) {
@@ -272,7 +272,7 @@ void ModeSingle::displaySuccess() {
     // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
     _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
     _success.updatePower(_power);
-    _success.updateStats(_ping_result);
+    _success.updateStats(_link_check_result);
     if (_gps_available && _gps->getLockStatus()) {
         GPSPARSER::latitude lat = _gps->getLatitude();
         GPSPARSER::longitude lon = _gps->getLongitude();
