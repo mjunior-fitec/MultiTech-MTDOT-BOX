@@ -2,6 +2,7 @@
 #define __LAYOUTDEMOSAMPLING_H__
 
 #include "Layout.h"
+#include "MMA845x.h"
 
 class LayoutDemoSampling : public Layout {
     public:
@@ -14,6 +15,13 @@ class LayoutDemoSampling : public Layout {
         void updateSw2(std::string sw2);
         void updateCountdown(uint32_t seconds);
         void updateInterval(uint32_t seconds);
+		void updateAccelerationX(uint16_t x);
+		void updateAccelerationY(uint16_t y);
+		void updateAccelerationZ(uint16_t z);
+		void updatePressure(float pressure);
+		void updateAltitude(float altitude);
+		void updateTemperature(float temperature);
+		void updateLight(float light);
 
     private:
         Label _lAccx;

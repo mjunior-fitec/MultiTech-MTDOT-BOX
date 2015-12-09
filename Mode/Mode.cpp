@@ -155,7 +155,7 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.power = _power;
 }
 
-void Mode::updateSensors(SensorItem& data) {
+void Mode::updateSensorData(SensorItem& data) {
     data.accel_data = _mdot_sensors.getAcceleration();
     data.baro_data = _mdot_sensors.getBarometer();
     data.lux_data_raw = _mdot_sensors.getLightRaw();
@@ -163,6 +163,7 @@ void Mode::updateSensors(SensorItem& data) {
     data.light = _mdot_sensors.getLight();
     data.pressure = _mdot_sensors.getPressure();
     data.altitude = _mdot_sensors.getAltitude();
+    data.temperature = _mdot_sensors.getTemp(SensorHandler::CELSIUS);
 }
 
 uint32_t Mode::getIndex(DataType type) {

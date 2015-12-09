@@ -105,7 +105,7 @@ void SensorHandler::readSensors()
         // Retrieve light level
         _mutex.lock();
         _light = _lightSensor.getData();
-        _mutex.unlock();        
+        _mutex.unlock();
     }
 }
 

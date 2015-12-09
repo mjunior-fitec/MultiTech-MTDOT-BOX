@@ -42,6 +42,7 @@ class Mode {
             float light;
             float pressure;
 			float altitude;
+			float temperature;			
         } SensorItem;		
 
         Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
@@ -53,7 +54,7 @@ class Mode {
         bool deleteDataFile();
         bool appendDataFile(const DataItem& data);
         void updateData(DataItem& data, DataType type, bool status);
-		void updateSensors(SensorItem& data);
+		void updateSensorData(SensorItem& data);
         uint32_t getIndex(DataType type);
 
         std::vector<uint8_t> formatSurveyData(DataItem& data);

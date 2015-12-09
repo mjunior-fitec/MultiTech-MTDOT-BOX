@@ -138,6 +138,16 @@ bool ModeDemo::start() {
             _lora->send(s_data);
             osDelay(500);
         }
+        if(_state != show_help){
+            updateSensorData(_data);
+            _sam.updateAccelerationX(_data.accel_data._x);
+            _sam.updateAccelerationY(_data.accel_data._y);
+            _sam.updateAccelerationZ(_data.accel_data._z);
+    		_sam.updatePressure(_data.pressure);
+    		_sam.updateAltitude(_data.altitude);
+    		_sam.updateTemperature(_data.temperature);
+    		_sam.updateLight(_data.light);        
+        }
     }
 }
 
