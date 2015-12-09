@@ -96,7 +96,7 @@ ButtonHandler::ButtonHandler(osThreadId main)
     // fall handler called on press, rise handler called on release
     _sw1.fall(this, &ButtonHandler::sw1_fall);
     _sw1.rise(this, &ButtonHandler::sw1_rise);
-    // need to set mode to PullUp after attaching handlers - won't work otherwise
+    // need to set mode to PullUp after attaching handlers - default is PullNone (see PinNames.h)
     _sw1.mode(PullUp);
 
     _sw2.fall(this, &ButtonHandler::sw2_fall);
