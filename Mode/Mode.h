@@ -10,6 +10,7 @@
 #include "MMA845x.h"
 #include "MPL3115A2.h"
 #include "FileName.h"
+#include "SensorHandler.h"
 
 class Mode {
     public:
@@ -36,9 +37,12 @@ class Mode {
         typedef struct {
             MMA845x_DATA accel_data;
             MPL3115A2_DATA baro_data;
-            uint16_t lux_data;
-            uint32_t pressure;
-        } SensorItem;
+            uint16_t lux_data_raw;
+            uint32_t pressure_raw;
+            float light;
+            float pressure;
+			float altitude;
+        } SensorItem;		
 
         Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
         ~Mode();
@@ -49,6 +53,7 @@ class Mode {
         bool deleteDataFile();
         bool appendDataFile(const DataItem& data);
         void updateData(DataItem& data, DataType type, bool status);
+		void updateSensors(SensorItem& data);
         uint32_t getIndex(DataType type);
 
         std::vector<uint8_t> formatSurveyData(DataItem& data);
@@ -72,6 +77,9 @@ class Mode {
         uint8_t _state;
         bool _send_data;
 	bool _gps_available;
+		mts::MTSSerial _gpsUART;
+		GPSPARSER _mdot_gps;
+		SensorHandler _mdot_sensors;
 };
 
 #endif

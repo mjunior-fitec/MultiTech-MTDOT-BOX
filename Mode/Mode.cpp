@@ -2,6 +2,15 @@
 #include "MTSLog.h"
 
 /*
+ * union for converting from 32-bit to 4 8-bit values
+ */
+union convert32 {
+    int32_t f_s;		// convert from signed 32 bit int
+    uint32_t f_u;		// convert from unsigned 32 bit int
+    uint8_t t_u[4];		// convert to 8 bit unsigned array
+}convertL;
+
+/*
  * union for converting from 16- bit to 2 8-bit values
  */
 union convert16 {
@@ -25,7 +34,10 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, G
     _power(2),
     _next_tx(0),
     _send_data(false),
-    _gps_available(_gps->gpsDetected())
+    _gps_available(_gps->gpsDetected()),
+	_gpsUART(PA_2, PA_3),
+	_mdot_gps(&_gpsUART),
+	_mdot_sensors()
 {}
 
 Mode::~Mode() {}
@@ -141,6 +153,16 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
     data.ping = _ping_result;
     data.data_rate = _data_rate;
     data.power = _power;
+}
+
+void Mode::updateSensors(SensorItem& data) {
+    data.accel_data = _mdot_sensors.getAcceleration();
+    data.baro_data = _mdot_sensors.getBarometer();
+    data.lux_data_raw = _mdot_sensors.getLightRaw();
+    data.pressure_raw = _mdot_sensors.getPressureRaw();
+    data.light = _mdot_sensors.getLight();
+    data.pressure = _mdot_sensors.getPressure();
+    data.altitude = _mdot_sensors.getAltitude();
 }
 
 uint32_t Mode::getIndex(DataType type) {
@@ -273,6 +295,27 @@ std::vector<uint8_t> Mode::formatSurveyData(DataItem& data) {
 
 std::vector<uint8_t> Mode::formatSensorData(SensorItem& data) {
     std::vector<uint8_t> send_data;
+	send_data.clear();
+	send_data.push_back(0x0E);			    // key for Current Acceleration 3-Axis Value
+	convertS.f_s = data.accel_data._x *4;	// shift data 2 bits while retaining sign
+	send_data.push_back(convertS.t_u[1]);	// get 8 MSB of 14 bit value
+	convertS.f_s = data.accel_data._y * 4;	// shift data 2 bits while retaining sign
+	send_data.push_back(convertS.t_u[1]);	// get 8 MSB of 14 bit value
+	convertS.f_s = data.accel_data._z * 4;	// shift data 2 bits while retaining sign
+	send_data.push_back(convertS.t_u[1]);	// get 8 MSB of 14 bit value
+	send_data.push_back(0x08);			    // key for Current Pressure Value
+	convertL.f_u = data.pressure_raw;			// pressure data is 20 bits unsigned
+	send_data.push_back(convertL.t_u[2]);
+	send_data.push_back(convertL.t_u[1]);
+	send_data.push_back(convertL.t_u[0]);
+	send_data.push_back(0x05);			    // key for Current Ambient Light Value
+	convertS.f_u = data.lux_data_raw;			// data is 16 bits unsigned
+	send_data.push_back(convertS.t_u[1]);
+	send_data.push_back(convertS.t_u[0]);
+	send_data.push_back(0x0B);			    // key for Current Temperature Value
+	convertS.f_s = data.baro_data._temp; 	// temperature is signed 12 bit
+	send_data.push_back(convertS.t_u[1]);
+	send_data.push_back(convertS.t_u[0]);
 
     return send_data;
 }
