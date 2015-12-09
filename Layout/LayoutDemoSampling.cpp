@@ -67,7 +67,7 @@ void LayoutDemoSampling::updateInterval(uint32_t seconds) {
     size_t size;
 
     memset(buf, ' ', sizeof(buf));
-    writeField(_fInfo, buf, size, true);
+    writeField(_fInfo, buf, sizeof(buf), true);
 
     memset(buf, 0, sizeof(buf));
     if (seconds < 60)
