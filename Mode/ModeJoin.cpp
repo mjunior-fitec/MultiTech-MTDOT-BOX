@@ -16,6 +16,9 @@ bool ModeJoin::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
 
+    _initial_data_rate = _dot->getTxDataRate();
+    _initial_power = _dot->getTxPower();
+
     _data_rate = (_band == mDot::FB_915) ? mDot::SF_10 : mDot::SF_12;
     _power = 20;
     _joined = false;
@@ -45,10 +48,14 @@ bool ModeJoin::start() {
                 _be = _buttons->getButtonEvent();
                 switch (_be) {
                     case ButtonHandler::sw1_press:
+                        _dot->setTxDataRate(_initial_data_rate);
+                        _dot->setTxPower(_initial_power);
                         return false;
                     case ButtonHandler::sw2_press:
                         break;
                     case ButtonHandler::sw1_hold:
+                        _dot->setTxDataRate(_initial_data_rate);
+                        _dot->setTxPower(_initial_power);
                         return false;
                 }
             }
@@ -61,6 +68,8 @@ bool ModeJoin::start() {
                         logInfo("joined");
                         _joined = true;
                         osDelay(2000);
+                        _dot->setTxDataRate(_initial_data_rate);
+                        _dot->setTxPower(_initial_power);
                         return true;
 
                     case LoRaHandler::join_failure:
@@ -72,6 +81,8 @@ bool ModeJoin::start() {
         }
     }
 
+    _dot->setTxDataRate(_initial_data_rate);
+    _dot->setTxPower(_initial_power);
     return false;
 }
 

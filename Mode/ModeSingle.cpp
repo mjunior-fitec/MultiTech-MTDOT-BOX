@@ -23,6 +23,9 @@ bool ModeSingle::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
 
+    _initial_data_rate = _dot->getTxDataRate();
+    _initial_power = _dot->getTxPower();
+
     // see if we're supposed to send the data packet after success
     // that item is stored in the mDot::StartUpMode config field
     _send_data = _dot->getStartUpMode();
@@ -118,6 +121,8 @@ bool ModeSingle::start() {
                         }
                         break;
                     case ButtonHandler::sw1_hold:
+                        _dot->setTxDataRate(_initial_data_rate);
+                        _dot->setTxPower(_initial_power);
                         return true;
                 }
             }

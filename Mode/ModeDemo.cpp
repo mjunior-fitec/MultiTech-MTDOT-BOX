@@ -20,9 +20,13 @@ bool ModeDemo::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
 
-    // set spreading factor and power
-    _dot->setTxDataRate(mDot::SF_9);
-    _dot->setTxPower(20);
+    _initial_data_rate = _dot->getTxDataRate();
+
+    // use configured data rate and power if possible
+    if (_band == mDot::FB_915 && _initial_data_rate == mDot::SF_10) {
+        logInfo("using SF_9 instead of SF_10 - SF_10 max packet size is too small for data");
+        _dot->setTxDataRate(mDot::SF_9);
+    }
 
     _state = show_help;
     displayHelp();
@@ -74,6 +78,7 @@ bool ModeDemo::start() {
                     case ButtonHandler::sw1_hold:
                         _send_timer.stop();
                         _send_timer.reset();
+                        _dot->setTxDataRate(_initial_data_rate);
                         return true;
                 }
             }

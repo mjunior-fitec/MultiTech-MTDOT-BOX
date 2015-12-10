@@ -71,7 +71,7 @@ class Mode {
         uint8_t _band;
         uint8_t _sub_band;
         uint8_t _data_rate;
-        uint8_t _power;
+        uint32_t _power;
         uint32_t _next_tx;
         ButtonHandler::ButtonEvent _be;
         LoRaHandler::LoRaStatus _ls;
@@ -79,6 +79,8 @@ class Mode {
         uint8_t _state;
         bool _send_data;
 	bool _gps_available;
+	uint8_t _initial_data_rate;
+	uint8_t _initial_power;
 };
 
 #endif
