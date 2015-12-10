@@ -20,6 +20,10 @@ bool ModeDemo::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
 
+    // set spreading factor and power
+    _dot->setTxDataRate(mDot::SF_9);
+    _dot->setTxPower(20);
+
     _state = show_help;
     displayHelp();
 
