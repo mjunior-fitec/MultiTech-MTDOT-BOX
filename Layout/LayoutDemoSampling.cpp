@@ -80,51 +80,58 @@ void LayoutDemoSampling::updateInterval(uint32_t seconds) {
     writeField(_fInfo, buf, size, true);
 }
 
-void LayoutDemoSampling::updateAccelerationX(uint16_t x) {
+void LayoutDemoSampling::updateAccelerationX(int16_t x) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%d", x);
-    writeField(_fAccx, buf, true);
+    size = snprintf(buf, sizeof(buf), "%d", x);
+    writeField(_fAccx, buf, size, true);
 }
     
-void LayoutDemoSampling::updateAccelerationY(uint16_t y) {
+void LayoutDemoSampling::updateAccelerationY(int16_t y) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%d", y);
-    writeField(_fAccy, buf, true);
+    size = snprintf(buf, sizeof(buf), "%d", y);
+    writeField(_fAccy, buf, size, true);
 }
     
-void LayoutDemoSampling::updateAccelerationZ(uint16_t z) {
+void LayoutDemoSampling::updateAccelerationZ(int16_t z) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%d", z);
-    writeField(_fAccz, buf, true);
+    size = snprintf(buf, sizeof(buf), "%d", z);
+    writeField(_fAccz, buf, size, true);
 }
 
 void LayoutDemoSampling::updatePressure(float pressure) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%3.2f KPa", pressure/1000);    
-    writeField(_fPres, buf, true);
+    size = snprintf(buf, sizeof(buf), "%3.2f KPa", pressure/1000);    
+    writeField(_fPres, buf, size, true);
 }
 
 void LayoutDemoSampling::updateAltitude(float altitude) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%5.2f m", altitude);    
-    writeField(_fAlt, buf, true);
+    size = snprintf(buf, sizeof(buf), "%5.2f m", altitude);    
+    writeField(_fAlt, buf, size, true);
 }
 
 void LayoutDemoSampling::updateTemperature(float temperature) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%3.2f C", temperature);    
-    writeField(_fTemp, buf, true);
+    size = snprintf(buf, sizeof(buf), "%3.2f C", temperature);    
+    writeField(_fTemp, buf, size, true);
 }
 
 void LayoutDemoSampling::updateLight(float light) {
     char buf[16];
+    size_t size;
     memset(buf, ' ', sizeof(buf));
-    snprintf(buf, sizeof(buf), "%4.2f lux", light);    
-    writeField(_fLight, buf, true);
+    size = snprintf(buf, sizeof(buf), "%4.2f lux", light);
+    writeField(_fLight, buf, size, true);
 }

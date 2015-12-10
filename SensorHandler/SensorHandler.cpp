@@ -29,7 +29,7 @@ void SensorHandler::initSensors(){
     //  Setup the Accelerometer for 8g range, 14 bit resolution, Noise reduction off, sample rate 1.56 Hz
     //  normal oversample mode, High pass filter off
     _accelerometer.setCommonParameters(MMA845x::RANGE_8g,MMA845x::RES_MAX,MMA845x::LN_OFF,
-    						   MMA845x::DR_1_56,MMA845x::OS_NORMAL,MMA845x::HPF_OFF );
+    						   MMA845x::DR_6_25,MMA845x::OS_NORMAL,MMA845x::HPF_OFF );
 	 
     // Setup the Barometric sensor for post processed Ambient pressure, 4 samples per data acquisition.
     //and a sample taken every second when in active mode
@@ -57,18 +57,24 @@ void SensorHandler::startSensorThread(void const *p)
 void SensorHandler::readSensors()
 {
     uint8_t result;
+    Timer timer;
+    timer.start();
+    
     _getSensorThread.signal_wait(START_THREAD);
     while(1){
         // Test Accelerometer XYZ data ready bit to see if acquisition complete
+        timer.reset();
         do {
-            osDelay(100);			 // allows other threads to process
+            osDelay(20);			 // allows other threads to process
             result = _accelerometer.getStatus();
-        } while ((result & MMA845x::XYZDR) == 0 );
-	 
-        // Retrieve accelerometer data
-        _mutex.lock();        
-        _accelerometerData = _accelerometer.getXYZ();
-        _mutex.unlock();
+            if((result & MMA845x::XYZDR) != 0 ){
+                // Retrieve accelerometer data
+                _mutex.lock();        
+                _accelerometerData = _accelerometer.getXYZ();
+                _mutex.unlock();
+            }
+        } while (((result & MMA845x::XYZDR) == 0 ) && (timer.read_ms() < 1000));
+
 	 
         // Trigger a Pressure reading
         _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_BAROMETER, MPL3115A2::OR_16,
@@ -76,15 +82,18 @@ void SensorHandler::readSensors()
         _barometricSensor.triggerOneShot();
 	 
         // Test barometer device status to see if acquisition is complete
+        timer.reset();
         do {
-            osDelay(100);			 // allows other threads to process
+            osDelay(20);			 // allows other threads to process
             result = _barometricSensor.getStatus();
-        } while ((result & MPL3115A2::PTDR) == 0 );
-	 
-        // Retrieve barometric pressure
-        _mutex.lock();        
-        _pressure = _barometricSensor.getBaroData() >> 12; // convert 32 bit signed to 20 bit unsigned value
-        _mutex.unlock();
+            if((result & MPL3115A2::PTDR) != 0){
+                // Retrieve barometric pressure
+                _mutex.lock();        
+                _pressure = _barometricSensor.getBaroData() >> 12; // convert 32 bit signed to 20 bit unsigned value
+                _mutex.unlock();                
+            }
+        } while (((result & MPL3115A2::PTDR) == 0) && (timer.read_ms() < 100));
+
         
         // Trigger an Altitude reading
         _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_ALTIMETER, MPL3115A2::OR_16,
@@ -92,20 +101,23 @@ void SensorHandler::readSensors()
         _barometricSensor.triggerOneShot();
 	 
         // Test barometer device status to see if acquisition is complete
+        timer.reset();
         do {
-            osDelay(100);			 // allows other threads to process
+            osDelay(20);			 // allows other threads to process
             result = _barometricSensor.getStatus();
-        } while ((result & MPL3115A2::PTDR) == 0 );
-	 
-        // Retrieve temperature and altitude.
-        _mutex.lock();
-        _barometerData = _barometricSensor.getAllData(false);
-        _mutex.unlock();        
+            if((result & MPL3115A2::PTDR) != 0 ){
+                // Retrieve temperature and altitude.
+                _mutex.lock();
+                _barometerData = _barometricSensor.getAllData(false);
+                _mutex.unlock();                 
+            }
+        } while (((result & MPL3115A2::PTDR) == 0 ) && (timer.read_ms() < 100));
 	 
         // Retrieve light level
         _mutex.lock();
         _light = _lightSensor.getData();
         _mutex.unlock();
+        osDelay(100);             // allows other threads to process
     }
 }
 
