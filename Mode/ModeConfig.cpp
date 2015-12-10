@@ -19,8 +19,8 @@ void ModeConfig::addCommand(Command* cmd) {
     _commands.push_back(cmd);
 }
 
-ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
-: Mode(lcd, buttons, dot, lora, gps),
+ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
+: Mode(lcd, buttons, dot, lora, gps, sensors),
   _lc(lcd),
   _serial(USBTX, USBRX, 512, 512)
 {

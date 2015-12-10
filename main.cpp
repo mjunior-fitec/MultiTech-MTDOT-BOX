@@ -15,6 +15,8 @@
 #include "ButtonHandler.h"
 // LoRa header
 #include "LoRaHandler.h"
+// Sensor header
+#include "SensorHandler.h"
 // mode objects
 #include "ModeJoin.h"
 #include "ModeSingle.h"
@@ -47,6 +49,9 @@ mDot* dot;
 GPSPARSER* gps;
 MTSSerial gps_serial(XBEE_DOUT, XBEE_DIN, 256, 2048);
 
+// Sensors
+SensorHandler* sensors;
+
 // Modes
 ModeJoin* modeJoin;
 ModeSingle* modeSingle;
@@ -77,16 +82,17 @@ int main() {
     dot = mDot::getInstance();
     lora = new LoRaHandler(main_id);
     gps = new GPSPARSER(&gps_serial, led_cont);
+    sensors = new SensorHandler();
 
     led_cont->setLEDCurrent(16);
 
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps);
-    modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps);
-    modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps);
-    modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps);
-    modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps);
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps, sensors);
+    modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps, sensors);
+    modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps, sensors);
+    modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps, sensors);
+    modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps, sensors);
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");

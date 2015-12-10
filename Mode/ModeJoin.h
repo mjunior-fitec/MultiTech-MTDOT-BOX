@@ -6,7 +6,7 @@
 
 class ModeJoin : public Mode {
     public:
-        ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
+        ModeJoin(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors);
         ~ModeJoin();
 
         bool start();

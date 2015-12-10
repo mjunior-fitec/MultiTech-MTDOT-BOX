@@ -6,14 +6,12 @@
 #include "mbed.h"
 #include "MTSSerial.h"
 #include "Commands.h"
-#include "mDot.h"
-#include "ButtonHandler.h"
 
 class ModeConfig : public Mode {
 
 public:
 
-    ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
+    ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors);
     
     // Command error text...
     static const char command_error[];

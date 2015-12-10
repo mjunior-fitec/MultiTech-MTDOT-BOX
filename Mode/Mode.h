@@ -6,11 +6,11 @@
 #include "mDot.h"
 #include "LoRaHandler.h"
 #include "GPSPARSER.h"
+#include "SensorHandler.h"
 #include "ISL29011.h"
 #include "MMA845x.h"
 #include "MPL3115A2.h"
 #include "FileName.h"
-#include "SensorHandler.h"
 
 class Mode {
     public:
@@ -45,7 +45,7 @@ class Mode {
 			float temperature;			
         } SensorItem;		
 
-        Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
+        Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors);
         ~Mode();
 
         virtual bool start() = 0;
@@ -65,6 +65,7 @@ class Mode {
         mDot* _dot;
         LoRaHandler* _lora;
 	GPSPARSER* _gps;
+	SensorHandler* _sensors;
         osThreadId _main_id;
         uint32_t _index;
         uint8_t _band;
@@ -78,9 +79,6 @@ class Mode {
         uint8_t _state;
         bool _send_data;
 	bool _gps_available;
-		mts::MTSSerial _gpsUART;
-		GPSPARSER _mdot_gps;
-		SensorHandler _mdot_sensors;
 };
 
 #endif

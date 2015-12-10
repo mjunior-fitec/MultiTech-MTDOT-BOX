@@ -1,8 +1,8 @@
 #include "ModeSingle.h"
 #include "MTSLog.h"
 
-ModeSingle::ModeSingle(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
-  : Mode(lcd, buttons, dot, lora, gps),
+ModeSingle::ModeSingle(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
+  : Mode(lcd, buttons, dot, lora, gps, sensors),
     _help(lcd),
     _file(lcd),
     _confirm(lcd),

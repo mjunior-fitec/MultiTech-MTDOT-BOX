@@ -20,12 +20,13 @@ union convert16 {
 } convertS;
 
 
-Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
+Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
   : _lcd(lcd),
     _buttons(buttons),
     _dot(dot),
     _lora(lora),
     _gps(gps),
+    _sensors(sensors),
     _main_id(Thread::gettid()),
     _index(0),
     _band(_dot->getFrequencyBand()),
@@ -34,10 +35,7 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, G
     _power(2),
     _next_tx(0),
     _send_data(false),
-    _gps_available(_gps->gpsDetected()),
-	_gpsUART(PA_2, PA_3),
-	_mdot_gps(&_gpsUART),
-	_mdot_sensors()
+    _gps_available(_gps->gpsDetected())
 {}
 
 Mode::~Mode() {}
@@ -156,14 +154,14 @@ void Mode::updateData(DataItem& data, DataType type, bool status) {
 }
 
 void Mode::updateSensorData(SensorItem& data) {
-    data.accel_data = _mdot_sensors.getAcceleration();
-    data.baro_data = _mdot_sensors.getBarometer();
-    data.lux_data_raw = _mdot_sensors.getLightRaw();
-    data.pressure_raw = _mdot_sensors.getPressureRaw();
-    data.light = _mdot_sensors.getLight();
-    data.pressure = _mdot_sensors.getPressure();
-    data.altitude = _mdot_sensors.getAltitude();
-    data.temperature = _mdot_sensors.getTemp(SensorHandler::CELSIUS);
+    data.accel_data = _sensors->getAcceleration();
+    data.baro_data = _sensors->getBarometer();
+    data.lux_data_raw = _sensors->getLightRaw();
+    data.pressure_raw = _sensors->getPressureRaw();
+    data.light = _sensors->getLight();
+    data.pressure = _sensors->getPressure();
+    data.altitude = _sensors->getAltitude();
+    data.temperature = _sensors->getTemp(SensorHandler::CELSIUS);
 }
 
 uint32_t Mode::getIndex(DataType type) {

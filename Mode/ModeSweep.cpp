@@ -1,8 +1,8 @@
 #include "ModeSweep.h"
 #include "MTSLog.h"
 
-ModeSweep::ModeSweep(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
-  : Mode(lcd, buttons, dot, lora, gps),
+ModeSweep::ModeSweep(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
+  : Mode(lcd, buttons, dot, lora, gps, sensors),
     _help(lcd),
     _file(lcd),
     _confirm(lcd),

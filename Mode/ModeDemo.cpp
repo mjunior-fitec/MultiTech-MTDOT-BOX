@@ -4,8 +4,8 @@
 // 10 s, 30 s, 1 min, 5 min, 10 min, 15 min, 30 min 1 hour
 const uint32_t ModeDemo::_intervals[] = { 10, 30, 60, 5 * 60, 10 * 60, 15 * 60, 30 * 60, 60 * 60 };
 
-ModeDemo::ModeDemo(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps)
-  : Mode(lcd, buttons, dot, lora, gps),
+ModeDemo::ModeDemo(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
+  : Mode(lcd, buttons, dot, lora, gps, sensors),
     _help(lcd),
     _sam(lcd),
     _interval(0)

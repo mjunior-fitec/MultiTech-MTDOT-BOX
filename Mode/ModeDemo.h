@@ -7,7 +7,7 @@
 
 class ModeDemo : public Mode {
     public:
-        ModeDemo(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps);
+        ModeDemo(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors);
         ~ModeDemo();
 
         bool start();
