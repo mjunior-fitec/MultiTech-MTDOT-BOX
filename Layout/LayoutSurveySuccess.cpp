@@ -76,7 +76,7 @@ void LayoutSurveySuccess::updateStats(LoRaHandler::LoRaPing ping) {
     writeField(_fDownRssi, buf, size);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%2.1f", (float)ping.down.snr / 4.0);
+    size = snprintf(buf, sizeof(buf), "%2.1f", (float)ping.down.snr / 10.0);
     writeField(_fDownSnr, buf, size);
 
     endUpdate();

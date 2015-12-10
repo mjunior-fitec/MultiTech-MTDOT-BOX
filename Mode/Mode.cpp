@@ -103,7 +103,7 @@ bool Mode::appendDataFile(const DataItem& data) {
 
     if (data.status) {
         float up_snr = (float)data.ping.up.snr / 10.0;
-        float down_snr = (float)data.ping.down.snr / 4.0;
+        float down_snr = (float)data.ping.down.snr / 10.0;
         snprintf(stats_buf, sizeof(stats_buf), "%d,%2.1f,%d,%2.1f",
             abs(data.ping.up.rssi),
             up_snr,
@@ -258,7 +258,7 @@ std::vector<uint8_t> Mode::formatSurveyData(DataItem& data) {
     convertS.f_s=data.ping.down.rssi;
     send_data.push_back(convertS.t_u[1]);
     send_data.push_back(convertS.t_u[0]);
-    send_data.push_back(data.ping.down.snr);
+    send_data.push_back((data.ping.down.snr/10) & 0xFF);
 
     // collect GPS data if GPS device detected
     if (_gps->gpsDetected() && ((_data_rate != mDot::SF_10) || (_band == mDot::FB_868))){
