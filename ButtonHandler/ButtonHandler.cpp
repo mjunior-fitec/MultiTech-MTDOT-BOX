@@ -89,6 +89,8 @@ ButtonHandler::ButtonHandler(osThreadId main)
     _sw2(PA_11),
     _sw1_time(0),
     _sw2_time(0),
+    _sw1_running(false),
+    _sw2_running(false),
     _event(none),
     _debounce_time(20),
     _hold_threshold(500)
