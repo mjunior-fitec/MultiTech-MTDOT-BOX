@@ -29,7 +29,7 @@ class Mode {
             GPSPARSER::latitude gps_latitude;
             int16_t gps_altitude;
             struct tm gps_time;
-            LoRaHandler::LoRaPing ping;
+            LoRaHandler::LoRaLink link;
             uint8_t data_rate;
             uint32_t power;
         } DataItem;
@@ -75,7 +75,7 @@ class Mode {
         uint32_t _next_tx;
         ButtonHandler::ButtonEvent _be;
         LoRaHandler::LoRaStatus _ls;
-        LoRaHandler::LoRaPing _ping_result;
+        LoRaHandler::LoRaLink _link_check_result;
         uint8_t _state;
         bool _send_data;
 	bool _gps_available;

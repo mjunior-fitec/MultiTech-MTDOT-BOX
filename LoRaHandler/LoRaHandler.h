@@ -10,19 +10,19 @@ class LoRaHandler {
         typedef enum {
             none = 0,
             busy,
-            ping_success,
+            link_check_success,
             send_success,
             join_success,
-            ping_failure,
+            link_check_failure,
             send_failure,
             join_failure
         } LoRaStatus;
 
         typedef struct {
             bool status;
-            mDot::ping_response up;
+            mDot::link_check up;
             mDot::ping_response down;
-        } LoRaPing;
+        } LoRaLink;
 
         typedef enum {
             green = 0,
@@ -32,12 +32,12 @@ class LoRaHandler {
         LoRaHandler(osThreadId main);
         ~LoRaHandler();
 
-        bool ping();
+        bool linkCheck();
         bool send(std::vector<uint8_t> data);
         bool join();
         bool action(uint8_t cmd);
         LoRaStatus getStatus();
-        LoRaPing getPingResults();
+        LoRaLink getLinkCheckResults();
         uint32_t getJoinAttempts();
         void resetJoinAttempts();
         void blinker();
@@ -46,7 +46,7 @@ class LoRaHandler {
         osThreadId _main;
         Thread _thread;
         LoRaStatus _status;
-        LoRaPing _ping;
+        LoRaLink _link;
         mDot* _dot;
         Mutex _mutex;
         uint32_t _join_attempts;

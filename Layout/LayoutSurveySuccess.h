@@ -14,7 +14,7 @@ class LayoutSurveySuccess : public Layout {
         void updateId(uint32_t id);
         void updateRate(std::string rate);
         void updatePower(uint32_t power);
-        void updateStats(LoRaHandler::LoRaPing ping);
+        void updateStats(LoRaHandler::LoRaLink link);
         void updateGpsLatitude(GPSPARSER::latitude lat);
         void updateGpsLatitude(std::string msg);
         void updateGpsLongitude(GPSPARSER::longitude lon);
@@ -35,8 +35,7 @@ class LayoutSurveySuccess : public Layout {
         Field _fId;
         Field _fDr;
         Field _fPwr;
-        Field _fUpRssi;
-        Field _fUpSnr;
+        Field _fUpMargin;
         Field _fDownRssi;
         Field _fDownSnr;
         Field _fGpsLat;
