@@ -35,10 +35,6 @@ void LayoutHelp::updateMsg(std::string msg) {
     writeField(_fMsg, msg, true);
 }
 
-void LayoutHelp::removeMsg() {
-    removeField(_fMsg);
-}
-
 void LayoutHelp::updateSw1(std::string s) {
     writeField(_fSw1, s, true);
 }

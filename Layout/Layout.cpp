@@ -61,17 +61,18 @@ bool Layout::writeField(const Field& field, const std::string& value, bool apply
 bool Layout::writeField(const Field& field, const char* value, size_t size, bool apply) {
     bool ret;
     char buf[32];
-    size_t s = (field._maxSize > size) ? size : field._maxSize;
 
     // fill the whole length with blank space in case the previous value was longer than this one
-    memset(buf, 0x20, sizeof(buf));
+    memset(buf, ' ', sizeof(buf));
 
     if (apply)
         startUpdate();
 
-    snprintf(buf, s, "%s", value);
+    snprintf(buf, sizeof(buf), "%s", value);
+    // wipe out the null character - the LCD driver will just skip that character otherwise
+    buf[size] = ' ';
 
-    ret = writeText(field._col, field._row, value, field._maxSize);
+    ret = writeText(field._col, field._row, buf, field._maxSize);
 
     if (apply)
         endUpdate();

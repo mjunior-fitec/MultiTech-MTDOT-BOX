@@ -53,7 +53,6 @@ void LayoutJoin::updateFsb(uint8_t band) {
     char buf[8];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%u", band);
     writeField(_fFsb, buf, size, true);
 }
@@ -66,7 +65,6 @@ void LayoutJoin::updatePower(uint32_t power) {
     char buf[16];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%lu", power);
     writeField(_fPower, buf, size, true);
 }
@@ -75,7 +73,6 @@ void LayoutJoin::updateAttempt(uint32_t attempt) {
     char buf[16];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%lu", attempt);
     writeField(_fAttempt, buf, size, true);
 }
@@ -88,18 +85,18 @@ void LayoutJoin::updateCountdown(uint32_t seconds) {
     char buf[16];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
-    // for some reason, there's a % character that gets displayed in the last column
-    // add the extra spaces to wipe it out
-    writeField(_fCountdownLabel, "No Free Channel  ", true);
+    writeField(_fCountdownLabel, "No Free Channel", true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fCountdown, buf, size, true);
 }
 
 void LayoutJoin::displayCancel(bool display) {
+    std::string str;
     if (display)
-        writeField(_fCancel, "Cancel", true);
+        str = "Cancel";
     else
-        removeField(_fCancel);
+        str = string(17, ' ');
+
+    writeField(_fCancel, str, true);
 }
 

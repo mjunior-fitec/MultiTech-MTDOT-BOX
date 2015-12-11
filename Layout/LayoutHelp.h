@@ -12,7 +12,6 @@ class LayoutHelp : public Layout {
         void updateMode(std::string mode);
         void updateDescription(std::string description);
         void updateMsg(std::string msg);
-        void removeMsg();
         void updateSw1(std::string s);
         void updateSw2(std::string s);
 

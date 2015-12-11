@@ -295,7 +295,6 @@ std::string ModeSingle::formatRatePower() {
     char buf[8];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     msg += "DR=";
     msg += _dot->DataRateStr(_data_rate).substr(3);
     msg += " P=";

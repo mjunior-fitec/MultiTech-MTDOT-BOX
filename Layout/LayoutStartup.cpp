@@ -38,7 +38,6 @@ void LayoutStartup::updateGPS(bool gps) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%sGPS Detected", gps ? "" : "No ");
     writeField(_fGps, buf, size);
 }

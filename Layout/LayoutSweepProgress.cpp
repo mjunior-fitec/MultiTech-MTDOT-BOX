@@ -27,7 +27,6 @@ void LayoutSweepProgress::updateProgress(uint8_t complete, uint8_t total) {
     char buf[8];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%u/%u", complete, total);
     writeField(_fProgress, buf, size, true);
 }
@@ -36,10 +35,7 @@ void LayoutSweepProgress::updateCountdown(uint32_t seconds) {
     char buf[16];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
-    // for some reason, there's a % character that gets displayed in the last column
-    // add the extra spaces to wipe it out
-    writeField(_fCountdownLabel, "No Free Channel  ", true);
+    writeField(_fCountdownLabel, "No Free Channel", true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fCountdown, buf, size, true);
 }

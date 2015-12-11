@@ -66,14 +66,6 @@ bool Mode::appendDataFile(const DataItem& data) {
     char stats_buf[32];
     size_t size;
 
-    memset(main_buf, 0, sizeof(main_buf));
-    memset(id_buf, 0, sizeof(id_buf));
-    memset(lat_buf, 0, sizeof(lat_buf));
-    memset(lon_buf, 0, sizeof(lon_buf));
-    memset(alt_buf, 0, sizeof(alt_buf));
-    memset(time_buf, 0, sizeof(time_buf));
-    memset(stats_buf, 0, sizeof(stats_buf));
-
     snprintf(id_buf, sizeof(id_buf), "%c%ld", (data.type == single) ? 'P' : 'S', data.index);
 
     // if we had GPS lock, format GPS data

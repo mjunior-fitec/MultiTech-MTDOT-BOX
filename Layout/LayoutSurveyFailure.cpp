@@ -55,7 +55,6 @@ void LayoutSurveyFailure::updateGpsLatitude(GPSPARSER::latitude lat) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
         abs(lat.degrees),
         lat.minutes,
@@ -73,7 +72,6 @@ void LayoutSurveyFailure::updateGpsLongitude(GPSPARSER::longitude lon) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
         abs(lon.degrees),
         lon.minutes,
@@ -87,7 +85,6 @@ void LayoutSurveyFailure::updateGpsTime(struct tm time) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%02d:%02d %02d/%02d/%04d",
         time.tm_hour,
         time.tm_min,
@@ -113,7 +110,6 @@ void LayoutSurveyFailure::updatePassFail(uint8_t pass, uint8_t fail) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "Pass %u Fail %u", pass, fail);
     writeField(_fGpsTime, buf, size, true);
 }

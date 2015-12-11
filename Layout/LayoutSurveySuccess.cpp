@@ -86,7 +86,6 @@ void LayoutSurveySuccess::updateGpsLatitude(GPSPARSER::latitude lat) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
         abs(lat.degrees),
         lat.minutes,
@@ -104,7 +103,6 @@ void LayoutSurveySuccess::updateGpsLongitude(GPSPARSER::longitude lon) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%d %d %d.%03d %c",
         abs(lon.degrees),
         lon.minutes,
@@ -118,7 +116,6 @@ void LayoutSurveySuccess::updateGpsTime(struct tm time) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%02d:%02d %02d/%02d/%04d",
         time.tm_hour,
         time.tm_min,
@@ -144,10 +141,7 @@ void LayoutSurveySuccess::updateCountdown(uint32_t seconds) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
-    // for some reason, there's a % character that gets displayed in the last column
-    // add the extra spaces to wipe it out
-    writeField(_fInfo, "No Free Channel  ", true);
+    writeField(_fInfo, "No Free Channel", true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fSw2, buf, size, true);
 }
@@ -156,7 +150,6 @@ void LayoutSurveySuccess::updatePassFail(uint8_t pass, uint8_t fail) {
     char buf[32];
     size_t size;
 
-    memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "Pass %u Fail %u", pass, fail);
     writeField(_fGpsTime, buf, size, true);
 }
