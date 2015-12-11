@@ -35,7 +35,8 @@ void LayoutSweepProgress::updateCountdown(uint32_t seconds) {
     char buf[16];
     size_t size;
 
-    writeField(_fCountdownLabel, "No Free Channel", true);
+    // make sure the string version is used
+    writeField(_fCountdownLabel, string("No Free Channel"), true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fCountdown, buf, size, true);
 }

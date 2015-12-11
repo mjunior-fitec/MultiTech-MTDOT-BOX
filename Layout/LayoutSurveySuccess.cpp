@@ -141,7 +141,8 @@ void LayoutSurveySuccess::updateCountdown(uint32_t seconds) {
     char buf[32];
     size_t size;
 
-    writeField(_fInfo, "No Free Channel", true);
+    // make sure the string version is used
+    writeField(_fInfo, string("No Free Channel"), true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
     writeField(_fSw2, buf, size, true);
 }
