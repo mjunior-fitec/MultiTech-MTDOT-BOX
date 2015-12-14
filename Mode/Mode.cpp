@@ -179,7 +179,7 @@ uint32_t Mode::getIndex(DataType type) {
     if (file.fd < 0) {
         logError("failed to open survey data file");
     } else {
-        logInfo("file size %d", file.size);
+        //logInfo("file size %d", file.size);
         if (file.size > buf_size) {
             read_offset = file.size - buf_size - 1;
             read_size = buf_size;
@@ -192,7 +192,7 @@ uint32_t Mode::getIndex(DataType type) {
             if (read_offset == 0)
                 done = true;
 
-            logInfo("reading from index %d, %d bytes", read_offset, read_size);
+            //logInfo("reading from index %d, %d bytes", read_offset, read_size);
 
             if (! _dot->seekUserFile(file, read_offset, SEEK_SET)) {
                 logError("failed to seek %d/%d", read_offset, file.size);
@@ -204,17 +204,17 @@ uint32_t Mode::getIndex(DataType type) {
                 logError("failed to read");
                 return 0;
             }
-            logInfo("read %d bytes [%s]", ret, buf);
+            //logInfo("read %d bytes [%s]", ret, buf);
 	    bytes_read = file.size - read_offset - 1;
-	    logInfo("read %d total bytes", bytes_read);
+	    //logInfo("read %d total bytes", bytes_read);
 
             // read_size - 1 is the last byte in the buffer
             for (current = read_size - 1; current >= 0; current--) {
                 if ((buf[current] == '\n' && current != read_size - 1) || (current == 0 && bytes_read >= file.size)) {
                     int test = current;
-                    logInfo("found potential %d, %c", read_offset + current, buf[test + 1]);
+                    //logInfo("found potential %d, %c", read_offset + current, buf[test + 1]);
                     if (buf[test + 1] == search) {
-                        logInfo("reading index");
+                        //logInfo("reading index");
                         sscanf(&buf[test + 2], "%ld", &index);
                         done = true;
                         break;

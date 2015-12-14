@@ -15,9 +15,9 @@ ModeSingle::~ModeSingle() {}
 
 bool ModeSingle::start() {
     bool data_file = false;
-    bool send_ping = false;
+    bool send_link_check = false;
     bool send_data = false;
-    bool no_channel_ping = false;
+    bool no_channel_link_check = false;
     bool no_channel_data = false;
 
     // clear any stale signals
@@ -98,25 +98,25 @@ bool ModeSingle::start() {
                                 _state = in_progress;
                                 _progress.display();
                                 if (_dot->getNextTxMs() > 0)
-                                    no_channel_ping = true;
+                                    no_channel_link_check = true;
                                 else 
-                                    send_ping = true;
+                                    send_link_check = true;
                                 break;
                             case success:
                                 _state = in_progress;
                                 _progress.display();
                                 if (_dot->getNextTxMs() > 0)
-                                    no_channel_ping = true;
+                                    no_channel_link_check = true;
                                 else 
-                                    send_ping = true;
+                                    send_link_check = true;
                                 break;
                             case failure:
                                 _state = in_progress;
                                 _progress.display();
                                 if (_dot->getNextTxMs() > 0)
-                                    no_channel_ping = true;
+                                    no_channel_link_check = true;
                                 else 
-                                    send_ping = true;
+                                    send_link_check = true;
                                 break;
                         }
                         break;
@@ -134,7 +134,7 @@ bool ModeSingle::start() {
                             case in_progress:
                                 _link_check_result = _lora->getLinkCheckResults();
                                 displaySuccess();
-                                logInfo("ping successful");
+                                logInfo("link check successful\tMargin %ld\tRSSI %d dBm\tSNR %2.3f", _link_check_result.up.dBm, _link_check_result.down.rssi, (float)_link_check_result.down.snr / 10.0);
                                 updateData(_data, single, true);
                                 appendDataFile(_data);
                                 if (_send_data) {
@@ -175,7 +175,7 @@ bool ModeSingle::start() {
                                 }
                                 _failure.updateSw1("   Power");
                                 _failure.updateSw2("Survey");
-                                logInfo("ping failed");
+                                logInfo("link check failed");
                                 break;
                         }
                         break;
@@ -213,15 +213,15 @@ bool ModeSingle::start() {
             }
         }
 
-        if (no_channel_ping) {
+        if (no_channel_link_check) {
             uint32_t t = _dot->getNextTxMs();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
                 _progress.updateCountdown(t / 1000);
             } else {
                 _progress.display();
-                no_channel_ping = false;
-                send_ping = true;
+                no_channel_link_check = false;
+                send_link_check = true;
             }
         }
         if (no_channel_data) {
@@ -235,9 +235,9 @@ bool ModeSingle::start() {
                 send_data = true;
             }
         }
-        if (send_ping) {
-            logInfo("sending ping %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
-            send_ping = false;
+        if (send_link_check) {
+            logInfo("sending link check %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
+            send_link_check = false;
             _dot->setTxDataRate(_data_rate);
             _dot->setTxPower(_power);
             _lora->linkCheck();

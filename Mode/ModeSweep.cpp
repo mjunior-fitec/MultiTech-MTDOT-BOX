@@ -16,9 +16,9 @@ ModeSweep::~ModeSweep() {}
 
 bool ModeSweep::start() {
     bool data_file = false;
-    bool send_ping = false;
+    bool send_link_check = false;
     bool send_data = false;
-    bool no_channel_ping = false;
+    bool no_channel_link_check = false;
     bool no_channel_data = false;
 
     // clear any stale signals
@@ -137,9 +137,9 @@ bool ModeSweep::start() {
                                 _progress.display();
                                 _progress.updateProgress(_survey_current, _survey_total);
                                 if (_dot->getNextTxMs() > 0)
-                                    no_channel_ping = true;
+                                    no_channel_link_check = true;
                                 else
-                                    send_ping = true;
+                                    send_link_check = true;
                                 break;
                             case complete:
                                 _state = in_progress;
@@ -147,9 +147,9 @@ bool ModeSweep::start() {
                                 _progress.display();
                                 _progress.updateProgress(_survey_current, _survey_total);
                                 if (_dot->getNextTxMs() > 0)
-                                    no_channel_ping = true;
+                                    no_channel_link_check = true;
                                 else
-                                    send_ping = true;
+                                    send_link_check = true;
                                 break;
                         }
                         break;
@@ -168,7 +168,7 @@ bool ModeSweep::start() {
                                 _survey_success++;
                                 _link_check_result = _lora->getLinkCheckResults();
                                 displaySuccess();
-                                logInfo("ping successful");
+                                logInfo("link check successful\tMargin %ld\tRSSI %d dBm\tSNR %2.3f", _link_check_result.up.dBm, _link_check_result.down.rssi, (float)_link_check_result.down.snr / 10.0);
                                 updateData(_data, sweep, true);
                                 appendDataFile(_data);
                                 if (_send_data) {
@@ -208,7 +208,7 @@ bool ModeSweep::start() {
                                 _failure.updateSw1("  Cancel");
                                 updateData(_data, sweep, false);
                                 appendDataFile(_data);
-                                logInfo("ping failed");
+                                logInfo("link check failed");
                                 _display_timer.start();
                                 break;
                         }
@@ -260,16 +260,16 @@ bool ModeSweep::start() {
                 _survey_success = 0;
                 _survey_failure = 0;
             } else {
-                logInfo("starting next ping");
+                logInfo("starting next link check");
                 _state = in_progress;
                 _survey_current++;
                 _progress.display();
                 _progress.updateProgress(_survey_current, _survey_total);
-                no_channel_ping = true;
+                no_channel_link_check = true;
             }
         }
 
-        if (no_channel_ping) {
+        if (no_channel_link_check) {
             uint32_t t = _dot->getNextTxMs();
             if (t > 0) {
                 logInfo("next tx %lu ms", t);
@@ -277,8 +277,8 @@ bool ModeSweep::start() {
             } else {
                 _progress.display();
                 _progress.updateProgress(_survey_current, _survey_total);
-                no_channel_ping = false;
-                send_ping = true;
+                no_channel_link_check = false;
+                send_link_check = true;
             }
         }
         if (no_channel_data) {
@@ -292,12 +292,12 @@ bool ModeSweep::start() {
                 send_data = true;
             }
         }
-        if (send_ping) {
+        if (send_link_check) {
             point p = _points[_survey_current - 1];
             _data_rate = p.first;
             _power = p.second;
-            logInfo("sending ping %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
-            send_ping = false;
+            logInfo("sending link check %s %d", _dot->DataRateStr(_data_rate).c_str(), _power);
+            send_link_check = false;
             _dot->setTxDataRate(_data_rate);
             _dot->setTxPower(_power);
             _lora->linkCheck();
