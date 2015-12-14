@@ -66,7 +66,7 @@ bool Mode::appendDataFile(const DataItem& data) {
     char stats_buf[32];
     size_t size;
 
-    snprintf(id_buf, sizeof(id_buf), "%c%ld", (data.type == single) ? 'P' : 'S', data.index);
+    snprintf(id_buf, sizeof(id_buf), "%c%ld", (data.type == single) ? 'L' : 'S', data.index);
 
     // if we had GPS lock, format GPS data
     if (data.gps_lock) {
@@ -171,7 +171,7 @@ uint32_t Mode::getIndex(DataType type) {
     int current;
 
     if (type == single)
-        search = 'P';
+        search = 'L';
     else
         search = 'S';
 
@@ -205,21 +205,30 @@ uint32_t Mode::getIndex(DataType type) {
                 return 0;
             }
             //logInfo("read %d bytes [%s]", ret, buf);
-	    bytes_read = file.size - read_offset - 1;
+	    bytes_read = file.size - read_offset;
 	    //logInfo("read %d total bytes", bytes_read);
 
             // read_size - 1 is the last byte in the buffer
             for (current = read_size - 1; current >= 0; current--) {
-                if ((buf[current] == '\n' && current != read_size - 1) || (current == 0 && bytes_read >= file.size)) {
+		// generic case where a preceding newline exists
+                if (buf[current] == '\n' && current != read_size - 1) {
                     int test = current;
                     //logInfo("found potential %d, %c", read_offset + current, buf[test + 1]);
                     if (buf[test + 1] == search) {
-                        //logInfo("reading index");
                         sscanf(&buf[test + 2], "%ld", &index);
                         done = true;
                         break;
                     }
-                }
+		// special case where the index we're looking for is in the first entry - no newline
+                } else if (current == 0 && bytes_read >= file.size) {
+                    int test = current;
+                    //logInfo("found potential %d, %c", read_offset + current, buf[test + 1]);
+		    if (buf[test] == search) {
+			sscanf(&buf[test + 1], "%ld", &index);
+			done = true;
+			break;
+		    }
+		}
             }
 
             read_offset = (read_offset - reduce > 0) ? read_offset - reduce : 0;
