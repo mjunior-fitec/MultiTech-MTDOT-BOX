@@ -145,7 +145,7 @@ bool ModeSingle::start() {
                                         send_data = true;
                                 } else {
                                     _state = success;
-                                    _success.updateSw1("   Power");
+                                    _success.updateSw1("  DR/PWR");
                                     _success.updateSw2("Survey");
                                 }
                                 break;
@@ -173,7 +173,7 @@ bool ModeSingle::start() {
                                 } else {
                                     _failure.updateGpsLatitude("No GPS Lock");
                                 }
-                                _failure.updateSw1("   Power");
+                                _failure.updateSw1("  DR/PWR");
                                 _failure.updateSw2("Survey");
                                 logInfo("link check failed");
                                 break;
@@ -185,7 +185,7 @@ bool ModeSingle::start() {
                             case data:
                                 _state = success;
                                 _success.updateInfo("                 ");
-                                _success.updateSw1("   Power");
+                                _success.updateSw1("  DR/PWR");
                                 _success.updateSw2("Survey");
                                 // turn acks and receive windows back on
                                 _dot->setAck(1);
@@ -200,7 +200,7 @@ bool ModeSingle::start() {
                             case data:
                                 _state = success;
                                 _success.updateInfo("                 ");
-                                _success.updateSw1("   Power");
+                                _success.updateSw1("  DR/PWR");
                                 _success.updateSw2("Survey");
                                 // turn acks and receive windows back on
                                 _dot->setAck(1);
