@@ -77,21 +77,64 @@ void LayoutDemoSampling::updateInterval(uint32_t seconds) {
 void LayoutDemoSampling::updateAccelerationX(int16_t x) {
     char buf[16];
     size_t size;
-    size = snprintf(buf, sizeof(buf), "%d", x);
+    float fx = (float)x;
+    fx /= 1024;
+    // We can only display 5 characters.
+    // For numbers < -1, we display -#.#g. For example -1.3g
+    if(fx < -1){
+        size = snprintf(buf, sizeof(buf), "%4.1fg", fx);
+    }
+    // For numbers > -1 and < 0, we display -.##g. For example -.13g
+    else if(fx < 0){
+        size = snprintf(buf, sizeof(buf), "%4.2fg", fx);
+        for(uint8_t i = 1; i < 5; i++ ){
+            buf[i] = buf[i+1];
+        }
+    }
+    // For numbers > 0, we display #.##g. For example 0.13g.
+    else{
+        size = snprintf(buf, sizeof(buf), "%4.2fg", fx);
+    }
     writeField(_fAccx, buf, size, true);
 }
     
 void LayoutDemoSampling::updateAccelerationY(int16_t y) {
     char buf[16];
     size_t size;
-    size = snprintf(buf, sizeof(buf), "%d", y);
+    float fy = (float)y;
+    fy /= 1024;
+    if(fy < -1){
+        size = snprintf(buf, sizeof(buf), "%4.1fg", fy);
+    }
+    else if(fy < 0){
+        size = snprintf(buf, sizeof(buf), "%4.2fg", fy);
+        for(uint8_t i = 1; i < 5; i++ ){
+            buf[i] = buf[i+1];
+        }
+    }
+    else{
+        size = snprintf(buf, sizeof(buf), "%4.2fg", fy);
+    }
     writeField(_fAccy, buf, size, true);
 }
     
 void LayoutDemoSampling::updateAccelerationZ(int16_t z) {
     char buf[16];
     size_t size;
-    size = snprintf(buf, sizeof(buf), "%d", z);
+    float fz = (float)z;
+    fz /= 1024;
+    if(fz < -1){
+        size = snprintf(buf, sizeof(buf), "%1.1fg", fz);
+    }
+    else if(fz < 0){
+        size = snprintf(buf, sizeof(buf), "%4.2fg", fz);
+        for(uint8_t i = 1; i < 5; i++ ){
+            buf[i] = buf[i+1];
+        }
+    }
+    else{
+        size = snprintf(buf, sizeof(buf), "%1.2fg", fz);
+    }
     writeField(_fAccz, buf, size, true);
 }
 
