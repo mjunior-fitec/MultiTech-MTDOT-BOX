@@ -50,10 +50,6 @@ bool ModeSweep::start() {
     _survey_success = 0;
     _survey_failure = 0;
 
-    logInfo("%u points", _survey_total);
-    for (std::vector<point>::iterator it = _points.begin(); it != _points.end(); it++)
-        logInfo("%s,%lu", _dot->DataRateStr(it->first).substr(3).c_str(), it->second);
-
     // see if survey data file exists
     std::vector<mDot::mdot_file> files = _dot->listUserFiles();
     for (std::vector<mDot::mdot_file>::iterator it = files.begin(); it != files.end(); it++) {

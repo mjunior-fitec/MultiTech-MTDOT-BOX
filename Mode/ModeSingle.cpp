@@ -269,9 +269,7 @@ void ModeSingle::displayHelp() {
 }
 
 void ModeSingle::displaySuccess() {
-    logInfo("gps lock: %s", _gps->getLockStatus() ? "true" : "false");
     uint8_t fix = _gps->getFixStatus();
-    logInfo("gps fix: %s", fix == 3 ? "3D" : fix == 2 ? "2D" : "none");
     _success.display();
     _success.updateId(_index);
     // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
@@ -334,6 +332,6 @@ void ModeSingle::incrementRatePower() {
         _power += 3;
     }
 
-    logInfo("new data rate %u, power %lu", _data_rate, _power);
+    logInfo("new data rate %s, power %lu", mDot::DataRateStr(_data_rate).c_str(), _power);
 }
 

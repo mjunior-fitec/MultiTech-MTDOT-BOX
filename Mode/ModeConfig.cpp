@@ -1,7 +1,6 @@
 #include "ModeConfig.h"
 #include "ctype.h"
 #include "Command.h"
-#include "MTSLog.h"
 #include "ButtonHandler.h"
 #include <cstdarg>
 #include <deque>
