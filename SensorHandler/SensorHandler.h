@@ -22,32 +22,32 @@
 class SensorHandler
 {
 public:
-	enum Scale{CELSIUS, FAHRENHEIT};
-	SensorHandler(void);
-	~SensorHandler(void);
-	MMA845x_DATA getAcceleration(void);
-	float getLight(void);
-	uint16_t getLightRaw(void);
-	float getPressure(void);
-	uint32_t getPressureRaw(void);
-	float getTemp(Scale);
-	float getAltitude(void);
-	MPL3115A2_DATA getBarometer(void);
+    enum Scale{CELSIUS, FAHRENHEIT};
+    SensorHandler(void);
+    ~SensorHandler(void);
+    MMA845x_DATA getAcceleration(void);
+    float getLight(void);
+    uint16_t getLightRaw(void);
+    float getPressure(void);
+    uint32_t getPressureRaw(void);
+    float getTemp(Scale);
+    float getAltitude(void);
+    MPL3115A2_DATA getBarometer(void);
 		
 private:
     Thread _getSensorThread;
     static void startSensorThread (void const *p);	
-	void readSensors(void);
-	void initSensors(void);	
-	I2C _mDoti2c;
-	MMA845x _accelerometer;
-	MPL3115A2 _barometricSensor;
-	ISL29011 _lightSensor;
-	MMA845x_DATA _accelerometerData;
-	MPL3115A2_DATA _barometerData;
-	uint16_t _light;
-	uint32_t _pressure;
-	Mutex _mutex;	
+    void readSensors(void);
+    void initSensors(void);	
+    I2C _mDoti2c;
+    MMA845x _accelerometer;
+    MPL3115A2 _barometricSensor;
+    ISL29011 _lightSensor;
+    MMA845x_DATA _accelerometerData;
+    MPL3115A2_DATA _barometerData;
+    uint16_t _light;
+    uint32_t _pressure;
+    Mutex _mutex;	
 };
 	
 #endif //SENSORHANDLER_H
