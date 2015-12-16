@@ -3,7 +3,7 @@
 //SPECIAL NOTE: Minimum power is stored in the LoraConfig WakeTimeout field. We decided to use 5 LoRaConfig locations,
 // that are not used for the DotBox, for the 5 DotBox settings... +minsize, +maxsize, +minpwr, +maxpwr and +data.
 CmdMinimumPower::CmdMinimumPower(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Minimum Power", "AT+MINPWR", "Set the minimum transmit power for sweep survey mode"), _serial(serial)
+        Command(dot, "Minimum Power", "AT+MINPWR", "Set the minimum transmit power for survey sweep mode"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
     _usage = "(2-20)";

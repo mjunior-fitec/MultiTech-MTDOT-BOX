@@ -26,3 +26,5 @@
 #include "CmdData.h"
 #include "CmdGetSurveyDataFile.h"
 #include "CmdDeleteSurveyDataFile.h"
+
+#include "CmdDummy.h"

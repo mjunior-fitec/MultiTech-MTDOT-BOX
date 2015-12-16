@@ -53,6 +53,7 @@ ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHand
     addCommand(new CmdData(_dot, _serial));
     addCommand(new CmdGetSurveyDataFile(_dot, _serial));
     addCommand(new CmdDeleteSurveyDataFile(_dot, _serial));
+    addCommand(new CmdDummy(_dot, "Exit to main menu", "AT+EXIT", "Exit configuration and return to the main menu"));
 }
 
 void ModeConfig::printHelp() {
@@ -269,7 +270,7 @@ bool ModeConfig::start() {
             command.clear();
         } else if (args[0].find("AT+EXIT") == 0 && args[0].length() == 7) {
             write(done);        
-			return true;
+	    return true;
         } else {
             bool found = false;
             bool query = false;

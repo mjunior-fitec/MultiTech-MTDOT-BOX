@@ -3,7 +3,7 @@
 #include "MTSLog.h"
 
 CmdGetSurveyDataFile::CmdGetSurveyDataFile(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Get Survey Data File", "AT+GSDF", "Outputs the survey data file to the command port"), _serial(serial)
+        Command(dot, "Get Survey Data File", "AT+GSDF", "Outputs the survey data file contents to the command port"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
 }

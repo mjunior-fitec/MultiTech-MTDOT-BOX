@@ -3,7 +3,7 @@
 //SPECIAL NOTE: Minimum size is stored in the LoraConfig WakeInterval field. We decided to use 5 LoRaConfig locations,
 // that are not used for the DotBox, for the 5 DotBox settings... +minsize, +maxsize, +minpwr, +maxpwr and +data.
 CmdMinimumSize::CmdMinimumSize(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Minimum Size", "AT+MINSIZE", "Set the minimum payload size for sweep survey mode"), _serial(serial)
+        Command(dot, "Minimum Size", "AT+MINSIZE", "Set the minimum payload size for survey sweep mode"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
     _usage = "(11-242)";

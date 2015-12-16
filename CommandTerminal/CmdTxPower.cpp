@@ -1,7 +1,7 @@
 #include "CmdTxPower.h"
 
 CmdTxPower::CmdTxPower(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Tx Power", "AT+TXP", "Set the Tx power for all channels"), _serial(serial)
+        Command(dot, "Tx Power", "AT+TXP", "Set the Tx power for LoRa demo mode"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
     _usage = "(2-20)";

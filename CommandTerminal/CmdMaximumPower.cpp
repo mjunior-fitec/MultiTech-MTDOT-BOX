@@ -3,7 +3,7 @@
 //SPECIAL NOTE: Maximum power is stored in the LoraConfig WakeMode field. We decided to use 5 LoRaConfig locations,
 // that are not used for the DotBox, for the 5 DotBox settings... +minsize, +maxsize, +minpwr, +maxpwr and +data.
 CmdMaximumPower::CmdMaximumPower(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Maximum Power", "AT+MAXPWR", "Set the maximum transmit power for sweep survey mode"), _serial(serial)
+        Command(dot, "Maximum Power", "AT+MAXPWR", "Set the maximum transmit power for survey sweep mode"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
     _usage = "(2-20)";

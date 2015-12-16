@@ -1,7 +1,7 @@
 #include "CmdNetworkKey.h"
 
 CmdNetworkKey::CmdNetworkKey(mDot* dot, mts::MTSSerial& serial) :
-    Command(dot, "Network Key", "AT+NK", "Configured network key/passphrase (App Key in LoraMac) ##  AT+NK=0,hex  AT+NK=1,passphrase (Net key = cmac(passphrase)) (16 bytes)"),
+    Command(dot, "Network Key", "AT+NK", "Configured network key/passphrase (App Key in LoraMac) AT+NK=0,hex  AT+NK=1,passphrase (Net key = cmac(passphrase)) (16 bytes)"),
     _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());

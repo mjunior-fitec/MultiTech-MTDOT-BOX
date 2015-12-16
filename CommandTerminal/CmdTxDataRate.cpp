@@ -1,7 +1,7 @@
 #include "CmdTxDataRate.h"
 
 CmdTxDataRate::CmdTxDataRate(mDot* dot, mts::MTSSerial& serial) :
-    Command(dot, "Tx Data Rate", "AT+TXDR", "Set the Tx data rate for all channels"), _serial(serial)
+    Command(dot, "Tx Data Rate", "AT+TXDR", "Set the Tx data rate for LoRa demo mode"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
 
