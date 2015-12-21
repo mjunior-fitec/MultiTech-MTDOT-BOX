@@ -28,34 +28,24 @@ SensorHandler::~SensorHandler(void)
 void SensorHandler::initSensors(){
     //  Setup the Accelerometer for 8g range, 14 bit resolution, Noise reduction off, sample rate 1.56 Hz
     //  normal oversample mode, High pass filter off
-    __disable_irq();
     _accelerometer.setCommonParameters(MMA845x::RANGE_8g,MMA845x::RES_MAX,MMA845x::LN_OFF,
     						   MMA845x::DR_6_25,MMA845x::OS_NORMAL,MMA845x::HPF_OFF );
-    __enable_irq();
 	 
     // Setup the Barometric sensor for post processed Ambient pressure, 4 samples per data acquisition.
     //and a sample taken every second when in active mode
-    __disable_irq();
     _barometricSensor.setParameters(MPL3115A2::DATA_NORMAL, MPL3115A2::DM_BAROMETER, MPL3115A2::OR_16,
     					MPL3115A2::AT_1);
-    __enable_irq();
     // Setup the Ambient Light Sensor for continuous Ambient Light Sensing, 16 bit resolution,
     // and 16000 lux range
-    __disable_irq();
     _lightSensor.setMode(ISL29011::ALS_CONT);
     _lightSensor.setResolution(ISL29011::ADC_16BIT);
     _lightSensor.setRange(ISL29011::RNG_16000);
-    __enable_irq();
 	 
     // Set the accelerometer for active mode
-    __disable_irq();
     _accelerometer.activeMode();
-    __enable_irq();
 	 
     // Clear the min-max registers in the Barometric Sensor
-    __disable_irq();
     _barometricSensor.clearMinMaxRegs();    
-    __enable_irq();
 }
 
 void SensorHandler::startSensorThread(void const *p)
@@ -76,15 +66,11 @@ void SensorHandler::readSensors()
         timer.reset();
         do {
             osDelay(20);			 // allows other threads to process
-	    __disable_irq();
             result = _accelerometer.getStatus();
-	    __enable_irq();
             if((result & MMA845x::XYZDR) != 0 ){
                 // Retrieve accelerometer data
                 _mutex.lock();        
-		__disable_irq();
                 _accelerometerData = _accelerometer.getXYZ();
-		__enable_irq();
                 _mutex.unlock();
             }
         } while (((result & MMA845x::XYZDR) == 0 ) && (timer.read_ms() < 1000));
@@ -99,15 +85,11 @@ void SensorHandler::readSensors()
         timer.reset();
         do {
             osDelay(20);			 // allows other threads to process
-	    __disable_irq();
             result = _barometricSensor.getStatus();
-	    __enable_irq();
             if((result & MPL3115A2::PTDR) != 0){
                 // Retrieve barometric pressure
                 _mutex.lock();        
-		__disable_irq();
                 _pressure = _barometricSensor.getBaroData() >> 12; // convert 32 bit signed to 20 bit unsigned value
-		__enable_irq();
                 _mutex.unlock();                
             }
         } while (((result & MPL3115A2::PTDR) == 0) && (timer.read_ms() < 100));
@@ -122,24 +104,18 @@ void SensorHandler::readSensors()
         timer.reset();
         do {
             osDelay(20);			 // allows other threads to process
-	    __disable_irq();
             result = _barometricSensor.getStatus();
-	    __enable_irq();
             if((result & MPL3115A2::PTDR) != 0 ){
                 // Retrieve temperature and altitude.
                 _mutex.lock();
-		__disable_irq();
                 _barometerData = _barometricSensor.getAllData(false);
-		__enable_irq();
                 _mutex.unlock();                 
             }
         } while (((result & MPL3115A2::PTDR) == 0 ) && (timer.read_ms() < 100));
 	 
         // Retrieve light level
         _mutex.lock();
-	__disable_irq();
         _light = _lightSensor.getData();
-	__enable_irq();
         _mutex.unlock();
         osDelay(100);             // allows other threads to process
     }
