@@ -319,7 +319,6 @@ bool ModeSweep::start() {
 void ModeSweep::displayHelp() {
     _help.display();
     _help.updateMode("Survey Sweep");
-    _help.updateSw1("  Cancel");
     _help.updateSw2("Sweep");
 }
 
