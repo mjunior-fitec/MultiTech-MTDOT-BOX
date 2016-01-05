@@ -243,7 +243,8 @@ bool ModeSweep::start() {
             }
         }
 
-        if (_display_timer.read_ms() > 2000) {
+        // wait 5s in EU mode to compensate for potential "no free channel" situations on server
+        if ((_band == mDot::FB_915 && _display_timer.read_ms() > 2000) || _display_timer.read_ms() > 5000) {
             _display_timer.stop();
             _display_timer.reset();
             if (_survey_current == _survey_total) {
