@@ -2,7 +2,7 @@
 #include "MTSLog.h"
 
 // 10 s, 30 s, 1 min, 5 min, 10 min, 15 min, 30 min 1 hour
-const uint32_t ModeDemo::_intervals[] = { 10, 30, 60, 5 * 60, 10 * 60, 15 * 60, 30 * 60, 60 * 60 };
+const uint32_t ModeDemo::_intervals[] = { 10, 30, 60, 5 * 60, 10 * 60, 15 * 60, 30 * 60 };
 
 ModeDemo::ModeDemo(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
   : Mode(lcd, buttons, dot, lora, gps, sensors),
@@ -44,10 +44,16 @@ bool ModeDemo::start() {
                                 _state = sampling;
                                 _mode = trigger;
                                 _sam.display();
-                                _sam.updateSw2("Send");
+                                _sam.updateSw1("    Send");
+                                _sam.updateSw2("Back");
                                 break;
                             case sampling:
-                                if (_mode == interval) {
+                                if (_mode == trigger) {
+                                    if (_dot->getNextTxMs() > 0)
+                                        no_channel = true;
+                                    else
+                                        send = true;
+                                } else {
                                     _interval = (_interval + 1) % (sizeof(_intervals) / sizeof(uint32_t));
                                     _sam.updateInterval(_intervals[_interval]);
                                 }
@@ -63,15 +69,14 @@ bool ModeDemo::start() {
                                 _send_timer.start();
                                 _sam.display();
                                 _sam.updateSw1("Interval");
+                                _sam.updateSw2("Back");
                                 _sam.updateInterval(_intervals[_interval]);
                                 break;
                             case sampling:
-                                if (_mode == trigger) {
-                                    if (_dot->getNextTxMs() > 0)
-                                        no_channel = true;
-                                    else
-                                        send = true;
-                                }
+                                _send_timer.stop();
+                                _send_timer.reset();
+                                _state = show_help;
+                                displayHelp();
                                 break;
                         }
                         break;
@@ -89,12 +94,13 @@ bool ModeDemo::start() {
                         switch (_state) {
                             case sampling:
                                 if (_mode == trigger) {
-                                    _sam.updateSw2("Send");
+                                    _sam.updateSw1("    Send");
                                     _sam.updateInfo("                 ");
                                 } else {
                                     _sam.updateSw1("Interval");
                                     _sam.updateInterval(_intervals[_interval]);
                                 }
+                                _sam.updateSw2("Back");
                                 break;
                         }
                         break;
@@ -103,12 +109,13 @@ bool ModeDemo::start() {
                         switch (_state) {
                             case sampling:
                                 if (_mode == trigger) {
-                                    _sam.updateSw2("Send");
+                                    _sam.updateSw1("    Send");
                                     _sam.updateInfo("                 ");
                                 } else {
                                     _sam.updateSw1("Interval");
                                     _sam.updateInterval(_intervals[_interval]);
                                 }
+                                _sam.updateSw2("Back");
                                 break;
                         }
                         break;
