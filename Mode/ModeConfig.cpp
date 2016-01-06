@@ -143,7 +143,8 @@ bool ModeConfig::start() {
 
     //Run terminal session
     while (running) {
-
+        _lc.roll();
+           
         osEvent e = Thread::signal_wait(buttonSignal, 20);
         if (e.status == osEventSignal) {
             ButtonHandler::ButtonEvent _be = _buttons->getButtonEvent();
