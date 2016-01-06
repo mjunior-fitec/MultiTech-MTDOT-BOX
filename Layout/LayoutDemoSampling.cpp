@@ -53,11 +53,15 @@ void LayoutDemoSampling::updateSw2(std::string sw2) {
 void LayoutDemoSampling::updateCountdown(uint32_t seconds) {
     char buf[32];
     size_t size;
+    std::string s;
 
     // make sure the string version is used
     writeField(_fInfo, string("No Free Channel"), true);
     size = snprintf(buf, sizeof(buf), "%lu s", seconds);
-    writeField(_fSw2, buf, size, true);
+    for (int i = 0; i < _fSw1._maxSize - size; i++)
+        s.append(" ");
+    s.append(buf, size);
+    writeField(_fSw1, s, true);
 }
 
 void LayoutDemoSampling::updateInterval(uint32_t seconds) {

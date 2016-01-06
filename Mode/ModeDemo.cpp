@@ -73,6 +73,8 @@ bool ModeDemo::start() {
                                 _sam.updateInterval(_intervals[_interval]);
                                 break;
                             case sampling:
+                                no_channel = false;
+                                send = false;
                                 _send_timer.stop();
                                 _send_timer.reset();
                                 _state = show_help;
@@ -83,7 +85,8 @@ bool ModeDemo::start() {
                     case ButtonHandler::sw1_hold:
                         _send_timer.stop();
                         _send_timer.reset();
-                        _dot->setTxDataRate(_initial_data_rate);
+                        if (_band == mDot::FB_915)
+                            _dot->setTxDataRate(_initial_data_rate);
                         return true;
                 }
             }
