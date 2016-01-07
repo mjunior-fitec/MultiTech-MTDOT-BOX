@@ -69,5 +69,5 @@ void LayoutConfig::update3of3() {
     writeField(_fHeader, string("3 of 3"), true);
     writeField(_fMsg1, string("Run com s/w on"), true);
     writeField(_fMsg2, string("new TTY/COM at"), true);
-    writeField(_fMsg3, string("115200bps."), true);
+    writeField(_fMsg3, string("115200 bps."), true);
 }

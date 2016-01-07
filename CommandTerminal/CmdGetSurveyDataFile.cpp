@@ -22,6 +22,9 @@ uint32_t CmdGetSurveyDataFile::action(std::vector<std::string> args)
         return 1;
     }
 
+    // print header line with column labels
+    _serial.writef("ID,Status,Lock,Lat,Long,Alt,Time,Gateways,Margin,RSSIdown,SNRdown,DataRate,Power\r\n");
+
     while (read < file.size) {
         read_size = (file.size - read) > buf_size ? buf_size : file.size - read;
         int size = _dot->readUserFile(file, (void*)buf, read_size);
