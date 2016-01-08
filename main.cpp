@@ -112,6 +112,9 @@ int main() {
 void mainMenu() {
     bool mode_selected = false;
     std::string selected;
+    std::string product = "MTDOT-BOX/EVB ";
+    
+    product += mDot::FrequencyBandStr(dot->getFrequencyBand()).substr(3);
 
     typedef enum {
         demo = 2,
@@ -121,7 +124,7 @@ void mainMenu() {
     } menu_items;
 
     std::string menu_strings[] = {
-        "MultiTech EVB",
+        product,
         "Select Mode",
         "LoRa Demo",
         "Configuration",

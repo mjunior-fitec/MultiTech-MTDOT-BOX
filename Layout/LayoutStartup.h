@@ -19,6 +19,7 @@ class LayoutStartup : public Layout {
         Label _lInfo;
         Label _lVersion;
 
+        Field _fName;
         Field _fVersion;
         Field _fGps;
         Field _fId;
