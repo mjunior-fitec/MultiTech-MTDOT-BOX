@@ -112,19 +112,16 @@ int main() {
 void mainMenu() {
     bool mode_selected = false;
     std::string selected;
-    std::string product = "MTDOT-BOX/EVB ";
+    std::string product;
     
-    product += mDot::FrequencyBandStr(dot->getFrequencyBand()).substr(3);
-
     typedef enum {
-        demo = 2,
+        demo = 1,
         config,
         single,
         sweep
     } menu_items;
 
     std::string menu_strings[] = {
-        product,
         "Select Mode",
         "LoRa Demo",
         "Configuration",
@@ -139,10 +136,13 @@ void mainMenu() {
     items.push_back(menu_strings[sweep]);
 
     while (true) {
+        product = "MTDOT-BOX/EVB ";
+        product += mDot::FrequencyBandStr(dot->getFrequencyBand()).substr(3);
+
         // reset session between modes
         dot->resetNetworkSession();
         lora->resetActivityLed();
-        LayoutScrollSelect menu(lcd, items, menu_strings[0], menu_strings[1]);
+        LayoutScrollSelect menu(lcd, items, product, menu_strings[0]);
         menu.display();
 
         while (! mode_selected) {

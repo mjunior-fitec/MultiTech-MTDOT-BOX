@@ -96,8 +96,10 @@ void ModeJoin::display() {
         _join.updateId(_dot->getNetworkName());
         _join.updateKey(_dot->getNetworkPassphrase());
     }
-    if (_band == mDot::FB_915)
+    if (_band == mDot::FB_915) {
+        _sub_band = _dot->getFrequencySubBand();
         _join.updateFsb(_sub_band);
+    }
     // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
     _join.updateRate(_dot->DataRateStr(_data_rate).substr(3));
     _join.updatePower(_power);
