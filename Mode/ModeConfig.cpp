@@ -54,6 +54,10 @@ ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHand
     addCommand(new CmdGetSurveyDataFile(_dot, _serial));
     addCommand(new CmdDeleteSurveyDataFile(_dot, _serial));
     addCommand(new CmdDummy(_dot, "Exit to main menu", "AT+EXIT", "Exit configuration and return to the main menu"));
+
+#if MTS_RADIO_DEBUG_COMMANDS
+    addCommand(new CmdWriteProtectedConfig(_dot));
+#endif
 }
 
 void ModeConfig::printHelp() {

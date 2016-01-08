@@ -28,3 +28,7 @@
 #include "CmdDeleteSurveyDataFile.h"
 
 #include "CmdDummy.h"
+
+#ifdef MTS_RADIO_DEBUG_COMMANDS
+#include "CmdWriteProtectedConfig.h"
+#endif

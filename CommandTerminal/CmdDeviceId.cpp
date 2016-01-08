@@ -2,7 +2,7 @@
 #include <algorithm>
 
 CmdDeviceId::CmdDeviceId(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Device ID", "AT+DI", "Device EUI (unique, set at factory) (8 bytes)"), _serial(serial)
+        Command(dot, "Device ID", "AT+DI", "Device EUI-64 (MSB) (unique, set at factory) (8 bytes)"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
     _usage = "(hex:8)";
@@ -15,7 +15,7 @@ uint32_t CmdDeviceId::action(std::vector<std::string> args)
     {
         if (_dot->getVerbose())
             _serial.writef("%s: ", name());
-        _serial.writef("%s\r\n", mts::Text::bin2hexString(_dot->getDeviceId(), ":").c_str());
+        _serial.writef("%s\r\n", mts::Text::bin2hexString(_dot->getDeviceId(), "-").c_str());
     }
 #ifdef DEBUG_MAC    
     else if (args.size() == 2)
@@ -28,7 +28,7 @@ uint32_t CmdDeviceId::action(std::vector<std::string> args)
 
         if ((code = _dot->setDeviceId(NewEUI)) == mDot::MDOT_OK) {
             _serial.writef("Set %s: ", name());
-            _serial.writef("%s\r\n", mts::Text::bin2hexString(NewEUI, ":").c_str());
+            _serial.writef("%s\r\n", mts::Text::bin2hexString(NewEUI, "-").c_str());
         } else {
             std::string error = mDot::getReturnCodeString(code) + " - " + _dot->getLastError();
             setErrorMessage(error);
