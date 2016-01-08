@@ -145,7 +145,7 @@ void LayoutDemoSampling::updateAccelerationZ(int16_t z) {
 void LayoutDemoSampling::updatePressure(float pressure) {
     char buf[16];
     size_t size;
-    size = snprintf(buf, sizeof(buf), "%3.2f KPa", pressure/1000);    
+    size = snprintf(buf, sizeof(buf), "%3.2f kPa", pressure/1000);    
     writeField(_fPres, buf, size, true);
 }
 
@@ -166,6 +166,6 @@ void LayoutDemoSampling::updateTemperature(float temperature) {
 void LayoutDemoSampling::updateLight(float light) {
     char buf[16];
     size_t size;
-    size = snprintf(buf, sizeof(buf), "%4.2f lux", light);
+    size = snprintf(buf, sizeof(buf), "%4.2f lx", light);
     writeField(_fLight, buf, size, true);
 }
