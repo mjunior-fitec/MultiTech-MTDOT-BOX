@@ -2,22 +2,34 @@
 
 DIR=$(pwd)
 LIB="libs/"
-LIBS=("ISL29011" "MMA845x" "MPL3115A2" "NCP5623B" "GpsParser" "DOGS102")
+
+# 2 parameters
+# param1: string name of library
+# param2: number mercurial revision to use
+update_hg_lib() {
+    cd $LIB
+
+    if [ ! -d "$1" ]; then
+        echo "cloning $1"
+        hg clone https://developer.mbed.org/teams/Multi-Hackers/code/$1 ./$1
+    fi
+
+    cd $1
+    echo "checkout revision $2 of $1"
+    hg checkout $2
+    
+    cd $DIR
+}
 
 echo "creating libs directory..."
-mkdir -p libs/
+mkdir -p $LIB
 
-for i in ${LIBS[@]}; do
-    cd $DIR
-    if [ ! -d "$LIB/${i}" ]; then
-        echo "cloning ${i}"
-        hg clone https://developer.mbed.org/teams/Multi-Hackers/code/${i} $LIB/${i}
-    else
-        cd $LIB/${i}
-        echo "updating ${i}"
-        hg pull
-    fi
-done
+update_hg_lib "ISL29011" 3
+update_hg_lib "MMA845x" 3
+update_hg_lib "MPL3115A2" 2
+update_hg_lib "NCP5623B" 3
+update_hg_lib "GpsParser" 10
+update_hg_lib "DOGS102" 4
 
 echo "generating version header..."
 cd $DIR
