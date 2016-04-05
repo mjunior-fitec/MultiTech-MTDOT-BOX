@@ -21,6 +21,13 @@ update_hg_lib() {
     cd $DIR
 }
 
+echo "update submodules"
+
+git submodule update --recursive --init
+
+mdot-library/version.sh
+./version.sh
+
 echo "creating libs directory..."
 mkdir -p $LIB
 
