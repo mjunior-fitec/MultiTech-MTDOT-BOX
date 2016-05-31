@@ -31,8 +31,8 @@ uint32_t CmdGetSurveyDataFile::action(std::vector<std::string> args)
     mDot::mdot_file file;
     int buf_size = 512;
     char buf[buf_size];
-    int read;
-    int read_size;
+    int read = 0;
+    int read_size = 0;
 
     file = _dot->openUserFile(file_name, mDot::FM_RDONLY);
     if (file.fd < 0) {
