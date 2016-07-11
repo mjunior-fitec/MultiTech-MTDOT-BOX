@@ -34,6 +34,11 @@ bool ModeJoin::start() {
     // clear any stale signals
     osSignalClear(_main_id, buttonSignal | loraSignal);
 
+    if (_dot->getJoinMode() == mDot::MANUAL) {
+        // already joined
+        return true;
+    }
+
     _initial_data_rate = _dot->getTxDataRate();
     _initial_power = _dot->getTxPower();
 
