@@ -40,10 +40,10 @@ uint32_t CmdFrequencyBand::action(std::vector<std::string> args)
     else if (args.size() == 2)
     {
         int32_t code;
-        uint8_t band = mDot::FB_915;
+        uint8_t band = mDot::FB_US915;
 
-        if (mDot::FrequencyBandStr(mDot::FB_868).find(args[1]) != std::string::npos) {
-            band = mDot::FB_868;
+        if (mDot::FrequencyBandStr(mDot::FB_EU868).find(args[1]) != std::string::npos) {
+            band = mDot::FB_EU868;
         }
 
         if ((code = _dot->setFrequencyBand(band)) != mDot::MDOT_OK) {
@@ -65,8 +65,8 @@ bool CmdFrequencyBand::verify(std::vector<std::string> args)
 #ifdef DEBUG_MAC
     if (args.size() == 2)
     {
-        if (mDot::FrequencyBandStr(mDot::FB_868).find(args[1]) == std::string::npos &&
-            mDot::FrequencyBandStr(mDot::FB_915).find(args[1]) == std::string::npos)
+        if (mDot::FrequencyBandStr(mDot::FB_EU868).find(args[1]) == std::string::npos &&
+            mDot::FrequencyBandStr(mDot::FB_US915).find(args[1]) == std::string::npos)
         {
             setErrorMessage("Invalid parameter, expects (868,915)");
             return false;

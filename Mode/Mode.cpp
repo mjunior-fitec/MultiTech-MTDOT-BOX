@@ -49,7 +49,7 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, G
     _index(0),
     _band(_dot->getFrequencyBand()),
     _sub_band(_dot->getFrequencySubBand()),
-    _data_rate(mDot::SF_7),
+    _data_rate(mDot::DR0),
     _power(2),
     _next_tx(0),
     _send_data(false),
@@ -129,7 +129,7 @@ bool Mode::appendDataFile(const DataItem& data) {
         (data.gps_lock) ? alt_buf : "",
         (data.gps_lock) ? time_buf : "",
         data.status ? stats_buf : ",,,",
-        _dot->DataRateStr(data.data_rate).substr(3).c_str(),
+        _dot->DataRateStr(data.data_rate).substr(2).c_str(),
         data.power);
 
     if (size < 0) {

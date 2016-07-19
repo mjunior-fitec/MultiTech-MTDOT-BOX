@@ -45,6 +45,9 @@
 #include "FileName.h"
 #include <string>
 
+#define DISABLE_DUTY_CYCLE true
+
+
 // LCD and LED controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
 I2C led_i2c(I2C_SDA, I2C_SCL);
@@ -60,7 +63,7 @@ osThreadId main_id;
 ButtonHandler* buttons;
 
 // LoRa controller
-LoRaHandler* lora;
+LoRaHandler* loraHandler;
 mDot* dot;
 
 // GPS
@@ -81,14 +84,13 @@ ModeConfig* modeConfig;
 Serial debug(USBTX, USBRX);
 
 // Survey Data File
-char* file_name;
+char file_name[] = "SurveyData.txt";
 
 // Prototypes
 void mainMenu();
 
 int main() {
     debug.baud(115200);
-    file_name = "SurveyData.txt";
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     // NCP5623B::LEDs 1 & 2 are the screen backlight - not used on default build
@@ -98,7 +100,13 @@ int main() {
     main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
-    lora = new LoRaHandler(main_id);
+
+    dot->setDisableDutyCycle(DISABLE_DUTY_CYCLE);
+
+    // Seed the RNG
+    srand(dot->getRadioRandom());
+
+    loraHandler = new LoRaHandler(main_id);
     gps = new GPSPARSER(&gps_serial, led_cont);
     sensors = new SensorHandler();
 
@@ -106,11 +114,11 @@ int main() {
 
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps, sensors);
-    modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps, sensors);
-    modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps, sensors);
-    modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps, sensors);
-    modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps, sensors);
+    modeJoin = new ModeJoin(lcd, buttons, dot, loraHandler, gps, sensors);
+    modeSingle = new ModeSingle(lcd, buttons, dot, loraHandler, gps, sensors);
+    modeSweep = new ModeSweep(lcd, buttons, dot, loraHandler, gps, sensors);
+    modeDemo = new ModeDemo(lcd, buttons, dot, loraHandler, gps, sensors);
+    modeConfig = new ModeConfig(lcd, buttons, dot, loraHandler, gps, sensors);
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
@@ -159,7 +167,7 @@ void mainMenu() {
 
         // reset session between modes
         dot->resetNetworkSession();
-        lora->resetActivityLed();
+        loraHandler->resetActivityLed();
         LayoutScrollSelect menu(lcd, items, product, menu_strings[0]);
         menu.display();
 

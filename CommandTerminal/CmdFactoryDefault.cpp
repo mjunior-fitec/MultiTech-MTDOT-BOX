@@ -29,7 +29,7 @@ uint32_t CmdFactoryDefault::action(std::vector<std::string> args)
     _dot->resetConfig();
 
 //Factory defaults for the DotBox.
-    _dot->setTxDataRate(mDot::SF_7);
+    _dot->setTxDataRate(mDot::DR0);
     _dot->setFrequencySubBand(1);
     _dot->setWakeDelay(242);		//DotBox +MaxSize is stored here. Default is 242.
     _dot->setWakeInterval(11);		//DotBox +MinSize is stored here. Default is 11.
