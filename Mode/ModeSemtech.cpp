@@ -60,12 +60,13 @@ void ModeSemtech::init()
     osDelay(2000);
     if(_band==mDot::FB_868){
          _sem.display(_link_check, _snr, _rssi, _power, _sub_band, _padding, _data_rate);
+         _sem.initial();
          _state = PARAMETERS;
+         _send_timer.start();
          }
     else { _state = BAND_CHANGE;
           changeBand();
          }
-    _send_timer.start();
 }
 
 void ModeSemtech::drIncrement()
