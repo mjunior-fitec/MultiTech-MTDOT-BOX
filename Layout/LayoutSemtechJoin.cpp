@@ -20,6 +20,7 @@
 
 LayoutSemtechJoin::LayoutSemtechJoin(DOGS102* lcd, uint8_t band)
     : Layout(lcd),
+      _band(band),
       _lId(0, 1, "NI="),
       _lKey(0, 2, "NK="),
       _lFsb(0, 3, "FSB="),
@@ -27,13 +28,12 @@ LayoutSemtechJoin::LayoutSemtechJoin(DOGS102* lcd, uint8_t band)
       _lPower(6, 5, "P="),
       _lJoin(0, 7, "Join"),
       _fId(3, 1, 14),
-      _fFsb(4, 3, 2),
       _fKey(3, 2, 14),
+      _fFsb(4, 3, 2),
       _fRate(3, 5, 2),
       _fPower(8, 5, 2),
-      _fSubBand(16,7,1),
       _fStatus(0, 0, 17),
-      _band(band)
+      _fSubBand(16,7,1)
 {}
 
 LayoutSemtechJoin::~LayoutSemtechJoin() {}
