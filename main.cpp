@@ -41,6 +41,7 @@
 #include "ModeSweep.h"
 #include "ModeDemo.h"
 #include "ModeConfig.h"
+#include "ModeSemtech.h"
 // misc heders
 #include "FileName.h"
 #include <string>
@@ -76,6 +77,7 @@ ModeSingle* modeSingle;
 ModeSweep* modeSweep;
 ModeDemo* modeDemo;
 ModeConfig* modeConfig;
+ModeSemtech* modeSemtech;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
@@ -111,6 +113,7 @@ int main() {
     modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps, sensors);
     modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps, sensors);
     modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps, sensors);
+    modeSemtech = new ModeSemtech(lcd, buttons, dot, lora, gps, sensors);
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
@@ -136,7 +139,8 @@ void mainMenu() {
         demo = 1,
         config,
         single,
-        sweep
+        sweep,
+        semtech
     } menu_items;
 
     std::string menu_strings[] = {
@@ -144,7 +148,8 @@ void mainMenu() {
         "LoRa Demo",
         "Configuration",
         "Survey Single",
-        "Survey Sweep"
+        "Survey Sweep",
+        "Semtech"
     };
 
     std::vector<std::string> items;
@@ -152,6 +157,7 @@ void mainMenu() {
     items.push_back(menu_strings[config]);
     items.push_back(menu_strings[single]);
     items.push_back(menu_strings[sweep]);
+    items.push_back(menu_strings[semtech]);
 
     while (true) {
         product = "MTDOT-BOX/EVB ";
@@ -195,8 +201,14 @@ void mainMenu() {
             if (modeJoin->start())
                 modeSweep->start();
         }
+        else if (selected == menu_strings[semtech]) {
+                if(dot->getFrequencyBand()==mDot::FB_868)modeJoin->start();
+                modeSemtech->start();
+        }
 
         mode_selected = false;
     }
 }
+
+
 
