@@ -30,8 +30,8 @@
 
 ModeSemtech::ModeSemtech(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
     : Mode(lcd, buttons, dot, lora, gps, sensors),
-      _sem(lcd,_band),
       _help(lcd),
+      _sem(lcd,_band),
       _sem_join(lcd,_band)
 {}
 
@@ -332,5 +332,6 @@ bool ModeSemtech::start()
 
     }
 }
+
 
 
