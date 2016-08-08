@@ -21,35 +21,41 @@
 
 LayoutSemtech::LayoutSemtech(DOGS102* lcd, uint8_t band)
     : Layout(lcd),
+      _band(band),
       _lDr(8,0,"DR"),
       _lFSB(0,0,"FSB"),
-      _lPower(13,0,"P"),
-      _lTemp(8,6,"Temp "),
-      _lPadding(0,6,"Pad"),
       _lSend(3,3,"Sending..."),
+      _lTemp(8,6,"Temp "),
       _lNoGps(0,4,"No Gps Lock"),
-      _lNoLink(0,2,"No Link Data"),
+      _lPower(13,0,"P"),
+      _lBlank(0,1,"                 "),
+      _lNoLink(0,1,"Send Failed"),
+      _lPadding(0,6,"Pad"),
       _lNoChannel(0,3,"No Free Channel"),
-      _fFSB(3,0,1),
       _fDr(10,0,2),
-      _fSw2(0,7,9),
       _fSw1(13,7,4),
+      _fSw2(0,7,9),
+      _fFSB(3,0,1),
       _fTemp(13,6,4),
       _fPower(14,0,2),
       _fNextCh(0,5,17),
       _fGpsLat(0,3,17),
       _fGpsLon(0,4,17),
       _fResult(3,3,16),
-      _fPadding(4,6,3),
-      _fDownSnr(12,2,5),
       _fGpsTime(0,5,16),
-      _fDownRssi(0,2,11),
-      _band(band)
+      _fDownSnr(12,2,5),
+      _fPadding(4,6,3),
+      _fDownRssi(0,2,11)
 {}
 
 LayoutSemtech::~LayoutSemtech() {}
 
 void LayoutSemtech::display() {}
+
+void LayoutSemtech::initial() 
+{
+    writeLabel(_lBlank);
+}
 
 void LayoutSemtech::display(bool success, mDot::snr_stats snr, mDot::rssi_stats rssi, int power, int fsb, int padding, int dr)
 {
@@ -191,3 +197,4 @@ void LayoutSemtech::updateStats(bool GPS, GPSPARSER::longitude lon, GPSPARSER::l
 
     endUpdate();
 }
+
