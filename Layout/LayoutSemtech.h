@@ -54,7 +54,7 @@ private:
     Label _lPadding;
     Label _lNoChannel;
 
-    Field _fDr;
+    Field _fDR;
     Field _fSw1;
     Field _fSw2;
     Field _fFSB;
