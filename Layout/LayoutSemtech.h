@@ -33,6 +33,7 @@ public:
     void display(bool success, mDot::snr_stats snr, mDot::rssi_stats rssi,int power, int fsb, int padding, int dr);
 
     void sending();
+    void initial();
     void updateSw2(string str);
     void sendResult(string str);
     void updateNextCh(int count_down);
@@ -48,6 +49,7 @@ private:
     Label _lTemp;
     Label _lNoGps;
     Label _lPower;
+    Label _lBlank;
     Label _lNoLink;
     Label _lPadding;
     Label _lNoChannel;
@@ -69,6 +71,7 @@ private:
 };
 
 #endif
+
 
 
 
