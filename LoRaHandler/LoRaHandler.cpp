@@ -87,12 +87,16 @@ void l_worker(void const* argument) {
                     l->_mutex.unlock();
                     if (ret == mDot::MDOT_OK) {
                         l->_status = LoRaHandler::join_success;
+                        osSignalSet(l->_main, loraSignal);
+                        l->_tick.detach();
+                        l->_activity_led = LoRaHandler::green;
                     } else {
                         l->_status = LoRaHandler::join_failure;
+                        osSignalSet(l->_main, loraSignal);
+                        l->_tick.detach();
+                        l->_activity_led = LoRaHandler::red;
                     }
-                    osSignalSet(l->_main, loraSignal);
-                    l->_tick.detach();
-                    l->_activity_led = LoRaHandler::green;
+                
                     break;
 
                 default:
@@ -179,4 +183,5 @@ void LoRaHandler::blinker() {
 void LoRaHandler::resetActivityLed() {
     _activity_led = red;
 }
+
 
