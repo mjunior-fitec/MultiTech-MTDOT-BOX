@@ -22,7 +22,7 @@
 LayoutSemtech::LayoutSemtech(DOGS102* lcd, uint8_t band)
     : Layout(lcd),
       _band(band),
-      _lDr(8,0,"DR"),
+      _lDR(8,0,"DR"),
       _lFSB(0,0,"FSB"),
       _lSend(3,3,"Sending..."),
       _lTemp(8,6,"Temp "),
