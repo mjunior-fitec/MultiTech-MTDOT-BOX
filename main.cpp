@@ -41,7 +41,7 @@
 #include "ModeSweep.h"
 #include "ModeDemo.h"
 #include "ModeConfig.h"
-#include "ModeSemtech.h"
+#include "ModeGps.h"
 // misc heders
 #include "FileName.h"
 #include <string>
@@ -77,7 +77,7 @@ ModeSingle* modeSingle;
 ModeSweep* modeSweep;
 ModeDemo* modeDemo;
 ModeConfig* modeConfig;
-ModeSemtech* modeSemtech;
+ModeGps* modeGps;
 
 // Serial debug port
 Serial debug(USBTX, USBRX);
@@ -113,7 +113,7 @@ int main() {
     modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps, sensors);
     modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps, sensors);
     modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps, sensors);
-    modeSemtech = new ModeSemtech(lcd, buttons, dot, lora, gps, sensors);
+    modeGps = new ModeGps(lcd, buttons, dot, lora, gps, sensors, modeJoin);
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
@@ -140,7 +140,7 @@ void mainMenu() {
         config,
         single,
         sweep,
-        semtech
+        gps
     } menu_items;
 
     std::string menu_strings[] = {
@@ -149,15 +149,14 @@ void mainMenu() {
         "Configuration",
         "Survey Single",
         "Survey Sweep",
-        "Semtech"
+        "Survey Gps"
     };
-
     std::vector<std::string> items;
     items.push_back(menu_strings[demo]);
     items.push_back(menu_strings[config]);
     items.push_back(menu_strings[single]);
     items.push_back(menu_strings[sweep]);
-    items.push_back(menu_strings[semtech]);
+    items.push_back(menu_strings[gps]);
 
     while (true) {
         product = "MTDOT-BOX/EVB ";
@@ -188,7 +187,6 @@ void mainMenu() {
                 }
             }
         }
-
         if (selected == menu_strings[demo]) {
             if (modeJoin->start())
                 modeDemo->start();
@@ -201,14 +199,10 @@ void mainMenu() {
             if (modeJoin->start())
                 modeSweep->start();
         }
-        else if (selected == menu_strings[semtech]) {
+        else if (selected == menu_strings[gps]) {
                 if(dot->getFrequencyBand()==mDot::FB_868)modeJoin->start();
-                modeSemtech->start();
+                modeGps->start();
         }
-
         mode_selected = false;
     }
 }
-
-
-
