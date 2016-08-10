@@ -1,4 +1,4 @@
-/* Copyright (c) <2016> <MultiTech Systems>, MIT License
+/* /* Copyright (c) <2016> <MultiTech Systems>, MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
  * and associated documentation files (the "Software"), to deal in the Software without restriction, 
@@ -119,3 +119,31 @@ void LayoutJoin::displayCancel(bool display) {
     writeField(_fCancel, str, true);
 }
 
+void LayoutJoin::updateJoinFsb(uint8_t band) {
+    char buf[8];
+    size_t size;
+
+    size = snprintf(buf, sizeof(buf), "%u", band);
+    writeField(_fFsb, buf, size, true);
+    size = snprintf(buf, sizeof(buf), "     %u", band);
+    writeField(_fCancel, buf, size, true);
+}
+
+void LayoutJoin::displayEditFsb(string rate, uint32_t power, uint8_t band, string key, string id){    
+    clear();
+    startUpdate();
+
+    writeLabel(_lId);
+    writeLabel(_lKey);
+    writeLabel(_lFsb);
+    writeLabel(_lRate);
+    writeLabel(_lPower);
+    writeField(_fCountdown, string("Join"), true);
+    updateId(id);
+    updateKey(key);
+    updateJoinFsb(band);
+    updateRate(rate);
+    updatePower(power);
+    
+    endUpdate();  
+}
