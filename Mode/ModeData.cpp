@@ -18,6 +18,7 @@
 
 #include "ModeData.h"
 #include "MTSText.h"
+#define ONELINEMAX 93
 
 ModeData::ModeData(DOGS102* lcd, ButtonHandler* _buttons, mDot* _dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors)
     :Mode(lcd,_buttons,_dot,lora,gps,sensors),
@@ -28,8 +29,7 @@ ModeData::ModeData(DOGS102* lcd, ButtonHandler* _buttons, mDot* _dot, LoRaHandle
 
 ModeData::~ModeData() {}
 
-bool ModeData::checkFile()
-{
+bool ModeData::checkFile(){
     bool exists = false;
     //get all files and see if file exists
     vector<mDot::mdot_file> files = _dot->listUserFiles();
@@ -42,22 +42,21 @@ bool ModeData::checkFile()
     //if file doesnt exist exit to main menu
     if(!exists) {
         _data.noData();
-        osDelay(4000);
+        osDelay(3000);
         return true;
     }
     _file = _dot->openUserFile(file_name, mDot::FM_RDONLY);
     //if nothing is in file exit to main menu
     if (_file.fd < 0) {
         _data.errorData();
-        osDelay(4000);
+        osDelay(3000);
         _dot->closeUserFile(_file);
         return true;
     }
     return false;
 }
 
-bool ModeData::start()
-{
+bool ModeData::start(){
     if(checkFile())
         return true;
     _help.display();
@@ -65,8 +64,7 @@ bool ModeData::start()
     readFile();
 }
 
-void ModeData::displayData()
-{
+void ModeData::displayData(){
     std::vector<std::string> data = mts::Text::split(_str, ',');
     _line.id = data.at(0);
     _line.status = data.at(1);
@@ -85,8 +83,7 @@ void ModeData::displayData()
 }
 
 //get the current line out of the buffer into str
-void ModeData::getLine()
-{
+void ModeData::getLine(){
     _prev = 0;
     _indexUpdate = 0;
     _str = "";
@@ -96,7 +93,9 @@ void ModeData::getLine()
         //-3 puts it back to one before new line
         _indexUpdate = _buf_size - 3;
         //check from back of buffer for new line
-        while(_buf[_indexUpdate]!='\n'&&_indexUpdate>=0) _indexUpdate--;
+        while(_buf[_indexUpdate] != '\n' && _indexUpdate >= 0){
+             _indexUpdate--;
+        }
         _indexUpdate++;
     }
     //go from indexUpdate to new line to ge the line
@@ -107,29 +106,29 @@ void ModeData::getLine()
         _prev++;
     }
     //push index past newline
-    _index += _indexUpdate+1;
+    _index += _indexUpdate + 1;
     displayData();
 }
 
-void ModeData::back()
-{
-    if(_index>=(_buf_size+_prev)) {
-        _index -= (_prev+_buf_size);
+void ModeData::back(){
+    if(_index >= (_buf_size + _prev)) {
+        _index -= (_prev + _buf_size);
     } else {
         //special case for beginning of file
-        if(_index>0) _buf_size = _index-1;
+        if(_index > 0){
+            _buf_size = _index-1;
+        }
         _buf_size -= _prev;
         _index = 0;
     }
     _last = true;
-    _dot->seekUserFile(_file,_index, SEEK_SET);
+    _dot->seekUserFile(_file, _index, SEEK_SET);
     getLine();
 }
 
-void ModeData::forward()
-{
+void ModeData::forward(){
     _last = false;
-    if(_index<_file.size) {
+    if(_index < _file.size) {
         _buf_size = ONELINEMAX;
         _dot->seekUserFile(_file, _index, SEEK_SET);
         getLine();
@@ -137,17 +136,20 @@ void ModeData::forward()
 }
 
 //update switch labels
-void ModeData::configSw()
-{
-    if(_index-(_prev+1)<=0) _data.updateSw2("");
-    else _data.updateSw2("Back");
-    if(_index<_file.size) _data.updateSw1("Next");
-    else _data.updateSw1("");
+void ModeData::configSw(){
+    if(_index - (_prev+1) <= 0){
+         _data.updateSw2("");
+    } else {
+         _data.updateSw2("Back");
+    }
+    if(_index<_file.size){
+         _data.updateSw1("Next");
+    } else {
+         _data.updateSw1("");
+    }
 }
 
-
-bool ModeData::readFile()
-{
+bool ModeData::readFile(){
     _index = 0;
     _last = false;
     _prev = 0;
@@ -156,22 +158,21 @@ bool ModeData::readFile()
     forward();
     configSw();
     ButtonHandler::ButtonEvent be;
-
     while (true) {
-
         be = _buttons->getButtonEvent();
-
         switch(be) {
             case ButtonHandler::sw1_press:
                 if(_index!=_file.size) {
                     forward();
-                    configSw();}
+                    configSw();
+                }
                 break;
 
             case ButtonHandler::sw2_press:
-                if(_index-(_prev+1)>0) {
+                if(_index - (_prev+1) > 0) {
                     back();
-                    configSw();}
+                    configSw();
+                }
                 break;
 
             case ButtonHandler::sw1_hold:
@@ -183,5 +184,4 @@ bool ModeData::readFile()
         }
     }
 }
-
 
