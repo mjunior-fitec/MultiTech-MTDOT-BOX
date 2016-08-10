@@ -22,12 +22,8 @@
 #include "Mode.h"
 #include "LayoutData.h"
 #include "LayoutHelp.h"
-//max size of line plus one
-#define ONELINEMAX 93
 
-
-class ModeData : public Mode
-{
+class ModeData : public Mode{
 
 public:
     ModeData(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors);
@@ -35,18 +31,14 @@ public:
 
     bool start();
 
-
 private:
-
-
-
     bool _last;
     string _str;
 
     int32_t  _pos, _buf_size, _indexUpdate, _prev;
     uint32_t _index;
 
-    char _buf[ONELINEMAX];
+    char _buf[93];
 
     mDot::mdot_file _file;
 
@@ -62,8 +54,5 @@ private:
     void forward();
     void back();
     void configSw();
-
-
 };
-
 #endif
