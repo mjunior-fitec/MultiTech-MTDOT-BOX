@@ -18,7 +18,6 @@
 
 #include "LayoutData.h"
 
-
 LayoutData::LayoutData(DOGS102* lcd)
     : Layout(lcd),
       _lDr(8, 0, "DR"),
@@ -26,13 +25,9 @@ LayoutData::LayoutData(DOGS102* lcd)
       _lUp(0, 1, "UP Mgn"),
       _lGw(10, 1, "Gw"),
       _lDown(0, 2, "DWN -"),
-      _lNoData(1,3,"No Survey Data"),
-      _lErrorData1(1,3,"Error opening,"),
-      _lErrorData2(0,4,"survey data file."),
-      _lSurveyFailed(0,1,"Survey Failed"),
-      _lNoGps(0,3,"No GPS Data"),
-      _lDbm(9,2,"dbm"),
-      _lAlt(0,6,"Alt"),
+      _lSurveyFailed(0, 1, "Survey Failed"),
+      _lDbm(9, 2, "dbm"),
+      _lAlt(0, 6, "Alt"),
       _fId(0, 0, 5),
       _fDr(10, 0, 2),
       _fPwr(14, 0, 2),
@@ -50,8 +45,7 @@ LayoutData::LayoutData(DOGS102* lcd)
 
 LayoutData::~LayoutData() {}
 
-void LayoutData::display()
-{
+void LayoutData::display(){
     clear();
     startUpdate();
     writeLabel(_lDr);
@@ -59,62 +53,52 @@ void LayoutData::display()
     endUpdate();
 }
 
-void LayoutData::noData()
-{
+void LayoutData::noData(){
     clear();
-    writeLabel(_lNoData);
+    writeField(_fGpsLong, string(" No Survey Data"), true);
 }
 
-void LayoutData::errorData()
-{
+void LayoutData::errorData(){
     clear();
-    writeLabel(_lErrorData1);
-    writeLabel(_lErrorData2);
+    writeField(_fGpsLong, string(" Error opening,"), true);
+    writeField(_fGpsLat, string("survey data file."), true);
 }
 
-void LayoutData::updateSw1(string str)
-{
-    writeField(_fSw1,str,true);
+void LayoutData::updateSw1(string str){
+    writeField(_fSw1, str, true);
 }
 
-void LayoutData::updateSw2(string str)
-{
-    writeField(_fSw2,str,true);
+void LayoutData::updateSw2(string str){
+    writeField(_fSw2, str, true);
 }
 
-bool LayoutData::updateAll(singleLine& line)
-{
+bool LayoutData::updateAll(singleLine& line){
     clear();
     startUpdate();
     //this data should always exist
     writeLabel(_lDr);
     writeLabel(_lPwr);
-    writeField(_fId,line.id,true);
-    writeField(_fDr,line.dataRate,true);
-    writeField(_fPwr,line.power,true);
+    writeField(_fId, line.id, true);
+    writeField(_fDr, line.dataRate, true);
+    writeField(_fPwr, line.power, true);
     //check if survey pass/fail
-    if(line.gateways!="") {
+    if(line.status=="S") {
         writeLabel(_lUp);
         writeLabel(_lDown);
         writeLabel(_lGw);
         writeLabel(_lDbm);
-        writeField(_fGw,line.gateways,true);
-        writeField(_fUpMargin,line.margin,true);
-        writeField(_fRssiDown,line.rssiD,true);
-        writeField(_fSnrDown,line.snrD,true);
+        writeField(_fGw, line.gateways, true);
+        writeField(_fUpMargin, line.margin, true);
+        writeField(_fRssiDown, line.rssiD, true);
+        writeField(_fSnrDown, line.snrD, true);
     } else writeLabel(_lSurveyFailed);
     //check if gps data exists
-    if(line.lat!="") {
+    if(line.lock!="0") {
         writeLabel(_lAlt);
-        writeField(_fGpsLat,line.lat,true);
-        writeField(_fGpsLong,line.lng,true);
-        writeField(_fGpsTime,line.time,true);
-        writeField(_fAlt,line.alt + " m",true);
-    } else writeLabel(_lNoGps);
-
+        writeField(_fGpsLat, line.lat, true);
+        writeField(_fGpsLong, line.lng, true);
+        writeField(_fGpsTime, line.time, true);
+        writeField(_fAlt, line.alt + " m", true);
+    } else writeField(_fGpsLong, string("No GPS Data"), true);
     endUpdate();
 }
-
-
-
-
