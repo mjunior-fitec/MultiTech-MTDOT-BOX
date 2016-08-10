@@ -16,150 +16,135 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "LayoutSemtech.h"
-
-
-LayoutSemtech::LayoutSemtech(DOGS102* lcd, uint8_t band)
+#include "LayoutSurveyGps.h"
+LayoutSurveyGps::LayoutSurveyGps(DOGS102* lcd, uint8_t band)
     : Layout(lcd),
       _band(band),
       _lDR(8,0,"DR"),
       _lFSB(0,0,"FSB"),
-      _lSend(3,3,"Sending..."),
       _lTemp(8,6,"Temp "),
-      _lNoGps(0,4,"No Gps Lock"),
       _lPower(13,0,"P"),
-      _lBlank(0,1,"                 "),
-      _lNoLink(0,1,"Send Failed"),
       _lPadding(0,6,"Pad"),
-      _lNoChannel(0,3,"No Free Channel"),
       _fDr(10,0,2),
       _fSw1(13,7,4),
       _fSw2(0,7,9),
       _fFSB(3,0,1),
       _fTemp(13,6,4),
       _fPower(14,0,2),
-      _fNextCh(0,5,17),
+      _fNoLink(0,1,17),
       _fGpsLat(0,3,17),
       _fGpsLon(0,4,17),
-      _fResult(3,3,16),
-      _fGpsTime(0,5,16),
+      _fGpsTime(0,5,17),
       _fDownSnr(12,2,5),
       _fPadding(4,6,3),
       _fDownRssi(0,2,11)
 {}
 
-LayoutSemtech::~LayoutSemtech() {}
+LayoutSurveyGps::~LayoutSurveyGps() {}
 
-void LayoutSemtech::display() {}
+void LayoutSurveyGps::display() {}
 
-void LayoutSemtech::initial() 
-{
-    writeLabel(_lBlank);
+void LayoutSurveyGps::initial(){
+    writeField(_fNoLink, string("                 "), true);
 }
 
-void LayoutSemtech::display(bool success, mDot::snr_stats snr, mDot::rssi_stats rssi, int power, int fsb, int padding, int dr)
-{
+void LayoutSurveyGps::display(bool success, mDot::snr_stats snr, mDot::rssi_stats rssi, int power, int fsb, int padding, int dr){
     char buf[17];
     size_t size;
-
     clear();
     startUpdate();
-
-    writeLabel(_lDr);
+    writeLabel(_lDR);
     writeLabel(_lTemp);
     writeLabel(_lPower);
     writeLabel(_lPadding);
+     
     if (_band == mDot::FB_915) {
-    writeLabel(_lFSB);
+        writeLabel(_lFSB);
     }
     if(success) {
         size = snprintf(buf, sizeof(buf), "DWN %3d dbm", rssi.last);
         writeField(_fDownRssi, buf, size);
 
         memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), " %2.1f", (float)snr.last / 10.0);
+        size = snprintf(buf, sizeof(buf), " %2.1f", snr.last / 10.0);
         writeField(_fDownSnr, buf, size);
-    } else writeLabel(_lNoLink);
+    } else {
+        writeField(_fNoLink,string("Send Failed"),true);
+        }
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%d",dr);
+    size = snprintf(buf, sizeof(buf), "%d", dr);
     writeField(_fDr, buf, size, true);
 
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%d",power);
+    size = snprintf(buf, sizeof(buf), "%d", power);
     writeField(_fPower, buf, size, true);
     
     if (_band == mDot::FB_915) {
-    memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%d",fsb);
-    writeField(_fFSB, buf, size, true);
+        memset(buf, 0, sizeof(buf));
+        size = snprintf(buf, sizeof(buf), "%d", fsb);
+        writeField(_fFSB, buf, size, true);
     }
     
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%d",padding);
+    size = snprintf(buf, sizeof(buf), "%d", padding);
     writeField(_fPadding, buf, size, true);
-
     endUpdate();
 }
 
-void LayoutSemtech::updateSw1(string Sw1, string Sw2, int dr, int power, int padding)
-{
+void LayoutSurveyGps::updateSw1(string Sw1, string Sw2, int dr, int power, int padding){
     size_t size;
     char buf[17];
     string temp;
-    for(int i = Sw1.size(); i<4; i++) temp+=" ";
+    for(int i = Sw1.size(); i<4; i++){
+         temp+=" ";
+    }
     temp+=Sw1;
     writeField(_fSw1, temp, true);
     startUpdate();
-    if(Sw2=="Data Rate") {
+    
+    if(Sw2 == "Data Rate") {
         memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), "%d",dr);
+        size = snprintf(buf, sizeof(buf), "%d", dr);
         writeField(_fDr, buf, size, true);
-    } else if(Sw2=="Power") {
+    } else if(Sw2 == "Power") {
         memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), "%d",power);
+        size = snprintf(buf, sizeof(buf), "%d", power);
         writeField(_fPower, buf, size, true);
-    } else if(Sw2=="Padding") {
+    } else if(Sw2 == "Padding") {
         memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), "%d",padding);
+        size = snprintf(buf, sizeof(buf), "%d", padding);
         writeField(_fPadding, buf, size, true);
     }
     endUpdate();
 }
 
-void LayoutSemtech::updateSw2(string Sw2)
-{
+void LayoutSurveyGps::updateSw2(string Sw2){
     writeField(_fSw2, Sw2, true);
 }
 
-void LayoutSemtech::sending()
-{
+void LayoutSurveyGps::sending(){
     clear();
-    writeLabel(_lSend);
+    writeField(_fGpsLat,string("   Sending..."),true);
 }
 
-void LayoutSemtech::sendResult(string str)
-{
+void LayoutSurveyGps::sendResult(string str){
     clear();
-    writeField(_fResult,str,true);
+    writeField(_fGpsLat,str,true);
 }
 
-
-void LayoutSemtech::updateNextCh(int count_down)
-{
+void LayoutSurveyGps::updateNextCh(int count_down){
     clear();
     size_t size;
     char buf[17];
-    size = snprintf(buf, sizeof(buf), "Countdown:%d",count_down);
-    writeField(_fNextCh, buf, size, true);
-    writeLabel(_lNoChannel);
+    size = snprintf(buf, sizeof(buf), "Countdown:%d", count_down);
+    writeField(_fGpsTime, buf, size, true);
+    writeField(_fGpsLon, string("No Free Channel"), true);
 }
 
-void LayoutSemtech::updateStats(bool GPS, GPSPARSER::longitude lon, GPSPARSER::latitude lat, struct tm time, float temp)
-{
+void LayoutSurveyGps::updateStats(bool GPS, GPSPARSER::longitude lon, GPSPARSER::latitude lat, struct tm time, float temp){
     char buf[17];
     size_t size;
-
     startUpdate();
 
     if(GPS) {
@@ -189,12 +174,11 @@ void LayoutSemtech::updateStats(bool GPS, GPSPARSER::longitude lon, GPSPARSER::l
                         time.tm_year + 1900);
         writeField(_fGpsTime, buf, size, true);
 
-    } else  writeLabel(_lNoGps);
-
+    } else {
+         writeField(_fGpsLon, string("No Gps Lock"), true);
+    }
     memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%.1f",temp);
+    size = snprintf(buf, sizeof(buf), "%.1f", temp);
     writeField(_fTemp, buf, size, true);
-
     endUpdate();
 }
-
