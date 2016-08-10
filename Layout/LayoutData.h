@@ -21,9 +21,7 @@
 
 #include "Layout.h"
 
-
-class LayoutData : public Layout
-{
+class LayoutData : public Layout{
 public:
     LayoutData(DOGS102* lcd);
     ~LayoutData();
@@ -48,7 +46,6 @@ public:
     void noData();
     void noGps();
     void errorData();
-
     void updateSw1(string str);
     void updateSw2(string str);
     bool updateAll(singleLine& line);
@@ -60,11 +57,7 @@ private:
     Label _lGw;
     Label _lDown;
     Label _lDbm;
-    Label _lNoData;
     Label _lSurveyFailed;
-    Label _lErrorData1;
-    Label _lErrorData2;
-    Label _lNoGps;
     Label _lAlt;
 
     Field _fId;
@@ -80,11 +73,5 @@ private:
     Field _fAlt;
     Field _fSw1;
     Field _fSw2;
-
 };
-
 #endif
-
-
-
-
