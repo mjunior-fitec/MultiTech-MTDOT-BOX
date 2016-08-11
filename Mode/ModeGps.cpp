@@ -60,7 +60,7 @@ void ModeGps::init(){
          _state = PARAMETERS;
          _send_timer.start();
      } else { _state = BAND_CHANGE;
-          _sem_join.displayEditFsb(intToString(10), _power, _band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
+          _sem_join.displayEditFsb(_data_rate, _power, _band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
      }
 }
 
