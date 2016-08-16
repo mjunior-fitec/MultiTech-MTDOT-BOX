@@ -28,13 +28,13 @@ class LayoutJoin : public Layout {
         ~LayoutJoin();
 
         void display();
-        void displayEditFsb(string rate, uint32_t power, uint8_t band, string key, string id);
+        void displayEditFsb(uint8_t rate, uint32_t power, uint8_t band, string key, string id);
 
         void updateId(std::string id);
         void updateKey(std::string key);
         void updateFsb(uint8_t band);
         void updateJoinFsb(uint8_t band);
-        void updateRate(std::string rate);
+        void updateRate(uint8_t rate);
         void updatePower(uint32_t power);
         void updateAttempt(uint32_t attempt);
         void updateStatus(std::string status);
