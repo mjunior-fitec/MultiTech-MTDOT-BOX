@@ -20,6 +20,7 @@
 #include "MTSLog.h"
 #include "rtos.h"
 #include "mbed.h"
+#include "limits.h"
 #define PACKETSIZE 11
 
 ModeGps::ModeGps(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, GPSPARSER* gps, SensorHandler* sensors, ModeJoin* join)
@@ -151,7 +152,7 @@ void ModeGps::editParameter(){
             _state = BAND_CHANGE;
             _dot->resetNetworkSession();
             _lora->resetActivityLed();
-            _sem_join.displayEditFsb(intToString(10),20, _band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
+            _sem_join.displayEditFsb(mDot::DR4, 20, _band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
             break;
 
         case PADDING:
