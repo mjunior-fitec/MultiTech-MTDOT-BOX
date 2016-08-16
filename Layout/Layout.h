@@ -16,61 +16,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __LAYOUT_H__
-#define __LAYOUT_H__
+#ifndef __LAYOUTJOIN_H__
+#define __LAYOUTJOIN_H__
 
-#include "DOGS102.h"
-#include <string>
+#include "Layout.h"
+#include "mDot.h"
 
-class Label {
+class LayoutJoin : public Layout {
     public:
-        Label(uint8_t col, uint8_t row, std::string value);
+        LayoutJoin(DOGS102* lcd, uint8_t band);
+        ~LayoutJoin();
 
-        uint8_t _col;
-        uint8_t _row;
-        std::string _value;
-};
+        void display();
+        void displayEditFsb(uint8_t rate, uint32_t power, uint8_t band, string key, string id);
 
-class Field {
-    public:
-        Field(uint8_t col, uint8_t row, uint8_t maxSize);
-
-        uint8_t _col;
-        uint8_t _row;
-        uint8_t _maxSize;
-};
-
-class Image {
-    public:
-        Image(uint8_t col, uint8_t row, const uint8_t* bmp);
-
-        uint8_t _col;
-        uint8_t _row;
-        const uint8_t* _bmp;
-};
-
-class Layout {
-    public:
-        Layout(DOGS102* lcd);
-        ~Layout();
-
-        virtual void display() = 0;
-        
-    protected:
-        void clear();
-        void startUpdate();
-        void endUpdate();
-        bool writeLabel(const Label& label);
-        bool writeField(const Field& field, const std::string& value, bool apply = false);
-        bool writeField(const Field& field, const char* value, size_t size, bool apply = false);
-        bool writeImage(const Image& image, bool apply = false);
-        void removeField(const Field& field);
+        void updateId(std::string id);
+        void updateKey(std::string key);
+        void updateFsb(uint8_t band);
+        void updateJoinFsb(uint8_t band);
+        void updateRate(uint8_t rate);
+        void updatePower(uint32_t power);
+        void updateAttempt(uint32_t attempt);
+        void updateStatus(std::string status);
+        void updateCountdown(uint32_t seconds);
+        void displayCancel(bool display = true);
 
     private:
-        bool writeText(uint8_t col, uint8_t row, const char* value, size_t size);
-        bool writeBmp(uint8_t col, uint8_t row, const uint8_t* bmp);
+        Label _lId;
+        Label _lKey;
+        Label _lFsb;
+        Label _lRate;
+        Label _lPower;
+        Label _lAttempt;
 
-        DOGS102* _lcd;
+        Field _fStatus;
+        Field _fId;
+        Field _fKey;
+        Field _fFsb;
+        Field _fRate;
+        Field _fPower;
+        Field _fAttempt;
+        Field _fCountdown;
+        Field _fCountdownLabel;
+        Field _fCancel;
+        uint8_t _band;
 };
-
 #endif
