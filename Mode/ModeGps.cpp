@@ -48,7 +48,7 @@ void ModeGps::init(){
     _link_check = false;
     _GPS = false;
     _sub_band = _dot->getFrequencySubBand();
-    _data_rate = mDot::DR4;
+    _data_rate = mDot::DR0;
     _max_padding = _dot->getMaxPacketLength() - PACKETSIZE;
     _Sw2 = "Power";
     _Sw1 = intToString(_power);
@@ -61,15 +61,15 @@ void ModeGps::init(){
          _state = PARAMETERS;
          _send_timer.start();
      } else { _state = BAND_CHANGE;
-          _sem_join.displayEditFsb(_data_rate, _power, _band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
+          _sem_join.displayEditFsb(_data_rate, _power, _sub_band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
      }
 }
 
 void ModeGps::drIncrement(){
     _data_rate++;
-    if (_data_rate > mDot::DR5) {
+    if (_data_rate > mDot::DR3 && _band == mDot::FB_915 || _data_rate > mDot::DR5) {
         _drAll = true;
-        _data_rate=0;
+        _data_rate = 0;
     }
     _dot->setTxDataRate(_data_rate);
     logInfo("new data rate %s, POWER %lu", mDot::DataRateStr(_data_rate).c_str(), _power);
@@ -78,11 +78,7 @@ void ModeGps::drIncrement(){
 
 void ModeGps::changeDataRate(){
     if(_drAll) {
-       if(_band == mDot::FB_868){
-            _data_rate = -1;
-       } else {
-        _data_rate = mDot::DR1;
-       }
+        _data_rate = -1;
         _drAll = false;
     }
     drIncrement();
@@ -152,7 +148,7 @@ void ModeGps::editParameter(){
             _state = BAND_CHANGE;
             _dot->resetNetworkSession();
             _lora->resetActivityLed();
-            _sem_join.displayEditFsb(mDot::DR4, 20, _band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
+            _sem_join.displayEditFsb(mDot::DR0, 20, _sub_band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
             break;
 
         case PADDING:
@@ -236,7 +232,7 @@ void ModeGps::updateScreen(){
          _GPS = false;
     }
     _sem.updateStats( _GPS, _longitude, _latitude, _time, _temp_C);
-    _sem.updateSw1(_Sw1, _Sw2, _data_rate, _power, _padding);
+    _sem.updateSw1(_Sw1, _Sw2);
     _sem.updateSw2(_Sw2);
 }
 
@@ -297,7 +293,7 @@ bool ModeGps::start(){
                                     _sem.display(_link_check, _snr, _rssi, _power, _sub_band, _padding, DATA_RATE);
                                     _sem.initial();
                                     _dot->setTxDataRate(_data_rate);
-                                } else _sem_join.updateJoinFsb(_sub_band);
+                                } else _sem_join.displayEditFsb(mDot::DR0, 20, _sub_band, _dot->getNetworkName(), _dot->getNetworkPassphrase());
                                 break;
                                 
                             case PARAMETERS:
