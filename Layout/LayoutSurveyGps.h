@@ -36,7 +36,7 @@ public:
     void updateSw2(string str);
     void sendResult(string str);
     void updateNextCh(int count_down);
-    void updateSw1(string Sw1, string Sw2, int dr, int power, int padding);
+    void updateSw1(string Sw1, string Sw2);
     void updateStats(bool GPS, GPSPARSER::longitude lon, GPSPARSER::latitude lat, struct tm time, float temp);
 
 private:
