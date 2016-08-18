@@ -127,4 +127,3 @@ void ModeJoin::display() {
     _join.updatePower(_power);
     _join.updateAttempt(_lora->getJoinAttempts());
 }
-
