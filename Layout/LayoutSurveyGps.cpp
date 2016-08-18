@@ -92,31 +92,13 @@ void LayoutSurveyGps::display(bool success, mDot::snr_stats snr, mDot::rssi_stat
     endUpdate();
 }
 
-void LayoutSurveyGps::updateSw1(string Sw1, string Sw2, int dr, int power, int padding){
-    size_t size;
-    char buf[17];
+void LayoutSurveyGps::updateSw1(string Sw1, string Sw2){
     string temp;
     for(int i = Sw1.size(); i<4; i++){
          temp+=" ";
     }
     temp+=Sw1;
     writeField(_fSw1, temp, true);
-    startUpdate();
-    
-    if(Sw2 == "Data Rate") {
-        memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), "%d", dr);
-        writeField(_fDr, buf, size, true);
-    } else if(Sw2 == "Power") {
-        memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), "%d", power);
-        writeField(_fPower, buf, size, true);
-    } else if(Sw2 == "Padding") {
-        memset(buf, 0, sizeof(buf));
-        size = snprintf(buf, sizeof(buf), "%d", padding);
-        writeField(_fPadding, buf, size, true);
-    }
-    endUpdate();
 }
 
 void LayoutSurveyGps::updateSw2(string Sw2){
