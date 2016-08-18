@@ -37,7 +37,7 @@ LayoutSurveyGps::LayoutSurveyGps(DOGS102* lcd, uint8_t band)
       _fGpsTime(0,5,17),
       _fDownSnr(12,2,5),
       _fPadding(4,6,3),
-      _fDownRssi(0,2,11)
+      _fDownRssi(0,2,12)
 {}
 
 LayoutSurveyGps::~LayoutSurveyGps() {}
