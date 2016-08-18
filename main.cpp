@@ -61,7 +61,7 @@ osThreadId main_id;
 ButtonHandler* buttons;
 
 // LoRa controller
-LoRaHandler* lora;
+LoRaHandler* lora_handler;
 mDot* dot;
 
 // GPS
@@ -100,7 +100,7 @@ int main() {
     main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
-    lora = new LoRaHandler(main_id);
+    lora_handler = new LoRaHandler(main_id);
     gps = new GPSPARSER(&gps_serial, led_cont);
     sensors = new SensorHandler();
 
@@ -108,12 +108,12 @@ int main() {
 
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps, sensors);
-    modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps, sensors);
-    modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps, sensors);
-    modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps, sensors);
-    modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps, sensors);
-    modeGps = new ModeGps(lcd, buttons, dot, lora, gps, sensors, modeJoin);
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeSingle = new ModeSingle(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeSweep = new ModeSweep(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeDemo = new ModeDemo(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeConfig = new ModeConfig(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeGps = new ModeGps(lcd, buttons, dot, lora_handler, gps, sensors, modeJoin);
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
@@ -164,7 +164,7 @@ void mainMenu() {
 
         // reset session between modes
         dot->resetNetworkSession();
-        lora->resetActivityLed();
+        lora_handler->resetActivityLed();
         LayoutScrollSelect menu(lcd, items, product, menu_strings[0]);
         menu.display();
 
