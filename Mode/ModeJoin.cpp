@@ -42,7 +42,7 @@ bool ModeJoin::start() {
     _initial_data_rate = _dot->getTxDataRate();
     _initial_power = _dot->getTxPower();
 
-    _data_rate = (_band == mDot::FB_915) ? mDot::DR4 : mDot::SF_12;
+    _data_rate = mDot::DR0;
     _power = 20;
     _joined = false;
 
