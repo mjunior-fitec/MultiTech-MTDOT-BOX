@@ -28,11 +28,13 @@ class LayoutJoin : public Layout {
         ~LayoutJoin();
 
         void display();
+        void displayEditFsb(uint8_t rate, uint32_t power, uint8_t band, string key, string id);
 
         void updateId(std::string id);
         void updateKey(std::string key);
         void updateFsb(uint8_t band);
-        void updateRate(std::string rate);
+        void updateJoinFsb(uint8_t band);
+        void updateRate(uint8_t rate);
         void updatePower(uint32_t power);
         void updateAttempt(uint32_t attempt);
         void updateStatus(std::string status);
@@ -59,5 +61,4 @@ class LayoutJoin : public Layout {
         Field _fCancel;
         uint8_t _band;
 };
-
 #endif

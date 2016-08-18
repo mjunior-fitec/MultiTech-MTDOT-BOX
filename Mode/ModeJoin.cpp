@@ -42,7 +42,7 @@ bool ModeJoin::start() {
     _initial_data_rate = _dot->getTxDataRate();
     _initial_power = _dot->getTxPower();
 
-    _data_rate = (_band == mDot::FB_915) ? mDot::SF_10 : mDot::SF_12;
+    _data_rate = mDot::DR0;
     _power = 20;
     _joined = false;
 
@@ -123,9 +123,7 @@ void ModeJoin::display() {
         _sub_band = _dot->getFrequencySubBand();
         _join.updateFsb(_sub_band);
     }
-    // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-    _join.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+    _join.updateRate(_dot->getTxDataRate());
     _join.updatePower(_power);
     _join.updateAttempt(_lora->getJoinAttempts());
 }
-

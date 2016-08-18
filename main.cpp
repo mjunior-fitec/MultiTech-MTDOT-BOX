@@ -41,6 +41,7 @@
 #include "ModeSweep.h"
 #include "ModeDemo.h"
 #include "ModeConfig.h"
+#include "ModeGps.h"
 #include "ModeData.h"
 // misc heders
 #include "FileName.h"
@@ -61,7 +62,7 @@ osThreadId main_id;
 ButtonHandler* buttons;
 
 // LoRa controller
-LoRaHandler* lora;
+LoRaHandler* lora_handler;
 mDot* dot;
 
 // GPS
@@ -77,6 +78,7 @@ ModeSingle* modeSingle;
 ModeSweep* modeSweep;
 ModeDemo* modeDemo;
 ModeConfig* modeConfig;
+ModeGps* modeGps;
 ModeData* modeData;
 
 // Serial debug port
@@ -100,7 +102,7 @@ int main() {
     main_id = Thread::gettid();
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
-    lora = new LoRaHandler(main_id);
+    lora_handler = new LoRaHandler(main_id);
     gps = new GPSPARSER(&gps_serial, led_cont);
     sensors = new SensorHandler();
 
@@ -108,12 +110,13 @@ int main() {
 
     MTSLog::setLogLevel(MTSLog::TRACE_LEVEL);
 
-    modeJoin = new ModeJoin(lcd, buttons, dot, lora, gps, sensors);
-    modeSingle = new ModeSingle(lcd, buttons, dot, lora, gps, sensors);
-    modeSweep = new ModeSweep(lcd, buttons, dot, lora, gps, sensors);
-    modeDemo = new ModeDemo(lcd, buttons, dot, lora, gps, sensors);
-    modeConfig = new ModeConfig(lcd, buttons, dot, lora, gps, sensors);
-    modeData = new ModeData(lcd, buttons, dot, lora, gps, sensors);
+    modeJoin = new ModeJoin(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeSingle = new ModeSingle(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeSweep = new ModeSweep(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeDemo = new ModeDemo(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeConfig = new ModeConfig(lcd, buttons, dot, lora_handler, gps, sensors);
+    modeGps = new ModeGps(lcd, buttons, dot, lora_handler, gps, sensors, modeJoin);
+    modeData = new ModeData(lcd, buttons, dot, lora_handler, gps, sensors);
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
@@ -140,6 +143,7 @@ void mainMenu() {
         config,
         single,
         sweep,
+        gps,
         data
     } menu_items;
 
@@ -149,14 +153,15 @@ void mainMenu() {
         "Configuration",
         "Survey Single",
         "Survey Sweep",
+        "Survey Gps",
         "Survey Data"
     };
-
     std::vector<std::string> items;
     items.push_back(menu_strings[demo]);
     items.push_back(menu_strings[config]);
     items.push_back(menu_strings[single]);
     items.push_back(menu_strings[sweep]);
+    items.push_back(menu_strings[gps]);
     items.push_back(menu_strings[data]);
 
     while (true) {
@@ -165,7 +170,7 @@ void mainMenu() {
 
         // reset session between modes
         dot->resetNetworkSession();
-        lora->resetActivityLed();
+        lora_handler->resetActivityLed();
         LayoutScrollSelect menu(lcd, items, product, menu_strings[0]);
         menu.display();
 
@@ -188,7 +193,6 @@ void mainMenu() {
                 }
             }
         }
-
         if (selected == menu_strings[demo]) {
             if (modeJoin->start())
                 modeDemo->start();
@@ -200,12 +204,14 @@ void mainMenu() {
         } else if (selected == menu_strings[sweep]) {
             if (modeJoin->start())
                 modeSweep->start();
-        }else if (selected == menu_strings[data]) {
+        } else if (selected == menu_strings[gps]) {
+            if(dot->getFrequencyBand()==mDot::FB_868)modeJoin->start();
+                modeGps->start();
+        } else if (selected == menu_strings[data]) {
             modeData->start();
         } 
 
         mode_selected = false;
     }
 }
-
 
