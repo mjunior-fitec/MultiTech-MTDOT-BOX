@@ -52,7 +52,7 @@ private:
 
     float _temp_C;
     std::vector<uint8_t> _send_data;
-    uint8_t _parameter, _padding, _interval,_max_padding;
+    uint8_t _parameter, _padding, _interval, _max_padding;
     bool _drAll, _link_check, _GPS;
     string _Sw1, _Sw2;
 
