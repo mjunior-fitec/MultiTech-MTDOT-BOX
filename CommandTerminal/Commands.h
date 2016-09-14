@@ -49,4 +49,6 @@
 
 #ifdef MTS_RADIO_DEBUG_COMMANDS
 #include "CmdWriteProtectedConfig.h"
+#include "CmdSendContinuous.h"
+#include "CmdTxFrequency.h"
 #endif

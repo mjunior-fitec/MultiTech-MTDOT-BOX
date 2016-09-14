@@ -27,6 +27,7 @@ class CmdWriteProtectedConfig : public Command {
 public:
 
     CmdWriteProtectedConfig(mDot* dot);
+    virtual ~CmdWriteProtectedConfig();
     virtual uint32_t action(std::vector<std::string> args);
 
 private:

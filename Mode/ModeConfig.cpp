@@ -75,6 +75,8 @@ ModeConfig::ModeConfig(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHand
 
 #if MTS_RADIO_DEBUG_COMMANDS
     addCommand(new CmdWriteProtectedConfig(_dot));
+    addCommand(new CmdSendContinuous(_dot));
+    addCommand(new CmdTxFrequency(_dot));
 #endif
 }
 
