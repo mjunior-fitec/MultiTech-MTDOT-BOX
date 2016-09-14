@@ -207,8 +207,7 @@ bool ModeSweep::start() {
                                 _state = failure;
                                 _failure.display();
                                 _failure.updateId(_index);
-                                // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-                                _failure.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+                                _failure.updateRate(_dot->DataRateStr(_data_rate).substr(2));
                                 _failure.updatePower(_power);
                                 if (_gps_available && _gps->getLockStatus()) {
                                     GPSPARSER::latitude lat = _gps->getLatitude();
@@ -343,8 +342,7 @@ void ModeSweep::displayHelp() {
 void ModeSweep::displaySuccess() {
     _success.display();
     _success.updateId(_index);
-    // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-    _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+    _success.updateRate(_dot->DataRateStr(_data_rate).substr(2));
     _success.updatePower(_power);
     _success.updateStats(_link_check_result);
     if (_gps_available && _gps->getLockStatus()) {
@@ -383,23 +381,21 @@ std::vector<point> ModeSweep::generatePoints() {
 
 uint8_t ModeSweep::payloadToRate(uint8_t payload) {
     if (_band == mDot::FB_915) {
-        if (payload <= mDot::MaxLengths_915[mDot::SF_10])
-            return mDot::SF_10;
-        else if (payload <= mDot::MaxLengths_915[mDot::SF_9])
-            return mDot::SF_9;
-        else if (payload <= mDot::MaxLengths_915[mDot::SF_8])
-            return mDot::SF_8;
+        if (payload <= mDot::MaxLengths_915[mDot::DR0])
+            return mDot::DR0;
+        else if (payload <= mDot::MaxLengths_915[mDot::DR1])
+            return mDot::DR1;
+        else if (payload <= mDot::MaxLengths_915[mDot::DR2])
+            return mDot::DR2;
         else
-            return mDot::SF_7;
+            return mDot::DR4;
     } else {
-        if (payload <= mDot::MaxLengths_868[mDot::SF_12])
-            return mDot::SF_12;
-        else if (payload <= mDot::MaxLengths_868[mDot::SF_9])
-            return mDot::SF_9;
+        if (payload <= mDot::MaxLengths_868[mDot::DR0])
+            return mDot::DR0;
+        else if (payload <= mDot::MaxLengths_868[mDot::DR3])
+            return mDot::DR3;
         else
-            return mDot::SF_7;
+            return mDot::DR6;
     }
-
-    return mDot::SF_7;
 }
 
