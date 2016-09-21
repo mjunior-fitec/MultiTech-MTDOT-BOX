@@ -1,6 +1,6 @@
 [submodule "mdot-library"]
 	path = mdot-library
-	url = git@gitlab.multitech.net:/lora-mote/mdot-library.git
+	url = git@gitlab.multitech.net:lora-mote/mdot-library.git
 [submodule "libs/MTS-Serial"]
 	path = libs/MTS-Serial
-	url = git@gitlab.multitech.net:/mbed/MTS-Serial.git
+	url = git@gitlab.multitech.net:mbed/MTS-Serial.git

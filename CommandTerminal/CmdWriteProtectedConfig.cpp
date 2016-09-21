@@ -24,6 +24,10 @@ CmdWriteProtectedConfig::CmdWriteProtectedConfig(mDot* dot) :
     _help = std::string(text()) + ": " + std::string(desc());
 }
 
+CmdWriteProtectedConfig::~CmdWriteProtectedConfig() {
+
+}
+
 uint32_t CmdWriteProtectedConfig::action(std::vector<std::string> args)
 {
     if (!_dot->saveProtectedConfig()) {

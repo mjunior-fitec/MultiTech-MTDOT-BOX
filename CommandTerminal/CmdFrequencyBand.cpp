@@ -19,10 +19,10 @@
 #include "CmdFrequencyBand.h"
 
 CmdFrequencyBand::CmdFrequencyBand(mDot* dot, mts::MTSSerial& serial) :
-        Command(dot, "Frequency Band", "AT+FREQ", "Configured Frequency Band '868' or '915'"), _serial(serial)
+        Command(dot, "Frequency Band", "AT+FREQ", "Configured Frequency Band 'EU868', 'AU915' or 'US915'"), _serial(serial)
 {
     _help = std::string(text()) + ": " + std::string(desc());
-    _usage = "(868,915)";
+    _usage = "(EU868,AU915,US915)";
     _queryable = true;
 }
 
@@ -40,10 +40,22 @@ uint32_t CmdFrequencyBand::action(std::vector<std::string> args)
     else if (args.size() == 2)
     {
         int32_t code;
-        uint8_t band = mDot::FB_915;
 
-        if (mDot::FrequencyBandStr(mDot::FB_868).find(args[1]) != std::string::npos) {
-            band = mDot::FB_868;
+        std::string text = mts::Text::toUpper(args[1]);
+
+        uint8_t band = mDot::FB_US915;
+
+
+        if (mDot::FrequencyBandStr(mDot::FB_EU868).find(text) != std::string::npos) {
+            band = mDot::FB_EU868;
+        }
+
+        if (mDot::FrequencyBandStr(mDot::FB_AU915).find(text) != std::string::npos) {
+            band = mDot::FB_AU915;
+        }
+
+        if (mDot::FrequencyBandStr(mDot::FB_US915).find(text) != std::string::npos) {
+            band = mDot::FB_US915;
         }
 
         if ((code = _dot->setFrequencyBand(band)) != mDot::MDOT_OK) {
@@ -65,10 +77,13 @@ bool CmdFrequencyBand::verify(std::vector<std::string> args)
 #ifdef DEBUG_MAC
     if (args.size() == 2)
     {
-        if (mDot::FrequencyBandStr(mDot::FB_868).find(args[1]) == std::string::npos &&
-            mDot::FrequencyBandStr(mDot::FB_915).find(args[1]) == std::string::npos)
+        std::string band = mts::Text::toUpper(args[1]);
+
+        if (mDot::FrequencyBandStr(mDot::FB_EU868).find(band) == std::string::npos &&
+            mDot::FrequencyBandStr(mDot::FB_US915).find(band) == std::string::npos &&
+            mDot::FrequencyBandStr(mDot::FB_AU915).find(band) == std::string::npos)
         {
-            setErrorMessage("Invalid parameter, expects (868,915)");
+            setErrorMessage("Invalid parameter, expects (EU868,AU915,US915)");
             return false;
         }
 

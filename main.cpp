@@ -47,6 +47,9 @@
 #include "FileName.h"
 #include <string>
 
+#define DISABLE_DUTY_CYCLE true
+
+
 // LCD and LED controllers
 SPI lcd_spi(SPI1_MOSI, SPI1_MISO, SPI1_SCK);
 I2C led_i2c(I2C_SDA, I2C_SCL);
@@ -63,6 +66,7 @@ ButtonHandler* buttons;
 
 // LoRa controller
 LoRaHandler* lora_handler;
+
 mDot* dot;
 
 // GPS
@@ -85,14 +89,13 @@ ModeData* modeData;
 Serial debug(USBTX, USBRX);
 
 // Survey Data File
-char* file_name;
+char file_name[] = "SurveyData.txt";
 
 // Prototypes
 void mainMenu();
 
 int main() {
     debug.baud(115200);
-    file_name = "SurveyData.txt";
 
     lcd = new DOGS102(lcd_spi, lcd_spi_cs, lcd_cd);
     // NCP5623B::LEDs 1 & 2 are the screen backlight - not used on default build
@@ -103,6 +106,14 @@ int main() {
     buttons = new ButtonHandler(main_id);
     dot = mDot::getInstance();
     lora_handler = new LoRaHandler(main_id);
+
+    dot->setDisableDutyCycle(DISABLE_DUTY_CYCLE);
+    dot->setLinkCheckThreshold(0);
+    dot->setLinkCheckCount(0);
+
+    // Seed the RNG
+    srand(dot->getRadioRandom());
+
     gps = new GPSPARSER(&gps_serial, led_cont);
     sensors = new SensorHandler();
 
@@ -117,6 +128,7 @@ int main() {
     modeConfig = new ModeConfig(lcd, buttons, dot, lora_handler, gps, sensors);
     modeGps = new ModeGps(lcd, buttons, dot, lora_handler, gps, sensors, modeJoin);
     modeData = new ModeData(lcd, buttons, dot, lora_handler, gps, sensors);
+
 
     osDelay(1000);
     logInfo("%sGPS detected", gps->gpsDetected() ? "" : "no ");
@@ -145,6 +157,7 @@ void mainMenu() {
         sweep,
         gps,
         data
+
     } menu_items;
 
     std::string menu_strings[] = {
@@ -153,8 +166,8 @@ void mainMenu() {
         "Configuration",
         "Survey Single",
         "Survey Sweep",
-        "Survey Gps",
-        "Survey Data"
+        "Survey GPS",
+        "View Data"
     };
     std::vector<std::string> items;
     items.push_back(menu_strings[demo]);
@@ -171,6 +184,7 @@ void mainMenu() {
         // reset session between modes
         dot->resetNetworkSession();
         lora_handler->resetActivityLed();
+
         LayoutScrollSelect menu(lcd, items, product, menu_strings[0]);
         menu.display();
 
@@ -205,8 +219,10 @@ void mainMenu() {
             if (modeJoin->start())
                 modeSweep->start();
         } else if (selected == menu_strings[gps]) {
-            if(dot->getFrequencyBand()==mDot::FB_868)modeJoin->start();
-                modeGps->start();
+            if(dot->getFrequencyBand() == mDot::FB_EU868) {
+                modeJoin->start();
+            }
+            modeGps->start();
         } else if (selected == menu_strings[data]) {
             modeData->start();
         } 
@@ -214,4 +230,6 @@ void mainMenu() {
         mode_selected = false;
     }
 }
+
+
 

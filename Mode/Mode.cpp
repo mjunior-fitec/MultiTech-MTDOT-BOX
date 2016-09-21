@@ -49,7 +49,7 @@ Mode::Mode(DOGS102* lcd, ButtonHandler* buttons, mDot* dot, LoRaHandler* lora, G
     _index(0),
     _band(_dot->getFrequencyBand()),
     _sub_band(_dot->getFrequencySubBand()),
-    _data_rate(mDot::SF_7),
+    _data_rate(mDot::DR0),
     _power(2),
     _next_tx(0),
     _send_data(false),
@@ -129,7 +129,7 @@ bool Mode::appendDataFile(const DataItem& data) {
         (data.gps_lock) ? alt_buf : "",
         (data.gps_lock) ? time_buf : "",
         data.status ? stats_buf : ",,,",
-        _dot->DataRateStr(data.data_rate).substr(3).c_str(),
+        _dot->DataRateStr(data.data_rate).substr(2).c_str(),
         data.power);
 
     if (size < 0) {
@@ -279,7 +279,7 @@ std::vector<uint8_t> Mode::formatSurveyData(DataItem& data) {
     send_data.push_back((data.link.down.snr/10) & 0xFF);
 
     // collect GPS data if GPS device detected
-    if (_gps->gpsDetected() && ((_data_rate != mDot::SF_10) || (_band == mDot::FB_868))){
+    if (_gps->gpsDetected() && ((_data_rate != mDot::SF_10) || (_band == mDot::FB_EU868))){
 	    send_data.push_back(0x19);			// key for GPS Lock Status
 	    satfix = (_gps->getNumSatellites() << 4 ) | (_gps->getFixStatus() & 0x0F );
 	    send_data.push_back(satfix);

@@ -182,7 +182,7 @@ while (msg_pntr < msg.payload.length){
 	}
 }
 
-pData.sf_val = parseInt(msg.datr.replace("SF","  "),10);
+pData.sf_val = parseInt(msg.datr.replace("DR","  "),10);
 
 context.global.data_out = pData;
 

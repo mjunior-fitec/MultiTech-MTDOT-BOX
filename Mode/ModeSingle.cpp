@@ -176,8 +176,8 @@ bool ModeSingle::start() {
                                 _state = failure;
                                 _failure.display();
                                 _failure.updateId(_index);
-                                // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-                                _failure.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+                                // mDot::DataRateStr returns format DRXX - we only want to display the XX part
+                                _failure.updateRate(_dot->DataRateStr(_data_rate).substr(2));
                                 updateData(_data, single, false);
                                 appendDataFile(_data);
                                 _failure.updatePower(_power);
@@ -291,7 +291,7 @@ void ModeSingle::displaySuccess() {
     _success.display();
     _success.updateId(_index);
     // mDot::DataRateStr returns format SF_XX - we only want to display the XX part
-    _success.updateRate(_dot->DataRateStr(_data_rate).substr(3));
+    _success.updateRate(_dot->DataRateStr(_data_rate).substr(2));
     _success.updatePower(_power);
     _success.updateStats(_link_check_result);
     if (_gps_available && _gps->getLockStatus()) {
@@ -312,7 +312,7 @@ std::string ModeSingle::formatRatePower() {
     size_t size;
 
     msg += "DR=";
-    msg += _dot->DataRateStr(_data_rate).substr(3);
+    msg += _dot->DataRateStr(_data_rate).substr(2);
     msg += " P=";
     size = snprintf(buf, sizeof(buf), "%u", _power);
     msg.append(buf, size);
@@ -323,28 +323,11 @@ std::string ModeSingle::formatRatePower() {
 void ModeSingle::incrementRatePower() {
     if (_power == 20) {
         _power = 2;
-        switch (_data_rate) {
-            case mDot::SF_7:
-                _data_rate = mDot::SF_8;
-                break;
-            case mDot::SF_8:
-                _data_rate = mDot::SF_9;
-                break;
-            case mDot::SF_9:
-                _data_rate = mDot::SF_10;
-                break;
-            case mDot::SF_10:
-                if (_band == mDot::FB_915)
-                    _data_rate = mDot::SF_7;
-                else
-                    _data_rate = mDot::SF_11;
-                break;
-            case mDot::SF_11:
-                _data_rate = mDot::SF_12;
-                break;
-            case mDot::SF_12:
-                _data_rate = mDot::SF_7;
-                break;
+        _data_rate++;        
+        if ((_band == mDot::FB_US915 && _data_rate > mDot::DR4) ||
+            (_band == mDot::FB_AU915 && _data_rate > mDot::DR4) ||
+            (_band == mDot::FB_EU868 && _data_rate > mDot::DR7)) {
+             _data_rate = mDot::DR0;       
         }
     } else {
         _power += 3;
