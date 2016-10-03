@@ -380,7 +380,14 @@ std::vector<point> ModeSweep::generatePoints() {
 }
 
 uint8_t ModeSweep::payloadToRate(uint8_t payload) {
-    if (_band != mDot::FB_EU868) {
+    if (_band == mDot::FB_EU868) {
+        if (payload <= mDot::MaxLengths_868[mDot::DR0])
+            return mDot::DR0;
+        else if (payload <= mDot::MaxLengths_868[mDot::DR3])
+            return mDot::DR3;
+        else
+            return mDot::DR6;
+    } else {
         if (payload <= mDot::MaxLengths_915[mDot::DR0])
             return mDot::DR0;
         else if (payload <= mDot::MaxLengths_915[mDot::DR1])
@@ -389,13 +396,6 @@ uint8_t ModeSweep::payloadToRate(uint8_t payload) {
             return mDot::DR2;
         else
             return mDot::DR4;
-    } else {
-        if (payload <= mDot::MaxLengths_868[mDot::DR0])
-            return mDot::DR0;
-        else if (payload <= mDot::MaxLengths_868[mDot::DR3])
-            return mDot::DR3;
-        else
-            return mDot::DR6;
     }
 }
 

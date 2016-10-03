@@ -326,7 +326,7 @@ void ModeSingle::incrementRatePower() {
         _data_rate++;        
         if ((_band == mDot::FB_US915 && _data_rate > mDot::DR4) ||
             (_band == mDot::FB_AU915 && _data_rate > mDot::DR4) ||
-            (_band == mDot::FB_EU868 && _data_rate > mDot::DR7)) {
+            (_band == mDot::FB_EU868 && _data_rate > mDot::DR6)) {
              _data_rate = mDot::DR0;       
         }
     } else {
