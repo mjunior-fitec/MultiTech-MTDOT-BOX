@@ -119,7 +119,7 @@ void ModeJoin::display() {
         _join.updateId(_dot->getNetworkName());
         _join.updateKey(_dot->getNetworkPassphrase());
     }
-    if (_band == mDot::FB_915) {
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
         _sub_band = _dot->getFrequencySubBand();
         _join.updateFsb(_sub_band);
     }

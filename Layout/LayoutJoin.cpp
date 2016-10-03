@@ -47,7 +47,7 @@ void LayoutJoin::display() {
 
     writeLabel(_lId);
     writeLabel(_lKey);
-    if (_band == mDot::FB_915) {
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
         writeLabel(_lFsb);
     }
     writeLabel(_lRate);

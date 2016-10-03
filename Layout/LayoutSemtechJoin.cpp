@@ -45,7 +45,7 @@ void LayoutSemtechJoin::display()
 
     writeLabel(_lId);
     writeLabel(_lKey);
-    if (_band == mDot::FB_915) {
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
         writeLabel(_lFsb);
     }
     writeLabel(_lRate);
@@ -67,12 +67,12 @@ void LayoutSemtechJoin::updateKey(std::string key)
 
 void LayoutSemtechJoin::updateFsb(uint8_t band)
 {
-    if (_band == mDot::FB_915) {
-    char buf[8];
-    size_t size;
-    size = snprintf(buf, sizeof(buf), "%u", band);
-    writeField(_fFsb, buf, size, true);
-    writeField(_fSubBand, buf, size, true);
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
+        char buf[8];
+        size_t size;
+        size = snprintf(buf, sizeof(buf), "%u", band);
+        writeField(_fFsb, buf, size, true);
+        writeField(_fSubBand, buf, size, true);
     }
 }
 

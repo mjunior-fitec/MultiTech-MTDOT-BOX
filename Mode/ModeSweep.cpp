@@ -261,7 +261,7 @@ bool ModeSweep::start() {
         }
 
         // wait 5s in EU mode to compensate for potential "no free channel" situations on server
-        if ((_band == mDot::FB_915 && _display_timer.read_ms() > 2000) || _display_timer.read_ms() > 5000) {
+        if ((_band != mDot::FB_EU868 && _display_timer.read_ms() > 2000) || _display_timer.read_ms() > 5000) {
             _display_timer.stop();
             _display_timer.reset();
             if (_survey_current == _survey_total) {
@@ -380,7 +380,7 @@ std::vector<point> ModeSweep::generatePoints() {
 }
 
 uint8_t ModeSweep::payloadToRate(uint8_t payload) {
-    if (_band == mDot::FB_915) {
+    if (_band != mDot::FB_EU868) {
         if (payload <= mDot::MaxLengths_915[mDot::DR0])
             return mDot::DR0;
         else if (payload <= mDot::MaxLengths_915[mDot::DR1])

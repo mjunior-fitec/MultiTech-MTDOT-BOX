@@ -67,7 +67,7 @@ void ModeGps::init(){
 
 void ModeGps::drIncrement(){
     _data_rate++;
-    if (_data_rate > mDot::DR3 && _band == mDot::FB_915 || _data_rate > mDot::DR5) {
+    if ((_data_rate > mDot::DR3 && (_band == mDot::FB_US915 || _band == mDot::FB_AU915)) || _data_rate > mDot::DR5) {
         _drAll = true;
         _data_rate = 0;
     }

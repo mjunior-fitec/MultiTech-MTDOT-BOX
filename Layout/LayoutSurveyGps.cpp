@@ -58,7 +58,7 @@ void LayoutSurveyGps::display(bool success, mDot::snr_stats snr, mDot::rssi_stat
     writeLabel(_lPower);
     writeLabel(_lPadding);
      
-    if (_band == mDot::FB_915) {
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
         writeLabel(_lFSB);
     }
     if(success) {
@@ -80,7 +80,7 @@ void LayoutSurveyGps::display(bool success, mDot::snr_stats snr, mDot::rssi_stat
     size = snprintf(buf, sizeof(buf), "%d", power);
     writeField(_fPower, buf, size, true);
     
-    if (_band == mDot::FB_915) {
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
         memset(buf, 0, sizeof(buf));
         size = snprintf(buf, sizeof(buf), "%d", fsb);
         writeField(_fFSB, buf, size, true);

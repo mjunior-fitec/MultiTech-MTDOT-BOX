@@ -69,9 +69,11 @@ void LayoutSemtech::display(bool success, mDot::snr_stats snr, mDot::rssi_stats 
     writeLabel(_lTemp);
     writeLabel(_lPower);
     writeLabel(_lPadding);
-    if (_band == mDot::FB_915) {
-    writeLabel(_lFSB);
+
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
+        writeLabel(_lFSB);
     }
+
     if(success) {
         size = snprintf(buf, sizeof(buf), "DWN %3d dbm", rssi.last);
         writeField(_fDownRssi, buf, size);
@@ -79,7 +81,9 @@ void LayoutSemtech::display(bool success, mDot::snr_stats snr, mDot::rssi_stats 
         memset(buf, 0, sizeof(buf));
         size = snprintf(buf, sizeof(buf), " %2.1f", (float)snr.last / 10.0);
         writeField(_fDownSnr, buf, size);
-    } else writeLabel(_lNoLink);
+    } else {
+        writeLabel(_lNoLink);
+    }
 
     memset(buf, 0, sizeof(buf));
     size = snprintf(buf, sizeof(buf), "%d",dr);
@@ -89,10 +93,10 @@ void LayoutSemtech::display(bool success, mDot::snr_stats snr, mDot::rssi_stats 
     size = snprintf(buf, sizeof(buf), "%d",power);
     writeField(_fPower, buf, size, true);
     
-    if (_band == mDot::FB_915) {
-    memset(buf, 0, sizeof(buf));
-    size = snprintf(buf, sizeof(buf), "%d",fsb);
-    writeField(_fFSB, buf, size, true);
+    if (_band == mDot::FB_US915 || _band == mDot::FB_AU915) {
+        memset(buf, 0, sizeof(buf));
+        size = snprintf(buf, sizeof(buf), "%d",fsb);
+        writeField(_fFSB, buf, size, true);
     }
     
     memset(buf, 0, sizeof(buf));
