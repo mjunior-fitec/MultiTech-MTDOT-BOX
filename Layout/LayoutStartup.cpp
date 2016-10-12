@@ -18,7 +18,7 @@
 
 #include "LayoutStartup.h"
 #include "MultiTech_Logo.h"
-#include "version.h"
+#include "dotbox_version.h"
 #include "MTSText.h"
 
 LayoutStartup::LayoutStartup(DOGS102* lcd, mDot* dot)

@@ -17,7 +17,7 @@
  */
 
 #include "CmdIdentification.h"
-#include "version.h"
+#include "dotbox_version.h"
 
 CmdIdentification::CmdIdentification(mDot* dot, mts::MTSSerial& serial) : Command(dot, "Request Id", "ATI", "Request Identification"), _serial(serial)
 {

@@ -17,7 +17,7 @@
  */
 
 #include "CmdDisplayConfig.h"
-#include "version.h"
+#include "dotbox_version.h"
 #include "MTSLog.h"
 
 std::string version = MTDOT_BOX_VERSION;
