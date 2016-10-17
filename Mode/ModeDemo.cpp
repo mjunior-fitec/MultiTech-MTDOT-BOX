@@ -45,8 +45,7 @@ bool ModeDemo::start() {
         if(_initial_data_rate == mDot::DR0){
             logInfo("using DR1 instead of DR0 - DR0 max packet size is too small for data");
             _dot->setTxDataRate(mDot::DR1);
-        }
-        else{
+        }else{
             logInfo("using SF_9 instead of SF_10 - SF_10 max packet size is too small for data");
             _dot->setTxDataRate(mDot::SF_9);
         }
