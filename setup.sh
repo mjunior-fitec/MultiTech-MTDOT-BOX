@@ -31,12 +31,12 @@ mdot-library/version.sh
 echo "creating libs directory..."
 mkdir -p $LIB
 
-update_hg_lib "ISL29011" 3
-update_hg_lib "MMA845x" 3
-update_hg_lib "MPL3115A2" 2
+update_hg_lib "ISL29011" 4
+update_hg_lib "MMA845x" 4
+update_hg_lib "MPL3115A2" 3
 update_hg_lib "NCP5623B" 3
 update_hg_lib "GpsParser" 10
-update_hg_lib "DOGS102" 4
+update_hg_lib "DOGS102" 5
 
 echo "generating version header..."
 cd $DIR
