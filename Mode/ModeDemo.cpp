@@ -41,9 +41,14 @@ bool ModeDemo::start() {
     _initial_data_rate = _dot->getTxDataRate();
 
     // use configured data rate and power if possible
-    if ((_band == mDot::FB_US915 || _band == mDot::FB_AU915) && _initial_data_rate == mDot::DR0) {
-        logInfo("using DR1 instead of DR0 - DR0 max packet size is too small for data");
-        _dot->setTxDataRate(mDot::DR1);
+    if ((_band == mDot::FB_US915 || _band == mDot::FB_AU915) && (_initial_data_rate == mDot::DR0 || _initial_data_rate ==  mDot::SF_10)) {
+        if(_initial_data_rate == mDot::DR0){
+            logInfo("using DR1 instead of DR0 - DR0 max packet size is too small for data");
+            _dot->setTxDataRate(mDot::DR1);
+        }else{
+            logInfo("using SF_9 instead of SF_10 - SF_10 max packet size is too small for data");
+            _dot->setTxDataRate(mDot::SF_9);
+        }
     }
 
     _state = show_help;

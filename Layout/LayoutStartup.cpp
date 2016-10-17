@@ -24,10 +24,10 @@
 LayoutStartup::LayoutStartup(DOGS102* lcd, mDot* dot)
   : Layout(lcd),
     _dot(dot),
-    _lName(0, 3, "MTDOT-BOX/EVB"),
+    _lName(0, 3, "DOT-BOX/EVB"),
     _lInfo(0, 4, "Factory Firmware"),
     _lVersion(0, 5, "Version"),
-    _fName(14, 3, 3),
+    _fName(12, 3, 5),
     _fVersion(8, 5, 9),
     _fId(0, 7, 17),
     _fGps(0, 6, 17),
@@ -47,7 +47,7 @@ void LayoutStartup::display() {
     writeLabel(_lName);
     writeLabel(_lInfo);
     writeLabel(_lVersion);
-    writeField(_fName, mDot::FrequencyBandStr(_dot->getFrequencyBand()).substr(3));
+    writeField(_fName, mDot::FrequencyBandStr(_dot->getFrequencyBand()));
     writeField(_fVersion, version);
     writeField(_fId, id);
 

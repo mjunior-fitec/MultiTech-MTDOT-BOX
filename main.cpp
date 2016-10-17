@@ -178,8 +178,8 @@ void mainMenu() {
     items.push_back(menu_strings[data]);
 
     while (true) {
-        product = "MTDOT-BOX/EVB ";
-        product += mDot::FrequencyBandStr(dot->getFrequencyBand()).substr(3);
+        product = "DOT-BOX/EVB ";
+        product += mDot::FrequencyBandStr(dot->getFrequencyBand());
 
         // reset session between modes
         dot->resetNetworkSession();
